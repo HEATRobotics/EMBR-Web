@@ -10,3 +10,6 @@ yarn.lock
 # Dependency directories
 /client/node_modules
 /server/node_modules
+
+/server/docker/mysql
+/server/package.json
