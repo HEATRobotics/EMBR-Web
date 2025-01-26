@@ -8,12 +8,19 @@ const pool = mysql.createPool({
     database: process.env.DB_NAME || "embr"
 });
 
+/*
+    Insert function conventions:    
+        - always return true or false depending on if operation was successful
+        - for now, assumes all required keys in the 'data' object passed in are not null
+        - always gets a connection from the pool and releases it
+*/
+
 export async function insertPositionData(data) {
     let conn; 
     try {
         const requiredFields = [
-            'bot_id',
-            'timestamp',
+            'botID',
+            'clockTime',
             'latitude',
             'longitude',
             'altitude',
@@ -31,12 +38,12 @@ export async function insertPositionData(data) {
         conn = await pool.getConnection();
         const query = `
             INSERT INTO position 
-            (vehicleID, timestamp, latitude, longitude, altitude, relativeAltitude, groundXSpeed, groundYSpeed, groundZSpeed, vehicleHeading)
+            (botID, clockTime, latitude, longitude, altitude, relativeAltitude, groundXSpeed, groundYSpeed, groundZSpeed, vehicleHeading)
             VALUES (?, FROM_UNIXTIME(? / 1000), ?, ?, ?, ?, ?, ?, ?, ?)
         `;
         const params = [
-            data.bot_id,
-            data.timestamp,
+            data.botId,
+            data.clockTime,
             data.latitude,
             data.longitude,
             data.altitude,
@@ -59,14 +66,13 @@ export async function insertPositionData(data) {
     }
 }
 
-
 export async function insertTemperatureData(data) {
 
     let conn; 
     try {
         const requiredFields = [
-            'bot_id',
-            'timestamp',
+            'botID',
+            'clockTime',
             'temperature',
         ];
     
@@ -75,10 +81,10 @@ export async function insertTemperatureData(data) {
         });
         conn = await pool.getConnection();
         
-        const query = `INSERT INTO temperature (vehicleID, timestamp, temperature) VALUES (?, FROM_UNIXTIME(? / 1000), ?)`;
+        const query = `INSERT INTO temperature (botID, clockTime, temperature) VALUES (?, FROM_UNIXTIME(? / 1000), ?)`;
         const params = [
-            data.bot_id,
-            data.timestamp,
+            data.botId,
+            data.clockTime,
             data.temperature,
         ];
         const [results] = await conn.execute(query, params);
@@ -87,6 +93,44 @@ export async function insertTemperatureData(data) {
     } catch (error) { 
 
         console.error("Error inserting temperature data into the database:", error);
+        console.log(data)
+        return false; 
+
+    } finally {
+        // Note that this is run even if any of the above blocks hit the return statement
+        if (conn) {
+            await conn.release();
+        }
+    }
+}
+
+export async function insertBatteryData(data) {
+
+    let conn; 
+    try {
+        const requiredFields = [
+            'botID',
+            'clockTime',
+            'battery',
+        ];
+    
+        requiredFields.forEach(field => {
+            assert(data[field] !== undefined, `${field} is required`);
+        });
+        conn = await pool.getConnection();
+        
+        const query = `INSERT INTO temperature (botID, clockTime, battery) VALUES (?, FROM_UNIXTIME(? / 1000), ?)`;
+        const params = [
+            data.botId,
+            data.clockTime,
+            data.battery,
+        ];
+        const [results] = await conn.execute(query, params);
+        return results.affectedRows === 1;  // If more than one row is affected, then something went wrong
+
+    } catch (error) { 
+
+        console.error("Error inserting battery data into the database:", error);
         console.log(data)
         return false; 
 

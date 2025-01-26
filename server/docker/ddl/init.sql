@@ -5,11 +5,11 @@ USE embr;
 -- just for testing while the database gets fully setup
 DROP TABLE IF EXISTS position;
 DROP TABLE IF EXISTS temperature;
+DROP TABLE IF EXISTS battery;
 
 CREATE TABLE position (
-    ID INT AUTO_INCREMENT,
-    vehicleID INT NOT NULL,
-    timestamp DATETIME,
+    botID INT NOT NULL,
+    clockTime DATETIME NOT NULL,
     latitude FLOAT,
     longitude FLOAT,
     altitude FLOAT,
@@ -18,13 +18,25 @@ CREATE TABLE position (
     groundYSpeed FLOAT,
     groundZSpeed FLOAT,
     vehicleHeading FLOAT,
-    PRIMARY KEY(ID)
+    PRIMARY KEY(botID, clockTime)
 ) ENGINE=InnoDB;
 
 CREATE TABLE temperature (
-    ID INT AUTO_INCREMENT,
-    vehicleID INT NOT NULL,
-    timestamp DATETIME,
-    temperature FLOAT,
-    PRIMARY KEY(ID)
+    botID INT NOT NULL,
+    clockTime DATETIME NOT NULL,
+    temperature FLOAT NOT NULL,
+    PRIMARY KEY(botID, clockTime)
 ) ENGINE=InnoDB;
+
+CREATE TABLE battery (
+    botID INT NOT NULL,
+    clockTime DATETIME NOT NULL,
+    battery INT NOT NULL,
+    PRIMARY KEY(botID, clockTime)
+) ENGINE=InnoDB
+
+CREATE TABLE fleet (
+    botID INT NOT NULL,
+    fleetID INT,
+    PRIMARY KEY(botID)
+) ENGINE=InnoDB

@@ -3,8 +3,8 @@ import cors from 'cors';
 import mysql from 'mysql2/promise';
 import assert from 'assert';
 
-import { handleMavlinkData, handleSampleMavlinkData } from './mavlinkHandler.mjs';
-import { insertPositionData, insertTemperatureData } from './database.mjs';
+import { handleMavlinkData, simulateMavlinkData } from './mavlinkHandler.mjs';
+import { insertPositionData, insertTemperatureData, insertBatteryData } from './database.mjs';
 
 const pool = await mysql.createPool({
   host: 'localhost',
