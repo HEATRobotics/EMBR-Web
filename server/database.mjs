@@ -5,19 +5,32 @@ const pool = mysql.createPool({
     host: process.env.DB_HOST || "localhost",
     user: process.env.DB_USER || "testuser",
     password: process.env.DB_PASSWORD || "pw",
-    database: process.env.DB_NAME || "embr"
+    database: process.env.DB_NAME || "embr",
+    port: 3306,
+    waitForConnections: true, // if connection limit is reached, queue the connection and wait for it to be released
+    connectionLimit: 5,
+    maxIdle: 10, // max idle connections
+    idleTimeout: 120000, // idle connections timeout: 2 minutes
+    queueLimit: 0,
+    enableKeepAlive: true,
+    keepAliveInitialDelay: 0,
 });
 
 /*
     Insert function conventions:    
         - always return true or false depending on if operation was successful
         - for now, assumes all required keys in the 'data' object passed in are not null
+        - "botID" has both 'I' and 'D' capitalized
         - always gets a connection from the pool and releases it
 */
 
 export async function insertPositionData(data) {
     let conn; 
     try {
+
+        // console.log("Inside insertPos");
+        // console.log(data);
+
         const requiredFields = [
             'botID',
             'clockTime',
@@ -36,13 +49,12 @@ export async function insertPositionData(data) {
         });
 
         conn = await pool.getConnection();
-        const query = `
-            INSERT INTO position 
+        const query = 
+            `INSERT INTO \`position\`  
             (botID, clockTime, latitude, longitude, altitude, relativeAltitude, groundXSpeed, groundYSpeed, groundZSpeed, vehicleHeading)
-            VALUES (?, FROM_UNIXTIME(? / 1000), ?, ?, ?, ?, ?, ?, ?, ?)
-        `;
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
         const params = [
-            data.botId,
+            data.botID,
             data.clockTime,
             data.latitude,
             data.longitude,
@@ -70,6 +82,10 @@ export async function insertTemperatureData(data) {
 
     let conn; 
     try {
+
+        // console.log("Inside insertTemp");
+        // console.log(data);
+
         const requiredFields = [
             'botID',
             'clockTime',
@@ -81,9 +97,9 @@ export async function insertTemperatureData(data) {
         });
         conn = await pool.getConnection();
         
-        const query = `INSERT INTO temperature (botID, clockTime, temperature) VALUES (?, FROM_UNIXTIME(? / 1000), ?)`;
+        const query = `INSERT INTO temperature (botID, clockTime, temperature) VALUES (?, ?, ?)`;
         const params = [
-            data.botId,
+            data.botID,
             data.clockTime,
             data.temperature,
         ];
@@ -108,6 +124,10 @@ export async function insertBatteryData(data) {
 
     let conn; 
     try {
+
+        // console.log("Inside insertBattery");
+        // console.log(data);
+
         const requiredFields = [
             'botID',
             'clockTime',
@@ -119,9 +139,9 @@ export async function insertBatteryData(data) {
         });
         conn = await pool.getConnection();
         
-        const query = `INSERT INTO temperature (botID, clockTime, battery) VALUES (?, FROM_UNIXTIME(? / 1000), ?)`;
+        const query = `INSERT INTO battery (botID, clockTime, battery) VALUES (?, ?, ?)`;
         const params = [
-            data.botId,
+            data.botID,
             data.clockTime,
             data.battery,
         ];
@@ -142,3 +162,90 @@ export async function insertBatteryData(data) {
     }
 }
 
+export async function getAllTemperatureData() {
+    let conn;
+    try {
+        conn = await pool.getConnection();
+        const query = `SELECT temperature.botID, fleetID, temperature FROM temperature JOIN fleet WHERE temperature.botID = fleet.botID`;
+        const [rows, fields] = await conn.execute(query);
+        return rows;
+    } catch (error) {
+        console.error("Error fetching temperature data from the database:", error);
+        return false;
+    } finally {
+        if (conn) {
+            await conn.release();
+        }
+    }
+}
+
+export async function getLatestTemperatureData() {
+    let conn;
+    try {
+        conn = await pool.getConnection();
+        const query = 
+            `SELECT temperature.botID, fleetID, temperature, clockTime
+            FROM temperature
+            JOIN fleet ON temperature.botID = fleet.botID
+            JOIN (
+                SELECT botID, MAX(clockTime) AS latestClockTime
+                FROM temperature
+                GROUP BY botID
+            ) latestTemp
+            ON temperature.botID = latestTemp.botID 
+            AND temperature.clockTime = latestTemp.latestClockTime;`;
+        const [rows, fields] = await conn.execute(query);
+        return rows;
+    } catch (error) {
+        console.error("Error fetching battery data from the database:", error);
+        return false;
+    } finally {
+        if (conn) {
+            await conn.release();
+        }
+    }
+}
+
+export async function getAllBatteryData() {
+    let conn;
+    try {
+        conn = await pool.getConnection();
+        const query = `SELECT battery.botID, fleetID, battery FROM battery JOIN fleet WHERE battery.botID = fleet.botID`;
+        const [rows, fields] = await conn.execute(query);
+        return rows;
+    } catch (error) {
+        console.error("Error fetching battery data from the database:", error);
+        return false;
+    } finally {
+        if (conn) {
+            await conn.release();
+        }
+    }
+}
+
+export async function getLatestBatteryData() {
+    let conn;
+    try {
+        conn = await pool.getConnection();
+        const query = 
+            `SELECT battery.botID, fleetID, battery, clockTime
+            FROM battery
+            JOIN fleet ON battery.botID = fleet.botID
+            JOIN (
+                SELECT botID, MAX(clockTime) AS latestClockTime
+                FROM battery
+                GROUP BY botID
+            ) latestBattery
+            ON battery.botID = latestBattery.botID 
+            AND battery.clockTime = latestBattery.latestClockTime;`;
+        const [rows, fields] = await conn.execute(query);
+        return rows;
+    } catch (error) {
+        console.error("Error fetching battery data from the database:", error);
+        return false;
+    } finally {
+        if (conn) {
+            await conn.release();
+        }
+    }
+}

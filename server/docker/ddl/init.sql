@@ -6,6 +6,7 @@ USE embr;
 DROP TABLE IF EXISTS position;
 DROP TABLE IF EXISTS temperature;
 DROP TABLE IF EXISTS battery;
+DROP TABLE IF EXISTS fleet;
 
 CREATE TABLE position (
     botID INT NOT NULL,
@@ -33,10 +34,17 @@ CREATE TABLE battery (
     clockTime DATETIME NOT NULL,
     battery INT NOT NULL,
     PRIMARY KEY(botID, clockTime)
-) ENGINE=InnoDB
+) ENGINE=InnoDB;
 
 CREATE TABLE fleet (
     botID INT NOT NULL,
     fleetID INT,
-    PRIMARY KEY(botID)
-) ENGINE=InnoDB
+    PRIMARY KEY (botID)
+) ENGINE=InnoDB;
+
+INSERT INTO fleet VALUES (1,1);
+INSERT INTO fleet VALUES (2,1);
+INSERT INTO fleet VALUES (3,2);
+INSERT INTO fleet VALUES (4,2);
+INSERT INTO fleet VALUES (5,3);
+

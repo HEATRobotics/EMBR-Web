@@ -62,10 +62,10 @@ function handleMavlinkData() {
 }
 
 /*
-  Function to simulate incoming temp/position/battery data, trying to copy the format of data objects that previous devs were processing in below functions (processTemperatureMessage and processGlobalPositionMessage, which I have not touched since then). I assumed that the data format for temp and position data will stay the same as Apr 2024, because I was told that this code worked during the demo last year.
+  Function to simulate incoming temp/position/battery data, trying to copy the format of data objects that previous devs were processing in below functions (processTemperatureMessage and processGlobalPositionMessage, which I have mostly not touched since then). I assumed that the data format for temp and position data will stay the same as Apr 2024, because I was told that this code worked during the demo last year.
 
   This function simulates 
-    1) Every 10 seconds, either position or temperature data with a 50/50 chance, coming in from a bot with random ID between 1-5    
+    1) Every 5 seconds, either position or temperature data with a 50/50 chance, coming in from a bot with random ID between 1-5    
     2) Every 15 seconds, data for percentage battery remaining for all 5 bots. 
     
   NOTE: data format for simulated battery data is arbitrary; i.e. the keys do not correspond to actual incoming data, because battery percentage is new and I do not yet know the format in which battery % will be sent by the bot. Once format is finalized, function processBatteryMessage() as well as the 'battery' table in DB must both be changed, and the battery simulation part of the function will break unless also changed accordingly.
@@ -105,13 +105,13 @@ function simulateMavlinkData() {
       processTemperatureMessage(simulatedTempData);
     }
 
-  }, 10000); // 10 second timer
+  }, 5000); // 5 second timer
 
   // Simulate incoming battery data from all bots, every 15 seconds 
 
   let batteryPercentages = [100,100,100,100,100];
   setInterval(() => {
-    for (index in length(batteryPercentages)) {
+    for (let index = 0; index < batteryPercentages.length; index++) {
 
       batteryPercentages[index] = Math.max(0, batteryPercentages[index] - Math.random() * 5); // Decrease battery percentage by a random amount
 
@@ -129,8 +129,8 @@ function simulateMavlinkData() {
 function processGlobalPositionMessage(data) {
   const globalPositionData = {
     type: "global_position",
-    bot_id: data.id,
-    timestamp: data.timeBootMs,
+    botID: data.id,
+    clockTime: data.timeBootMs,
     latitude: data.lat / 1.0e7,
     longitude: data.lon / 1.0e7,
     altitude: data.alt / 1000.0,
@@ -148,8 +148,8 @@ function processTemperatureMessage(data) {
   
   const temperatureData = {
     type: "temp_data",
-    bot_id: data.id,
-    timestamp: data.timeBootMs,
+    botID: data.id,
+    clockTime: data.timeBootMs,
     temperature: data.value,
   };
 
@@ -164,7 +164,7 @@ function processBatteryMessage(data) {
 
   const batteryData = {
     type: "battery_data",
-    botId: data.id,
+    botID: data.id,
     clockTime: data.timeBootMs,
     battery: data.battery
   };
