@@ -16,7 +16,6 @@ import ToggleSwitch from "./ToggleSwitch";
 import ZoomControl from "./ZoomControl";
 import MissionCreate from "./MissionControls/MissionCreate";
 
-import { dummyFleets } from "@/data/fleets";
 import homeImage from "../../public/home.png";
 import logo from "../../public/white_logo.svg";
 import { useAppDispatch, useAppSelector } from "@/redux/hooks";
@@ -31,6 +30,9 @@ import { RobotType } from "@/types/robot.type";
 
 // constants
 import { RobotStateType } from "@/constants/robotConstants";
+
+// custom hooks
+import { useFleetData } from "@/hooks/useFleetData";
 
 const exampleMapStyles: google.maps.MapTypeStyle[] = [
   {
@@ -112,7 +114,6 @@ const CustomGoogleMap: React.FC = () => {
   const isLoggedIn = useAppSelector(getIsLoggedIn);
   const dispatch = useAppDispatch();
   const [map, setMap] = useState<google.maps.Map | null>(null);
-  const [fleets, setFleets] = useState<FleetItemType[]>(dummyFleets);
   const [activeFleet, setActiveFleet] = useState<string | number | null>(null);
   const [activeMissionCreate, setActiveMissionCreate] =
     useState<boolean>(false);
@@ -121,6 +122,8 @@ const CustomGoogleMap: React.FC = () => {
   const [cancelDrawing, setCancelDrawing] = useState<any>();
   const [newMission, setNewMission] =
     useState<MissionType>(newMissionTemplate);
+
+  const { fleets, bots, loading, error } = useFleetData();
 
   const { isLoaded } = useJsApiLoader({
     id: "google-map-script",
@@ -172,7 +175,7 @@ const CustomGoogleMap: React.FC = () => {
     cancelDrawing.cancelDrawing();
     enable(map!);
   };
-  
+
   /*  Drawing stuff for missions is also commented out for now
 
   const handleDraw = () => {

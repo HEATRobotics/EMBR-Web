@@ -16,7 +16,7 @@ export function useFleetData() {
     useEffect(() => {
         const fetchFleetData = async () => {
             try {
-                const response = await axios.get(`${API_BASE_URL}/bots/latest`);
+                const response = await axios.get(`${API_BASE_URL}/fleets/latest`);
                 console.log(`Bot information fetched!`, response.data);
 
                 const botList: RobotType[] = response.data.map((bot: any) => {
@@ -45,7 +45,7 @@ export function useFleetData() {
                     };
                 });
 
-                // Group bots by fleetID and determine fleet centers
+                // Group bots by fleetID and determine fleet centers; by default, center is the first bot's coordinates
                 const fleetMap: Record<number, FleetItemType> = {};
 
                 botList.forEach(bot => {
@@ -69,7 +69,7 @@ export function useFleetData() {
                             (acc, bot) => {
                                 acc.latitude += bot.coordinates.lat;
                                 acc.longitude += bot.coordinates.lng;
-                                acc.altitude += bot.coordinates.alt;
+                                // acc.altitude += bot.coordinates.alt;
                                 return acc;
                             },
                             { latitude: 0, longitude: 0, altitude: 0 }
@@ -78,7 +78,7 @@ export function useFleetData() {
                         fleet.center = {
                             lat: avgCoords.latitude / fleet.bots.length,
                             lng: avgCoords.longitude / fleet.bots.length,
-                            alt: avgCoords.altitude / fleet.bots.length,
+                            // alt: avgCoords.altitude / fleet.bots.length,
                         };
                     }
                 });

@@ -1,5 +1,6 @@
-import { FleetItemType } from '@/components/GoogleMap';
+import { FleetItemType } from "@/types/fleet.type";
 
+/* Not using this dummy data anymore
 export const dummyFleets: FleetItemType[] = [
     {
         id: 0,
@@ -24571,3 +24572,4 @@ export const dummyFleets: FleetItemType[] = [
         ],
     },
 ];
+*/
