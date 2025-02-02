@@ -1,7 +1,12 @@
 import classNames from 'classnames';
 import React from 'react';
-import { FleetItemType, RobotStateType, RobotType } from '../GoogleMap';
+
 import { Tooltip } from 'antd';
+
+import { RobotStateType } from '@/constants/robotConstants';
+import { FleetItemType } from '@/types/fleet.type';
+import { RobotType } from '@/types/robot.type';
+
 
 function Item({ fleet, activeFleet, disabled, setActiveFleet }: { fleet: FleetItemType; activeFleet: string | number | null; disabled: boolean; setActiveFleet: React.Dispatch<React.SetStateAction<string | number | null>> }) {
     const handleFleetClick = () => {

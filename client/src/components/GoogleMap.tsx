@@ -23,6 +23,15 @@ import { useAppDispatch, useAppSelector } from "@/redux/hooks";
 import { getIsLoggedIn } from "@/redux/logging/selectors";
 import { setIsLoggedIn } from "@/redux/logging/slice";
 
+// types/interfaces
+import { CoordinatesType } from "@/types/coordinate.type";
+import { MissionType } from "@/types/mission.type";
+import { FleetItemType } from "@/types/fleet.type";
+import { RobotType } from "@/types/robot.type";
+
+// constants
+import { RobotStateType } from "@/constants/robotConstants";
+
 const exampleMapStyles: google.maps.MapTypeStyle[] = [
   {
     featureType: "poi",
@@ -51,89 +60,7 @@ const center: google.maps.LatLngLiteral = {
   lng: -119.43347832660766,
 };
 
-const RobotStateBadgeColors = {
-  active: "#93FF9E",
-  chargingRequired: "#FFFB93",
-  attentionRequired: "#FF9393",
-  systemFailed: "#FE5555",
-};
-
-const RobotStateColors = {
-  active: "#40FF53",
-  chargingRequired: "#FFF967",
-  attentionRequired: "#F51515",
-  systemFailed: "#F51515",
-};
-
-const RobotStateTexts = {
-  active: "Active",
-  chargingRequired: "Charging Required",
-  attentionRequired: "Attention Required",
-  systemFailed: "System Failed",
-};
-
-export const RobotStateType = {
-  active: {
-    color: RobotStateColors["active"],
-    bgColor: RobotStateBadgeColors["active"],
-    text: RobotStateTexts["active"],
-  },
-  chargingRequired: {
-    color: RobotStateColors["chargingRequired"],
-    bgColor: RobotStateBadgeColors["chargingRequired"],
-    text: RobotStateTexts["chargingRequired"],
-  },
-  attentionRequired: {
-    color: RobotStateColors["attentionRequired"],
-    bgColor: RobotStateBadgeColors["attentionRequired"],
-    text: RobotStateTexts["attentionRequired"],
-  },
-  systemFailed: {
-    color: RobotStateColors["systemFailed"],
-    bgColor: RobotStateBadgeColors["systemFailed"],
-    text: RobotStateTexts["systemFailed"],
-  },
-};
-
-export interface CoordinatesType {
-  lat: number;
-  lng: number;
-}
-
-export interface MissionType {
-  name: string;
-  process: number;
-  smokesDetected: number;
-  averageTemperature: number;
-  timePassed: number;
-  timeEstimated: number;
-  redCoordinates?: CoordinatesType[];
-  orangeCoordinates?: CoordinatesType[];
-  blueCoordinates?: CoordinatesType[] | google.maps.MVCArray<any>;
-  robots?: RobotType[];
-  smokes?: CoordinatesType[];
-}
-
-export interface NewMissionType extends MissionType {
-  fleetName: string;
-  fleetId: string | number;
-}
-
-export interface RobotType {
-  id: string;
-  name: string;
-  state: "active" | "chargingRequired" | "attentionRequired" | "systemFailed";
-  coordinates: CoordinatesType;
-}
-
-export interface FleetItemType {
-  id: string | number;
-  name: string;
-  center: CoordinatesType;
-  missions: MissionType[];
-}
-
-const newMissionTemplate: NewMissionType = {
+const newMissionTemplate: MissionType = {
   name: "",
   fleetId: "",
   fleetName: "",
@@ -193,7 +120,7 @@ const CustomGoogleMap: React.FC = () => {
   const [zoomLevel, setZoomLevel] = useState<number>(zoom);
   const [cancelDrawing, setCancelDrawing] = useState<any>();
   const [newMission, setNewMission] =
-    useState<NewMissionType>(newMissionTemplate);
+    useState<MissionType>(newMissionTemplate);
 
   const { isLoaded } = useJsApiLoader({
     id: "google-map-script",
@@ -227,7 +154,7 @@ const CustomGoogleMap: React.FC = () => {
     setMap(null);
   }, []);
 
-  const saveCreate = (mission: NewMissionType) => {
+  const saveCreate = (mission: MissionType) => {
     setActiveMissionCreate(false);
     updateFleets([mission]);
     localStorage.setItem(
@@ -367,10 +294,10 @@ const CustomGoogleMap: React.FC = () => {
     });
   };
 
-  const updateFleets = (newMissions: NewMissionType[]) => {
+  const updateFleets = (newMissions: MissionType[]) => {
     const updatedFleets = fleets.map((fleet) => {
       const fleetMissions = newMissions.filter(
-        (mission: NewMissionType) => mission.fleetId === fleet.id
+        (mission: MissionType) => mission.fleetId === fleet.id
       );
       return {
         ...fleet,
@@ -466,14 +393,22 @@ const CustomGoogleMap: React.FC = () => {
     }
   }, [map]);
 
-  useEffect(() => {
-    if (activeFleet !== null) {
-      map?.setCenter(fleets.find((fleet) => fleet.id === activeFleet)?.center!);
-      map?.setZoom(zoomFleet);
-    } else {
-      // map?.setZoom(zoom);
-    }
-  }, [activeFleet, map]);
+  /*
+    TODO: implement this once the simulated position data makes sense for bots in a fleet
+
+      1) for a simulation, bots in a fleet should start close together. probably even just 1 bot per fleet for now.
+      2) fleet center should be centroid of all bots in the fleet (if only 1 bot, then use that bot's position).
+      3) try to simulate decent movement patterns for the bots
+  */
+
+  // useEffect(() => {
+  //   if (activeFleet !== null) {
+  //     map?.setCenter(fleets.find((fleet) => fleet.id === activeFleet)?.center!);
+  //     map?.setZoom(zoomFleet);
+  //   } else {
+  //     // map?.setZoom(zoom);
+  //   }
+  // }, [activeFleet, map]);
 
   const handleZoomIn = () => {
     setZoomLevel((prevZoomLevel) => Math.min(prevZoomLevel + 1, 21)); // Google Maps API allows a max zoom of 21
@@ -569,12 +504,16 @@ const CustomGoogleMap: React.FC = () => {
                       <span>•••</span>
                     </Dropdown>
                   </div>
-                  <Stats
+                  {
+                    // TODO: implement this once the mission logic is in place 
+                    //  - define table schema for a mission including a way to encode the area, define connection between a fleet and a mission
+                  /* <Stats
                     missions={
                       fleets.find((fleet) => fleet.id === activeFleet)
                         ?.missions!
                     }
-                  />
+                  /> */
+                  }
                 </>
               ) : activeMissionCreate ? (
                 <MissionCreate

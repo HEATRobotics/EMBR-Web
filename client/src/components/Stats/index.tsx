@@ -1,5 +1,6 @@
 import React from "react";
-import { MissionType, RobotType } from "../GoogleMap";
+import { MissionType} from "../../types/mission.type";
+import { RobotType } from "../../types/robot.type";
 import { convertMinutes } from "../../utils/convertMinutes";
 
 const StatLine = ({ name, value }: { name: string; value: string }) => (

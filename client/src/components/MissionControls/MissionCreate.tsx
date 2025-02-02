@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { NewMissionType } from '../GoogleMap';
+import { MissionType } from '@/types/mission.type';
 import { Input, Select } from 'antd';
 
 function MissionCreate({
@@ -10,9 +10,9 @@ function MissionCreate({
     fleets,
 }: {
     cancelCreate: () => void;
-    saveCreate: (mission: NewMissionType) => void;
-    newMission: NewMissionType;
-    setNewMission: React.Dispatch<React.SetStateAction<NewMissionType>>;
+    saveCreate: (mission: MissionType) => void;
+    newMission: MissionType;
+    setNewMission: React.Dispatch<React.SetStateAction<MissionType>>;
     fleets: { value: string | number; label: string }[];
 }) {
     const [activeStep, setActiveStep] = useState(0);
