@@ -34,6 +34,18 @@ import { RobotStateType } from "@/constants/robotConstants";
 // custom hooks
 import { useFleetData } from "@/hooks/useFleetData";
 
+/*
+  Main TODO's: 
+    - Create a mission
+    - Assign a fleet to the mission
+    - View the bot and its details: including preview under mission stats, and details in embr-details (with charts, and cams)
+    - Get the bot positions and show live movement maybe
+  
+  Just focus on one bot
+  Improve logic for detecting and showing hotspots on the map
+  Look into whether its possible to send mission coords to the bot based on what's drawn
+*/
+
 const exampleMapStyles: google.maps.MapTypeStyle[] = [
   {
     featureType: "poi",
