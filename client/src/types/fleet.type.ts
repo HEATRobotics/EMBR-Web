@@ -1,5 +1,6 @@
 import { CoordinatesType } from "./coordinate.type";
-import { MissionType } from "./mission.type";
+// import { MissionType } from "./mission.type";
+import { RobotType } from "./robot.type";
 
 /* 
   TODO: 
@@ -11,5 +12,5 @@ export interface FleetItemType {
   id: string | number;
   name: string;
   center: CoordinatesType;
-  missions: MissionType[];    
+  bots: RobotType[];
 }

@@ -4,7 +4,7 @@ import assert from 'assert';
 
 import { handleMavlinkData, simulateMavlinkData } from './mavlinkHandler.mjs';
 import { insertPositionData, insertTemperatureData, insertBatteryData } from './database.mjs';
-import { getAllBatteryData, getLatestBatteryData, getAllTemperatureData, getLatestTemperatureData } from './database.mjs';
+import { getAllBatteryData, getLatestBatteryData, getAllTemperatureData, getLatestTemperatureData, getLatestFleetData } from './database.mjs';
 
 const app = express();
 const port = 3100; 
@@ -119,6 +119,20 @@ app.get('/api/battery/latest', async (req, res) => {
         }
     } catch (error) {
         res.status(500).json({ error: 'An error occurred while fetching the latest battery data.' });
+    }
+});
+
+// Get latest fleets data
+app.get('/api/fleets/latest', async (req, res) => {
+    try {
+        const data = await getLatestFleetData();
+        if (data) {
+            res.status(200).json(data);
+        } else {
+            res.status(500).json({ error: 'Failed to fetch latest bot data.' });
+        }
+    } catch (error) {
+        res.status(500).json({ error: 'An error occurred while fetching latest bot data.' });
     }
 });
 

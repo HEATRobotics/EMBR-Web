@@ -8,6 +8,11 @@ DROP TABLE IF EXISTS temperature;
 DROP TABLE IF EXISTS battery;
 DROP TABLE IF EXISTS fleet;
 
+CREATE TABLE fleet (
+    botID INT NOT NULL PRIMARY KEY,
+    fleetID INT
+) ENGINE=InnoDB;
+
 CREATE TABLE position (
     botID INT NOT NULL,
     clockTime DATETIME NOT NULL,
@@ -19,32 +24,27 @@ CREATE TABLE position (
     groundYSpeed FLOAT,
     groundZSpeed FLOAT,
     vehicleHeading FLOAT,
-    PRIMARY KEY(botID, clockTime)
+    PRIMARY KEY(botID, clockTime),
+    FOREIGN KEY (botID) REFERENCES fleet(botID) ON DELETE CASCADE
 ) ENGINE=InnoDB;
 
 CREATE TABLE temperature (
     botID INT NOT NULL,
     clockTime DATETIME NOT NULL,
     temperature FLOAT NOT NULL,
-    PRIMARY KEY(botID, clockTime)
+    PRIMARY KEY(botID, clockTime),
+    FOREIGN KEY (botID) REFERENCES fleet(botID) ON DELETE CASCADE
 ) ENGINE=InnoDB;
 
 CREATE TABLE battery (
     botID INT NOT NULL,
     clockTime DATETIME NOT NULL,
     battery INT NOT NULL,
-    PRIMARY KEY(botID, clockTime)
-) ENGINE=InnoDB;
-
-CREATE TABLE fleet (
-    botID INT NOT NULL,
-    fleetID INT,
-    PRIMARY KEY (botID)
+    PRIMARY KEY(botID, clockTime),
+    FOREIGN KEY (botID) REFERENCES fleet(botID) ON DELETE CASCADE
 ) ENGINE=InnoDB;
 
 INSERT INTO fleet VALUES (1,1);
-INSERT INTO fleet VALUES (2,1);
-INSERT INTO fleet VALUES (3,2);
-INSERT INTO fleet VALUES (4,2);
-INSERT INTO fleet VALUES (5,3);
+INSERT INTO fleet VALUES (2,2);
+INSERT INTO fleet VALUES (3,3);
 

@@ -249,3 +249,53 @@ export async function getLatestBatteryData() {
         }
     }
 }
+
+export async function getLatestFleetData() {
+    let conn;
+    try {
+        conn = await pool.getConnection();
+        const query = `
+            SELECT 
+                p.botID,
+                f.fleetID,
+                p.clockTime AS positionTime,
+                p.latitude,
+                p.longitude,
+                p.altitude,
+                p.relativeAltitude,
+                p.groundXSpeed,
+                p.groundYSpeed,
+                p.groundZSpeed,
+                p.vehicleHeading,
+                t.temperature,
+                b.battery
+            FROM (
+                SELECT botID, latitude, longitude, altitude, relativeAltitude, 
+                       groundXSpeed, groundYSpeed, groundZSpeed, vehicleHeading, clockTime
+                FROM position p1
+                WHERE clockTime = (SELECT MAX(clockTime) FROM position p2 WHERE p1.botID = p2.botID)
+            ) p
+            LEFT JOIN fleet f ON p.botID = f.botID
+            LEFT JOIN (
+                SELECT botID, temperature
+                FROM temperature t1
+                WHERE clockTime = (SELECT MAX(clockTime) FROM temperature t2 WHERE t1.botID = t2.botID)
+            ) t ON p.botID = t.botID
+            LEFT JOIN (
+                SELECT botID, battery
+                FROM battery b1
+                WHERE clockTime = (SELECT MAX(clockTime) FROM battery b2 WHERE b1.botID = b2.botID)
+            ) b ON p.botID = b.botID;
+        `;
+        const [rows] = await conn.execute(query);
+        return rows;
+    } catch (error) {
+        console.error("Error fetching latest bot data from the database:", error);
+        return false;
+    } finally {
+        if (conn) {
+            await conn.release();
+        }
+    }
+}
+

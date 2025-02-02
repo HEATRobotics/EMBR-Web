@@ -156,14 +156,15 @@ const CustomGoogleMap: React.FC = () => {
 
   const saveCreate = (mission: MissionType) => {
     setActiveMissionCreate(false);
-    updateFleets([mission]);
-    localStorage.setItem(
-      "customMissions",
-      JSON.stringify([
-        ...JSON.parse(localStorage.getItem("customMissions") || "[]"),
-        mission,
-      ])
-    );
+    // Missions not supported yet, so this is commented out for now
+    // updateFleets([mission]);
+    // localStorage.setItem(
+    //   "customMissions",
+    //   JSON.stringify([
+    //     ...JSON.parse(localStorage.getItem("customMissions") || "[]"),
+    //     mission,
+    //   ])
+    // );
   };
 
   const cancelCreate = () => {
@@ -171,6 +172,8 @@ const CustomGoogleMap: React.FC = () => {
     cancelDrawing.cancelDrawing();
     enable(map!);
   };
+  
+  /*  Drawing stuff for missions is also commented out for now
 
   const handleDraw = () => {
     if (map) {
@@ -253,6 +256,8 @@ const CustomGoogleMap: React.FC = () => {
     };
   };
 
+  */
+
   const smoothPath = (path: google.maps.MVCArray) => {
     const smoothedPath: google.maps.MVCArray = new google.maps.MVCArray();
     const pathLength = path.getLength();
@@ -293,6 +298,8 @@ const CustomGoogleMap: React.FC = () => {
       disableDoubleClickZoom: true,
     });
   };
+
+  /*    This is commented out because it uses hardcoded "missions" for each fleet, and for now the logic for missions is still undecided 
 
   const updateFleets = (newMissions: MissionType[]) => {
     const updatedFleets = fleets.map((fleet) => {
@@ -393,6 +400,8 @@ const CustomGoogleMap: React.FC = () => {
     }
   }, [map]);
 
+  */
+
   /*
     TODO: implement this once the simulated position data makes sense for bots in a fleet
 
@@ -423,7 +432,7 @@ const CustomGoogleMap: React.FC = () => {
     switch (key) {
       case "create":
         setActiveMissionCreate(true);
-        handleDraw();
+        // handleDraw();
         break;
       case "edit":
         undefined;

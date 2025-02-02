@@ -17,10 +17,10 @@ function Item({ fleet, activeFleet, disabled, setActiveFleet }: { fleet: FleetIt
             <div className="w-full">{fleet.name}</div>
             <div className={classNames('transition-all duration-300 ease-in-out grid overflow-hidden', fleet.id === activeFleet ? 'grid-rows-[1fr] opacity-100 mt-3.5' : 'grid-rows-[0px]  opacity-0')}>
                 <div className="gap-1 flex flex-col">
-                    {[]
-                        .concat(...(fleet.missions.map((mission) => mission.robots ?? []) as any))
-                        .filter((robot) => robot != null) // Ensure no robot is null or undefined
-                        .map((robot: RobotType) => (
+                    {fleet.bots
+                        // .concat(...(fleet.missions.map((mission) => mission.robots ?? []) as any))           -- no longer need to access robots through mission object
+                        .filter((robot) => robot != null) // Ensure no robot is null or undefined, shouldn't happen but just in case
+                        .map((robot) => (
                             <Tooltip
                                 key={robot.id}
                                 placement="rightTop"
