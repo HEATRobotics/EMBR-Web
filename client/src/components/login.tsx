@@ -3,26 +3,42 @@
 import React from 'react'
 import Image from "next/image";
 import { AppDispatch } from '@/redux/store';
+import { ActionCreatorWithPayload } from '@reduxjs/toolkit';
+import { useAppDispatch } from '@/redux/hooks';
+import { setIsLoggedIn } from '@/redux/logging/slice';
 
 
-export default function Login(dispatchFunction: any, setIsLoggedIn: Function) {
+export default function Login(dispatchFunction: any) {
+  const dispatch = useAppDispatch();
+
   return (
     <div className="w-screen h-screen relative flex justify-center items-center size-full">
+      
+      {/* Background Image */}
       <Image
-        src="../../public/home.png"
+        src="/home.png"
         alt="homeImage"
+        fill
         className="size-full absolute left-0 top-0 z-0"
       />
+
+      {/* Container Wrapper */}
       <div className="flex flex-col justify-center items-center gap-y-[126px] relative z-[1]">
-        <div className="w-[736px] size-full">
-          <Image
-            src="../../public/logo.svg"
-            alt="logo"
-            className="size-full left-0 top-0 select-none"
-          />
+        
+        {/* Logo */}
+        <div className="w-[736px]">
+        <Image
+          src="/logo.svg"
+          alt="logo"
+          width={736}  // Set width manually
+          height={300} // Adjust height as needed
+          className="select-none"
+        />
         </div>
+
+        {/* Button */}
         <button
-          onClick={dispatchFunction(setIsLoggedIn(true))}
+          onClick={() => dispatch(setIsLoggedIn(true))}
           className="rounded-[40px] bg-white flex gap-x-[26px] py-[18px] px-[30px] text-[35px] leading-[42px] items-center"
         >
           Login
@@ -40,9 +56,9 @@ export default function Login(dispatchFunction: any, setIsLoggedIn: Function) {
                 x2="39"
                 y2="13.5"
                 stroke="black"
-                stroke-width="3"
+                strokeWidth="3"
               />
-              <path d="M27 2L39 13L27 24" stroke="black" stroke-width="3" />
+              <path d="M27 2L39 13L27 24" stroke="black" strokeWidth="3" />
             </svg>
           </span>
         </button>
