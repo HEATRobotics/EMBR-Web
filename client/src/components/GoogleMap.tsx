@@ -34,6 +34,7 @@ import { RobotStateType } from "@/constants/robotConstants";
 // custom hooks
 import { useFleetData } from "@/hooks/useFleetData";
 import Login from "./login";
+import DrawBot from "./DrawBot";
 
 /*
   Main TODO's: 
@@ -598,7 +599,22 @@ const CustomGoogleMap: React.FC = () => {
         onZoomChanged={() => {
           if (map) setZoomLevel(map.getZoom() || zoom);
         }}
-      ></GoogleMapReact>
+      >
+        {/* Draw Bots on Map */}
+        {activeFleet !== null &&
+          fleets
+            .filter((fleet) => fleet.id === activeFleet) // Ensure only the active fleet is used
+            .flatMap((fleet) =>
+            fleet.bots.map((bot, index) => 
+              <DrawBot
+              key={index} // Add a unique key for each bot component
+              lat={bot.coordinates.lat} // Pass bot's lat property
+              lng={bot.coordinates.lng} // Pass bot's lng property
+              bot={bot} // Optionally pass the bot object if needed in the DrawBot component
+              index={index} // Optionally pass index if required in the DrawBot component
+            />)
+          )}
+      </GoogleMapReact>
     </>
   );
 };
