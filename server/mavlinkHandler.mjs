@@ -72,44 +72,78 @@ function handleMavlinkData() {
 */
 function simulateMavlinkData() {
   console.log("Simulating MAVLink data...");
+  const numBots = 3;
+
+  // Initalize list of bot (Assume 5 bots for now)
+  let botPositionData = [];
+  let botTempData = [];
+
+  for (let i = 0; i < numBots; i++) {
+    
+    // UBCO location:
+    // Lat: 49.939434 -> 499394340
+    // Lon: -119.396427 -> -1193964270
+    
+    // Initizalize Position Data For bot
+    botPositionData[i] = {
+      timeBootMs: new Date(),
+      id: i+1,
+      lat: 499394340 + Math.floor(Math.random() * 400) - 200, // 1 represents ~1cm
+      lon: -1193964270 + Math.floor(Math.random() * 400) - 200,
+      alt: Math.random() * 10000,
+      relative_alt: Math.random() * 5000,
+      vx: Math.random() * 100,
+      vy: Math.random() * 100,
+      vz: Math.random() * 100,
+      hdg: Math.random() * 36000, // (in centidegrees)
+    };
+
+    // Initialize Temp Data for bot
+    botTempData[i] = {
+      timeBootMs: new Date(),
+      id: i+1,
+      name: "temp",
+      value: Math.random() * 100,
+    }
+  }
+
 
   setInterval(() => {
-
-    // Possible message types correspond to the two types of REGISTRY[packet.header.msgid] from above switch case
+    // Randomly select a bot and update it's postion or temperature value
+    let botId = Math.floor(Math.random() * numBots);
     const messageType = Math.random() > 0.5 ? "GLOBAL_POSITION_INT" : "NAMED_VALUE_FLOAT";
 
     if (messageType === "GLOBAL_POSITION_INT") {
-
-      const simulatedGlobalPositionData = {
-        timeBootMs: new Date(),
-        id: Math.floor(Math.random() * 5) + 1,    // Assuming 5 bots
-        lat: Math.floor(Math.random() * 180000000) - 90000000, // Simulated latitude
-        lon: Math.floor(Math.random() * 360000000) - 180000000, // Simulated longitude
-        alt: Math.random() * 10000, // Simulated altitude (in meters)
-        relative_alt: Math.random() * 5000, // Simulated relative altitude
-        vx: Math.random() * 100, // Simulated X speed
-        vy: Math.random() * 100, // Simulated Y speed
-        vz: Math.random() * 100, // Simulated Z speed
-        hdg: Math.random() * 36000, // Simulated heading (in centidegrees)
-      };
-      processGlobalPositionMessage(simulatedGlobalPositionData);
+      let data = botPositionData[botId];
+      // Randomly update data relative to previous value
+      data.timeBootMs = new Date();
+      data.lat += (Math.random() * 4) - 2;
+      data.lon += (Math.random() * 8) - 4;
+      data.alt += (Math.random() * 10) - 5; 
+      data.relative_alt += (Math.random() * 10) - 5;
+      data.vx += (Math.random() * 10) - 5;
+      data.vy += (Math.random() * 10) - 5;
+      data.vz += (Math.random() * 10) - 5;
+      data.hdg += (Math.random() * 10) - 5;
+      
+      botPositionData[botId] = data;
+      processGlobalPositionMessage(data);
 
     } else if (messageType === "NAMED_VALUE_FLOAT") {
+      let data = botTempData[botId]
+      
+      data.timeBootMs = new Date();
+      data.value += (Math.random() * 4);
 
-      const simulatedTempData = {
-        timeBootMs: new Date(),
-        id: Math.floor(Math.random() * 10) + 1,
-        name: "temp",
-        value: Math.random() * 100,
-      };
-      processTemperatureMessage(simulatedTempData);
+      botTempData[botId] = data;
+      processTemperatureMessage(data);
     }
 
   }, 5000); // 5 second timer
 
   // Simulate incoming battery data from all bots, every 15 seconds 
 
-  let batteryPercentages = [100,100,100,100,100];
+  let batteryPercentages = [100,100,100];
   setInterval(() => {
     for (let index = 0; index < batteryPercentages.length; index++) {
 

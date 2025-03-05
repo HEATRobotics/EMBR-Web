@@ -607,7 +607,7 @@ const CustomGoogleMap: React.FC = () => {
             .flatMap((fleet) =>
             fleet.bots.map((bot, index) => 
               <DrawBot
-              key={index} // Add a unique key for each bot component
+              key={index}
               lat={bot.coordinates.lat} // Pass bot's lat property
               lng={bot.coordinates.lng} // Pass bot's lng property
               bot={bot} // Optionally pass the bot object if needed in the DrawBot component
