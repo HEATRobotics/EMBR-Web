@@ -125,7 +125,6 @@ const items: MenuProps["items"] = [
 
 const CustomGoogleMap: React.FC = () => {
   const router = useRouter();
-  const isLoggedIn = useAppSelector(getIsLoggedIn);
   const dispatch = useAppDispatch();
   const [map, setMap] = useState<google.maps.Map | null>(null);
   const [activeFleet, setActiveFleet] = useState<string | number | null>(null);
@@ -467,12 +466,6 @@ const CustomGoogleMap: React.FC = () => {
     }
   };
 
-  // Display login page if not logged in
-  if (!isLoggedIn) {
-    return (
-      <Login></Login>
-    )
-  }
 
   // Display loading page if page has not been loaded
   if (!isLoaded) {
