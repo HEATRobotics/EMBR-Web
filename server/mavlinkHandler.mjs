@@ -88,8 +88,8 @@ function simulateMavlinkData() {
     botPositionData[i] = {
       timeBootMs: new Date(),
       id: i+1,
-      lat: 499394340 + Math.floor(Math.random() * 400) - 200, // 1 represents ~1cm
-      lon: -1193964270 + Math.floor(Math.random() * 400) - 200,
+      lat: 499394340 + Math.floor(Math.random() * 4000) - 2000, // 1 represents ~1cm
+      lon: -1193964270 + Math.floor(Math.random() * 4000) - 2000,
       alt: Math.random() * 10000,
       relative_alt: Math.random() * 5000,
       vx: Math.random() * 100,
@@ -110,34 +110,35 @@ function simulateMavlinkData() {
 
   setInterval(() => {
     // Randomly select a bot and update it's postion or temperature value
-    let botId = Math.floor(Math.random() * numBots);
     const messageType = Math.random() > 0.5 ? "GLOBAL_POSITION_INT" : "NAMED_VALUE_FLOAT";
-
-    if (messageType === "GLOBAL_POSITION_INT") {
-      let data = botPositionData[botId];
-      // Randomly update data relative to previous value
-      data.timeBootMs = new Date();
-      data.lat += (Math.random() * 4) - 2;
-      data.lon += (Math.random() * 8) - 4;
-      data.alt += (Math.random() * 10) - 5; 
-      data.relative_alt += (Math.random() * 10) - 5;
-      data.vx += (Math.random() * 10) - 5;
-      data.vy += (Math.random() * 10) - 5;
-      data.vz += (Math.random() * 10) - 5;
-      data.hdg += (Math.random() * 10) - 5;
-      
-      botPositionData[botId] = data;
-      processGlobalPositionMessage(data);
-
-    } else if (messageType === "NAMED_VALUE_FLOAT") {
-      let data = botTempData[botId]
-      
-      data.timeBootMs = new Date();
-      data.value += (Math.random() * 4);
-
-      botTempData[botId] = data;
-      processTemperatureMessage(data);
+    for (let botId = 1; botId < numBots; botId++) {
+      if (messageType === "GLOBAL_POSITION_INT") {
+        let data = botPositionData[botId];
+        // Randomly update data relative to previous value
+        data.timeBootMs = new Date();
+        data.lat += (Math.random() * 400) - 200;
+        data.lon += (Math.random() * 800) - 400;
+        data.alt += (Math.random() * 100) - 50; 
+        data.relative_alt += (Math.random() * 10) - 5;
+        data.vx += (Math.random() * 10) - 5;
+        data.vy += (Math.random() * 10) - 5;
+        data.vz += (Math.random() * 10) - 5;
+        data.hdg += (Math.random() * 10) - 5;
+        
+        botPositionData[botId] = data;
+        processGlobalPositionMessage(data);
+  
+      } else if (messageType === "NAMED_VALUE_FLOAT") {
+        let data = botTempData[botId]
+        
+        data.timeBootMs = new Date();
+        data.value += (Math.random() * 4);
+  
+        botTempData[botId] = data;
+        processTemperatureMessage(data);
+      }
     }
+    
 
   }, 5000); // 5 second timer
 

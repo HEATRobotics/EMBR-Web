@@ -35,6 +35,7 @@ import { RobotStateType } from "@/constants/robotConstants";
 import { useFleetData } from "@/hooks/useFleetData";
 import Login from "./login";
 import DrawBot from "./DrawBot";
+import MapDrawUtils from "@/utils/MapDrawUtils";
 
 /*
   Main TODO's: 
@@ -70,10 +71,10 @@ const exampleMapStyles: google.maps.MapTypeStyle[] = [
 ];
 
 const zoom: number = 14;
-const zoomFleet: number = 16;
-const center: google.maps.LatLngLiteral = {
-  lat: 49.93216079437889,
-  lng: -119.43347832660766,
+const zoomFleet: number = 20;
+const ubcoCoorations: google.maps.LatLngLiteral = {
+  lat: 49.939434,
+  lng: -119.396427,
 };
 
 const newMissionTemplate: MissionType = {
@@ -426,14 +427,36 @@ const CustomGoogleMap: React.FC = () => {
       3) try to simulate decent movement patterns for the bots
   */
 
-  // useEffect(() => {
-  //   if (activeFleet !== null) {
-  //     map?.setCenter(fleets.find((fleet) => fleet.id === activeFleet)?.center!);
-  //     map?.setZoom(zoomFleet);
-  //   } else {
-  //     // map?.setZoom(zoom);
-  //   }
-  // }, [activeFleet, map]);
+
+  // Adjust Camera Position to Active Fleet. 
+  // If none move camera to UBCO campus.
+  useEffect(() => {
+    if (map === null)
+      return;
+
+    // No active fleet center on UBCO campus
+    if (activeFleet === null) {
+      map.setCenter(ubcoCoorations);
+      map.setZoom(zoom);
+      return;
+    }
+
+    // Center on active fleet
+    map.setCenter(fleets.find((fleet) => fleet.id === activeFleet)?.center!);
+    map.setZoom(zoomFleet);
+
+  }, [activeFleet, map]);
+
+  // Update map with new fleet data
+  useEffect(updateFleets, [fleets, map])
+  
+  function updateFleets() {
+    if (!map || !fleets || fleets.length === 0)
+      return;
+
+    MapDrawUtils.drawFleets(fleets, map);
+
+  }
 
   const handleZoomIn = () => {
     setZoomLevel((prevZoomLevel) => Math.min(prevZoomLevel + 1, 21)); // Google Maps API allows a max zoom of 21
@@ -466,13 +489,13 @@ const CustomGoogleMap: React.FC = () => {
     }
   };
 
-
   // Display loading page if page has not been loaded
   if (!isLoaded) {
     return (
       <></>
     );
   }
+
 
   // Display map page
   return (
@@ -585,7 +608,7 @@ const CustomGoogleMap: React.FC = () => {
       <GoogleMapReact
         options={mapOptions}
         mapContainerClassName="absolute w-screen h-screen relative flex justify-start items-start overflow-hidden z-[0]"
-        center={center}
+        center={ubcoCoorations}
         zoom={zoom}
         onLoad={onLoad}
         onUnmount={onUnmount}
@@ -593,20 +616,6 @@ const CustomGoogleMap: React.FC = () => {
           if (map) setZoomLevel(map.getZoom() || zoom);
         }}
       >
-        {/* Draw Bots on Map */}
-        {activeFleet !== null &&
-          fleets
-            .filter((fleet) => fleet.id === activeFleet) // Ensure only the active fleet is used
-            .flatMap((fleet) =>
-            fleet.bots.map((bot, index) => 
-              <DrawBot
-              key={index}
-              lat={bot.coordinates.lat} // Pass bot's lat property
-              lng={bot.coordinates.lng} // Pass bot's lng property
-              bot={bot} // Optionally pass the bot object if needed in the DrawBot component
-              index={index} // Optionally pass index if required in the DrawBot component
-            />)
-          )}
       </GoogleMapReact>
     </>
   );
