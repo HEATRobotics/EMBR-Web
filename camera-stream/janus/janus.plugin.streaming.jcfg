@@ -1,0 +1,12 @@
+vp8-sample: {
+        type = "rtp"                             # Stream type is RTP
+        id = 1234                                # Unique stream ID
+        description = "VP8 video stream from GStreamer"  # Description of the stream
+        audio = false                            # No audio stream
+        video = true                             # Video stream is enabled
+        videoport = 10000                        # Port that Janus listens on for the stream
+        videopt = 96                             # Payload type for VP8 stream (this should match GStreamer)
+        videocodec = "VP8"                       # Codec being used for video (VP8)
+        videofmtp = "profile-level-id=42e01f;packetization-mode=1"  # VP8 specific parameters
+        secret = "adminpwd"                      # Authentication secret (adjust as needed)
+}

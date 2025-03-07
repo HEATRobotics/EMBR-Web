@@ -8,6 +8,8 @@ import { generateRandomThermalTemperature } from '@/utils/generateRandomThermalT
 import InfoDetails from '@/components/FleetDetails/InfoDetails';
 import ModelDetails from '@/components/FleetDetails/ModelDetails';
 import Link from 'next/link';
+import JanusStreaming from '@/components/VideoStream';
+
 
 const EmbrDetails = () => {
     return (
@@ -16,7 +18,7 @@ const EmbrDetails = () => {
                 <FleetTitle title={"TEST"}/>
                 <BatteryIndicatorComponent level={18}/>
                 <InfoDetails/>
-                <ModelDetails/>
+                <JanusStreaming></JanusStreaming>
             </div>
             <div className="grid grid-cols-2 grid-rows-2 gap-4 ml-[40px] pt-[2.5vh] pb-[2.5vh]">
                 <RealTimeChart 

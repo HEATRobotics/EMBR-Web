@@ -15,7 +15,7 @@ export function useFleetData() {
 
     useEffect(() => {
         // Fetch fleet data every 5 seconds
-        const interval = setInterval(fetchFleetData, 5000);
+        const interval = setInterval(fetchFleetData, 2000);
         
         fetchFleetData();
 
