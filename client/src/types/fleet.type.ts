@@ -12,5 +12,6 @@ export interface FleetItemType {
   id: string | number;
   name: string;
   center: CoordinatesType;
+  // missions: MissionType[];
   bots: RobotType[];
 }

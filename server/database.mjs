@@ -9,7 +9,7 @@ const pool = mysql.createPool({
     port: 3306,
     waitForConnections: true, // if connection limit is reached, queue the connection and wait for it to be released
     connectionLimit: 5,
-    maxIdle: 10, // max idle connections
+    maxIDle: 10, // max idle connections
     idleTimeout: 120000, // idle connections timeout: 2 minutes
     queueLimit: 0,
     enableKeepAlive: true,
@@ -250,6 +250,11 @@ export async function getLatestBatteryData() {
     }
 }
 
+/*
+    Fetches the latest fleet data from the database.
+    This function retrieves the most recent position, temperature, and battery data for each bot in the fleet.
+    Returns an array of objects containing the latest fleet data if successful, or false if an error occurs.
+ */
 export async function getLatestFleetData() {
     let conn;
     try {
@@ -298,4 +303,63 @@ export async function getLatestFleetData() {
         }
     }
 }
+
+/*
+    Fetches the latest mission data for a particular fleet from the database.
+    Mission data includes fleetID, areaCoordinates, progress, avgTemp, etc
+    Returns object containing mission data if successful, or false if an error occurs.
+ */
+export async function getMissionByFleetID(missionID) {
+    let conn;
+    try {
+        conn = await pool.getConnection();
+        const query = `SELECT * FROM missions WHERE fleetID = ?`;
+        const [rows] = await conn.execute(query, [missionID]);
+        return rows[0];
+    } catch (error) {
+        console.error('Error getting mission by Fleet ID:', error);
+        return false;
+    } finally {
+        if (conn) {
+            await conn.release();
+        }
+    }
+}
+/*
+    Fetches all missions from the database.
+    Returns an array of mission objects if successful, or false if an error occurs.
+ */
+export async function getAllMissions() {
+    let conn;
+    try {
+        conn = await pool.getConnection();
+        const query = `SELECT * FROM missions`;
+        const [rows] = await conn.execute(query);
+        return rows;
+    } catch (error) {
+        console.error('Error fetching all missions:', error);
+        return false;
+    } finally {
+        if (conn) {
+            await conn.release();
+        }
+    }
+}
+
+export async function updateMission(missionId, missionData) {
+    const { name, areaCoordinates, process, averageTemperature, timePassed, timeEstimated } = missionData;
+    try {
+        const connection = await pool.getConnection();
+        await connection.execute(
+            'UPDATE missions SET name = ?, area_coordinates = ?, progress = ?, avgTemp = ?, timePassed = ?, timeEstimated = ? WHERE missionID = ?',
+            [name, JSON.stringify(areaCoordinates), process, averageTemperature, timePassed, timeEstimated, missionId]
+        );
+        connection.release();
+        return { success: true }; 
+    } catch (error) {
+        console.error('Error updating mission:', error);
+        throw error;
+    }
+}
+
 

@@ -2,12 +2,21 @@ import express from 'express'
 import cors from 'cors';
 import assert from 'assert';
 
+import missionRoutes from './routes/mission.routes.js';
+
 import { handleMavlinkData, simulateMavlinkData } from './mavlinkHandler.mjs';
 import { insertPositionData, insertTemperatureData, insertBatteryData } from './database.mjs';
 import { getAllBatteryData, getLatestBatteryData, getAllTemperatureData, getLatestTemperatureData, getLatestFleetData } from './database.mjs';
 
 const app = express();
 const port = 3100; 
+
+app.use(cors({
+    origin: 'http://localhost:3000', // Allow requests only from this origin
+    methods: 'GET,POST', // Allow only specified HTTP methods
+    credentials: true // Allow cookies to be sent cross-origin
+}));
+app.use('/api/missions', missionRoutes);
 
 // Object to store latest datapoints of each type of data. Each type is an array so we can keep track of latest position and temp data from multiple bots.
 let latestMavlinkData = {
@@ -59,12 +68,6 @@ function parseDateTime(datetime){
 
     return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
 }
-
-app.use(cors({
-    origin: 'http://localhost:3000', // Allow requests only from this origin
-    methods: 'GET,POST', // Allow only specified HTTP methods
-    credentials: true // Allow cookies to be sent cross-origin
-}));
 
 // Get all temperature data
 app.get('/api/temperature/all', async (req, res) => {

@@ -10,8 +10,8 @@ const API_BASE_URL = 'http://localhost:3100/api';
 export function useFleetData() {
     const [fleets, setFleets] = useState<FleetItemType[]>([]);
     const [bots, setBots] = useState<RobotType[]>([]);
-    const [loading, setLoading] = useState<boolean>(true);
-    const [error, setError] = useState<string | null>(null);
+    const [fleetLoading, setFleetLoading] = useState<boolean>(true);
+    const [fleetError, setFleetError] = useState<string | null>(null);
 
     useEffect(() => {
         const fetchFleetData = async () => {
@@ -86,14 +86,14 @@ export function useFleetData() {
                 setBots(botList);
                 setFleets(Object.values(fleetMap));
             } catch (err) {
-                setError('Failed to fetch fleet data.');
+                setFleetError('Failed to fetch fleet data.');
             } finally {
-                setLoading(false);
+                setFleetLoading(false);
             }
         };
 
         fetchFleetData();
     }, []);
 
-    return { fleets, bots, loading, error };
+    return { fleets, bots, fleetLoading, fleetError };
 }

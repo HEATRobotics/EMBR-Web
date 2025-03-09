@@ -20,11 +20,11 @@ function MissionCreate({
 
     useEffect(() => {
         if (newMission) {
-            if (newMission.blueCoordinates) {
+            if (newMission.areaCoordinates) {
                 setActiveStep(1);
             }
 
-            if (newMission.fleetName) {
+            if (newMission.fleetId) {
                 setActiveStep(2);
             }
         }

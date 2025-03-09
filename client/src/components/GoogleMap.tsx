@@ -33,6 +33,7 @@ import { RobotStateType } from "@/constants/robotConstants";
 
 // custom hooks
 import { useFleetData } from "@/hooks/useFleetData";
+import { useMissions } from "@/hooks/useMissions";
 
 /*
   Main TODO's: 
@@ -77,15 +78,13 @@ const center: google.maps.LatLngLiteral = {
 const newMissionTemplate: MissionType = {
   name: "",
   fleetId: "",
-  fleetName: "",
   process: 0,
-  smokesDetected: 0,
+  hotspots: [],
   averageTemperature: 0,
   timePassed: 0,
   timeEstimated: 2880,
-  blueCoordinates: undefined,
+  areaCoordinates: undefined,
   robots: [],
-  smokes: [],
 };
 
 const items: MenuProps["items"] = [
@@ -135,7 +134,8 @@ const CustomGoogleMap: React.FC = () => {
   const [newMission, setNewMission] =
     useState<MissionType>(newMissionTemplate);
 
-  const { fleets, bots, loading, error } = useFleetData();
+  const { fleets, bots, fleetLoading, fleetError } = useFleetData();
+  const { mission, missionLoading, missionError, setMission } = useMissions();
 
   const { isLoaded } = useJsApiLoader({
     id: "google-map-script",
