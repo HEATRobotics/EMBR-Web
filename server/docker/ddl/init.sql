@@ -17,8 +17,8 @@ CREATE TABLE fleet (
 CREATE TABLE position (
     botID INT NOT NULL,
     clockTime DATETIME NOT NULL,
-    latitude FLOAT,
-    longitude FLOAT,
+    latitude DECIMAL(9,7), -- Allow for 1mm accuracy
+    longitude DECIMAL(10,7), -- Allow for 1mm accuracy
     altitude FLOAT,
     relativeAltitude FLOAT,
     groundXSpeed FLOAT,

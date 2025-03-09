@@ -6,34 +6,22 @@ import React, { useCallback, useEffect, useState } from "react";
 import { Dropdown, MenuProps } from "antd";
 import {
   useJsApiLoader,
-  GoogleMap as GoogleMapReact,
+  GoogleMap as GoogleMapReact, GoogleMap,
 } from "@react-google-maps/api";
-
 import FleetBar from "./FleetBar";
-import Search from "./Search";
-import Stats from "./Stats";
-import ToggleSwitch from "./ToggleSwitch";
-import ZoomControl from "./ZoomControl";
 import MissionCreate from "./MissionControls/MissionCreate";
-
-import homeImage from "../../public/home.png";
-import logo from "../../public/white_logo.svg";
 import { useAppDispatch, useAppSelector } from "@/redux/hooks";
-import { getIsLoggedIn } from "@/redux/logging/selectors";
-import { setIsLoggedIn } from "@/redux/logging/slice";
 
 // types/interfaces
-import { CoordinatesType } from "@/types/coordinate.type";
 import { MissionType } from "@/types/mission.type";
-import { FleetItemType } from "@/types/fleet.type";
-import { RobotType } from "@/types/robot.type";
-
-// constants
-import { RobotStateType } from "@/constants/robotConstants";
 
 // custom hooks
 import { useFleetData } from "@/hooks/useFleetData";
 import { useMissions } from "@/hooks/useMissions";
+
+import MapDrawUtils from "@/utils/MapDrawUtils";
+import MapTools from "@/components/MapTools";
+import EmbrDetails from "@/app/embr-details/page";
 
 /*
   Main TODO's: 
@@ -69,10 +57,10 @@ const exampleMapStyles: google.maps.MapTypeStyle[] = [
 ];
 
 const zoom: number = 14;
-const zoomFleet: number = 16;
-const center: google.maps.LatLngLiteral = {
-  lat: 49.93216079437889,
-  lng: -119.43347832660766,
+const zoomFleet: number = 20;
+const ubcoCoorations: google.maps.LatLngLiteral = {
+  lat: 49.939434,
+  lng: -119.396427,
 };
 
 const newMissionTemplate: MissionType = {
@@ -122,17 +110,15 @@ const items: MenuProps["items"] = [
 
 const CustomGoogleMap: React.FC = () => {
   const router = useRouter();
-  const isLoggedIn = useAppSelector(getIsLoggedIn);
   const dispatch = useAppDispatch();
   const [map, setMap] = useState<google.maps.Map | null>(null);
   const [activeFleet, setActiveFleet] = useState<string | number | null>(null);
-  const [activeMissionCreate, setActiveMissionCreate] =
-    useState<boolean>(false);
+  const [activeMissionCreate, setActiveMissionCreate] = useState<boolean>(false);
+  const [cancelDrawing, setCancelDrawing] = useState<any>();
+  const [newMission, setNewMission] = useState<MissionType>(newMissionTemplate);
   const [satelliteView, setSatelliteView] = useState<boolean>(false);
   const [zoomLevel, setZoomLevel] = useState<number>(zoom);
-  const [cancelDrawing, setCancelDrawing] = useState<any>();
-  const [newMission, setNewMission] =
-    useState<MissionType>(newMissionTemplate);
+  const [mapWidth, setMapWidth] = useState(66.67);
 
   const { fleets, bots, fleetLoading, fleetError } = useFleetData();
   const { mission, missionLoading, missionError, setMission } = useMissions();
@@ -145,20 +131,20 @@ const CustomGoogleMap: React.FC = () => {
 
   const mapOptions = isLoaded
     ? {
-        styles: exampleMapStyles,
-        streetViewControl: false,
-        scaleControl: false,
-        fullscreenControl: false,
-        panControl: false,
-        zoomControl: false,
-        mapTypeControl: false,
-        rotateControl: false,
-        mapTypeControlOptions: {
-          position: google.maps.ControlPosition.RIGHT_BOTTOM,
-        },
-        mapTypeId: satelliteView ? "satellite" : "roadmap",
-        zoom: zoomLevel,
-      }
+      styles: exampleMapStyles,
+      streetViewControl: false,
+      scaleControl: false,
+      fullscreenControl: false,
+      panControl: false,
+      zoomControl: false,
+      mapTypeControl: false,
+      rotateControl: false,
+      mapTypeControlOptions: {
+        position: google.maps.ControlPosition.RIGHT_BOTTOM,
+      },
+      mapTypeId: satelliteView ? "satellite" : "roadmap",
+      zoom: zoomLevel,
+    }
     : {};
 
   const onLoad = useCallback(function callback(map: google.maps.Map | null) {
@@ -425,202 +411,201 @@ const CustomGoogleMap: React.FC = () => {
       3) try to simulate decent movement patterns for the bots
   */
 
-  // useEffect(() => {
-  //   if (activeFleet !== null) {
-  //     map?.setCenter(fleets.find((fleet) => fleet.id === activeFleet)?.center!);
-  //     map?.setZoom(zoomFleet);
-  //   } else {
-  //     // map?.setZoom(zoom);
-  //   }
-  // }, [activeFleet, map]);
 
-  const handleZoomIn = () => {
-    setZoomLevel((prevZoomLevel) => Math.min(prevZoomLevel + 1, 21)); // Google Maps API allows a max zoom of 21
-  };
+  // Adjust Camera Position to Active Fleet. 
+  // If none move camera to UBCO campus.
+  useEffect(() => {
+    if (map === null)
+      return;
 
-  const handleZoomOut = () => {
-    setZoomLevel((prevZoomLevel) => Math.max(prevZoomLevel - 1, 0)); // Google Maps API allows a min zoom of 0
-  };
+    // No active fleet center on UBCO campus
+    if (activeFleet === null) {
+      map.setCenter(ubcoCoorations);
+      map.setZoom(zoom);
+      return;
+    }
+
+    // Center on active fleet
+    map.setCenter(fleets.find((fleet) => fleet.id === activeFleet)?.center!);
+    map.setZoom(zoomFleet);
+
+  }, [activeFleet, map]);
+
+  // Update map with new fleet data
+  useEffect(updateFleets, [fleets, map])
+  
+  function updateFleets() {
+    if (!map || !fleets || fleets.length === 0)
+      return;
+
+    MapDrawUtils.drawFleets(fleets, map);
+
+  }
+
+
 
   const handleMissionClick: MenuProps["onClick"] = ({ key }) => {
     setActiveFleet(null);
     switch (key) {
       case "create":
+        console.log('DEBUG: Create Fleet Event');
         setActiveMissionCreate(true);
         // handleDraw();
         break;
       case "edit":
+        console.log('DEBUG: Edit Fleet Event');
         undefined;
         break;
       case "delete":
+        console.log('DEBUG: Delete Fleet Event');
         undefined;
         break;
       default:
+        console.log('DEBUG: ERROR: key undefined in fleet event');
         undefined;
         break;
     }
   };
 
-  return isLoggedIn ? (
-    isLoaded ? (
-      <>
-        <GoogleMapReact
-          options={mapOptions}
-          mapContainerClassName="w-screen h-screen py-[30px] px-[35px] relative flex justify-start items-start overflow-hidden"
-          center={center}
-          zoom={zoom}
-          onLoad={onLoad}
-          onUnmount={onUnmount}
-          onZoomChanged={() => {
-            if (map) setZoomLevel(map.getZoom() || zoom);
-          }}
-        >
-          <div className="absolute left-[35px] flex flex-col gap-y-2.5 items-start">
-            <FleetBar
-              fleets={fleets}
-              activeFleet={activeFleet}
-              setActiveFleet={setActiveFleet}
-              disabled={activeMissionCreate}
-            />
-            <div className="flex justify-start items-center gap-x-1">
-              <button
-                disabled
-                className="left-[35px] text-[12px] leading-[15px] px-2 py-0.5 rounded-[22px] bg-white"
-              >
-                Edit
-              </button>
-              <button
-                disabled
-                className="left-[35px] px-2 py-0.5 text-[12px] leading-[15px] rounded-[22px] bg-white"
-              >
-                Create
-              </button>
-              <button
-                disabled
-                className="left-[35px] px-2 py-0.5 text-[12px] leading-[15px] rounded-[22px] bg-white"
-              >
-                Delete
-              </button>
-            </div>
-          </div>
-          <div className="absolute right-[35px] flex flex-col gap-y-[36px] items-end max-w-[400px]">
-            <Search />
-            <div className="flex flex-col gap-y-3 w-full">
-              {activeFleet !== null ? (
-                <>
-                  <div className="flex justify-start items-center gap-x-2.5">
-                    <button className="left-[35px] px-3.5 py-1 rounded-[22px] text-[15px] leading-[18px] bg-white">
-                      Past
-                    </button>
-                    <button className="left-[35px] px-3.5 py-1 rounded-[22px] text-[15px] leading-[18px] bg-white">
-                      Current
-                    </button>
-                    <button className="left-[35px] px-3.5 py-1 rounded-[22px] text-[15px] leading-[18px] bg-white">
-                      All
-                    </button>
-                    <Dropdown
-                      menu={{ items, onClick: handleMissionClick }}
-                      align={{ offset: [60, -26] }}
-                      placement="bottomLeft"
-                      className="cursor-pointer left-[35px] px-3.5 py-1 rounded-[22px] text-[15px] leading-[18px] bg-white select-none"
-                      trigger={["click"]}
-                    >
-                      <span>•••</span>
-                    </Dropdown>
-                  </div>
-                  {
-                    // TODO: implement this once the mission logic is in place 
-                    //  - define table schema for a mission including a way to encode the area, define connection between a fleet and a mission
-                  /* <Stats
-                    missions={
-                      fleets.find((fleet) => fleet.id === activeFleet)
-                        ?.missions!
-                    }
-                  /> */
-                  }
-                </>
-              ) : activeMissionCreate ? (
-                <MissionCreate
-                  cancelCreate={cancelCreate}
-                  saveCreate={saveCreate}
-                  newMission={newMission}
-                  setNewMission={setNewMission}
-                  fleets={fleets.map((fleet) => ({
-                    value: fleet.id,
-                    label: fleet.name,
-                  }))}
-                />
-              ) : (
-                <></>
-              )}
-            </div>
-          </div>
-        </GoogleMapReact>
-        <div className="absolute bottom-5 right-5 flex flex-col flex-end justify-end float-right items-end gap-[5px]">
-          <div className="flex items-center">
-            <span
-              className={`${
-                satelliteView &&
-                "text-white bg-black bg-opacity-50 px-2 py-1 rounded shadow"
-              } text-sm font-medium text-gray-700 mr-2`}
-            >
-              Satellite View:
-            </span>
-            <ToggleSwitch
-              enabled={satelliteView}
-              setEnabled={setSatelliteView}
-            />
-          </div>
-          <div className="flex items-center float-right">
-            <ZoomControl onZoomIn={handleZoomIn} onZoomOut={handleZoomOut} />
-          </div>
-        </div>
-      </>
-    ) : (
+  // Display loading page if page has not been loaded
+  if (!isLoaded) {
+    return (
       <></>
-    )
-  ) : (
-    <div className="w-screen h-screen relative flex justify-center items-center size-full">
-      <Image
-        src={homeImage}
-        alt="homeImage"
-        className="size-full absolute left-0 top-0 z-0"
+    );
+  }
+
+  const handleResizeStart = (e: React.MouseEvent | React.TouchEvent) => {
+    const startX = "touches" in e ? e.touches[0].clientX : e.clientX;
+    const startWidth = mapWidth;
+
+    const onMove = (event: MouseEvent | TouchEvent) => {
+      const clientX = "touches" in event ? event.touches[0].clientX : event.clientX;
+      const deltaX = clientX - startX;
+      const newWidth = Math.min(Math.max(startWidth + (deltaX / window.innerWidth) * 100, 30), 70);
+      setMapWidth(newWidth);
+    };
+
+    const onEnd = () => {
+      window.removeEventListener("mousemove", onMove);
+      window.removeEventListener("mouseup", onEnd);
+      window.removeEventListener("touchmove", onMove);
+      window.removeEventListener("touchend", onEnd);
+    };
+
+    window.addEventListener("mousemove", onMove);
+    window.addEventListener("mouseup", onEnd);
+    window.addEventListener("touchmove", onMove);
+    window.addEventListener("touchend", onEnd);
+  };
+
+  // Display map page
+  return (
+    <>
+      <FleetBar
+        fleets={fleets}
+        activeFleet={activeFleet}
+        setActiveFleet={setActiveFleet}
+        disabled={activeMissionCreate}
       />
-      <div className="flex flex-col justify-center items-center gap-y-[126px] relative z-[1]">
-        <div className="w-[736px] size-full">
-          <Image
-            src={logo}
-            alt="logo"
-            className="size-full left-0 top-0 select-none"
+
+      {/* Map tools */}
+      <MapTools
+        satelliteValue={satelliteView}
+        onSatelliteViewChange={setSatelliteView}
+      />
+
+      {/* Top Right Bar */}
+      <div className="absolute py-[30px] px-[30px] right-[0] flex flex-col gap-y-[36px] items-end max-w-[400px] z-[10]">
+        {/* <Search /> */}
+        <div className="flex flex-col gap-y-3 w-full">
+          {activeFleet !== null ? (
+            <>
+              <div className="flex justify-start items-center gap-x-2.5">
+                <button className="left-[35px] px-3.5 py-1 rounded-[22px] text-[15px] leading-[18px] bg-white">
+                  Past
+                </button>
+                <button className="left-[35px] px-3.5 py-1 rounded-[22px] text-[15px] leading-[18px] bg-white">
+                  Current
+                </button>
+                <button className="left-[35px] px-3.5 py-1 rounded-[22px] text-[15px] leading-[18px] bg-white">
+                  All
+                </button>
+                <Dropdown
+                  menu={{ items, onClick: handleMissionClick }}
+                  align={{ offset: [60, -26] }}
+                  placement="bottomRight"
+                  className="cursor-pointer left-[35px] px-3.5 py-1 rounded-[22px] text-[15px] leading-[18px] bg-white select-none"
+                  trigger={["click"]}
+                >
+                  <span>•••</span>
+                </Dropdown>
+              </div>
+              {
+                // TODO: implement this once the mission logic is in place
+                //  - define table schema for a mission including a way to encode the area, define connection between a fleet and a mission
+                /* <Stats
+                  missions={
+                    fleets.find((fleet) => fleet.id === activeFleet)
+                      ?.missions!
+                  }
+                /> */
+              }
+            </>
+          ) : activeMissionCreate ? (
+            <MissionCreate
+              cancelCreate={cancelCreate}
+              saveCreate={saveCreate}
+              newMission={newMission}
+              setNewMission={setNewMission}
+              fleets={fleets.map((fleet) => ({
+                value: fleet.id,
+                label: fleet.name,
+              }))}
+            />
+          ) : (
+            <></>
+          )}
+        </div>
+      </div>
+
+      {/* Map */}
+      <div className="flex h-screen max-w-screen max-h-screen overflow-hidden">
+        <div className="h-full" style={{ width: `${activeFleet !== null ? mapWidth : '100'}%` }}>
+          <GoogleMap
+              options={mapOptions}
+              mapContainerClassName="h-screen w-full"
+              center={ubcoCoorations}
+              zoom={zoom}
+              onLoad={onLoad}
+              onUnmount={onUnmount}
+              onZoomChanged={() => {
+                if (map) setZoomLevel(map.getZoom() || zoom);
+              }}
           />
         </div>
-        <button
-          onClick={() => dispatch(setIsLoggedIn(true))}
-          className="rounded-[40px] bg-white flex gap-x-[26px] py-[18px] px-[30px] text-[35px] leading-[42px] items-center"
-        >
-          Login
-          <span>
-            <svg
-              width="42"
-              height="26"
-              viewBox="0 0 42 26"
-              fill="none"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <line
-                x1="1.31134e-07"
-                y1="13.5"
-                x2="39"
-                y2="13.5"
-                stroke="black"
-                stroke-width="3"
-              />
-              <path d="M27 2L39 13L27 24" stroke="black" stroke-width="3" />
-            </svg>
-          </span>
-        </button>
+
+        {/* Resizable Slider */}
+        {activeFleet !== null ? (
+            <div
+                className="w-2 bg-gray-400 cursor-ew-resize"
+                onMouseDown={handleResizeStart}
+                onTouchStart={handleResizeStart}
+            ></div>
+        ) : (
+            <></>
+        )}
+
+        {/* Split screen to show bot statistics */}
+        {activeFleet !== null ? (
+            <div className="h-full max-h-lvh p-4 bg-gray-100 overflow-y-auto" style={{ width: `${100 - mapWidth}%` }}>
+              <EmbrDetails></EmbrDetails>
+            </div>
+        ) : (
+            <></>
+        )}
+
       </div>
-    </div>
+    </>
   );
 };
 

@@ -44,10 +44,10 @@ async function storeMavlinkData(data) {
         await insertPositionData(data);
     } else if (data.type === 'temp_data') {
         await insertTemperatureData(data);
-        console.log(await getAllTemperatureData());
+        // console.log(await getAllTemperatureData());
     } else {
         await insertBatteryData(data);
-        console.log(await getAllBatteryData());
+        // console.log(await getAllBatteryData());
     }
 
     // Update the latestMavlinkData array with the newest data point
