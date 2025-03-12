@@ -4,15 +4,14 @@ import 'chart.js/auto';
 import { getTagStyle } from '@/utils/getTagStyle';
 import Tag from '@/components/FleetDetails/Tag';
 
-//TODO: this will change
 interface RealTimeChartProps {
     title?: string;
     lineColor?: string;
-    randomGenerator?: (previous: number) => number;
+    dataFeed?: () => number;
     tags?: { label: string; url?: string }[];
 }
 
-const RealTimeChart: React.FC<RealTimeChartProps> = ({ title = 'Add a title to the chart', lineColor = 'rgb(75, 192, 192)', randomGenerator, tags = [] }) => {
+const RealTimeChart: React.FC<RealTimeChartProps> = ({ title = 'Add a title to the chart', lineColor = 'rgb(75, 192, 192)', dataFeed: dataFeed, tags = [] }) => {
     const [lastTemperature, setLastTemperature] = useState<number>(50);
 
     const [data, setData] = useState({
@@ -20,7 +19,7 @@ const RealTimeChart: React.FC<RealTimeChartProps> = ({ title = 'Add a title to t
         datasets: [
             {
                 label: 'Real-time Data',
-                data: Array.from({ length: 30 }, () => (randomGenerator ? randomGenerator(lastTemperature) : Math.random() * 150)),
+                data: Array.from({ length: 30 }, () => (null)), //empty data init
                 borderColor: lineColor,
                 borderWidth: 2,
                 fill: false,
@@ -33,7 +32,7 @@ const RealTimeChart: React.FC<RealTimeChartProps> = ({ title = 'Add a title to t
         const interval = setInterval(() => {
             setData((prevData) => {
                 const newData = { ...prevData };
-                const newTemp = randomGenerator ? randomGenerator(lastTemperature) : Math.random() * 150;
+                const newTemp = dataFeed ? dataFeed() : null;
                 newData.datasets[0].data.shift();
                 newData.datasets[0].data.push(newTemp);
                 setLastTemperature(newTemp);
@@ -43,7 +42,7 @@ const RealTimeChart: React.FC<RealTimeChartProps> = ({ title = 'Add a title to t
         }, 800);
 
         return () => clearInterval(interval);
-    }, [randomGenerator, lastTemperature]);
+    }, [dataFeed, lastTemperature]);
 
     const options = useMemo(
         () => ({
