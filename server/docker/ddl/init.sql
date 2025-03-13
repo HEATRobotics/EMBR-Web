@@ -2,13 +2,20 @@ CREATE DATABASE IF NOT EXISTS embr;
 
 USE embr;
 
+-- Disable foreign key checks temporarily
+SET foreign_key_checks = 0;
+
 -- just for testing while the database gets fully setup
+DROP TABLE IF EXISTS fleet;
 DROP TABLE IF EXISTS mission;
 DROP TABLE IF EXISTS position;
 DROP TABLE IF EXISTS temperature;
 DROP TABLE IF EXISTS battery;
-DROP TABLE IF EXISTS fleet;
 
+-- Re-enable foreign key checks
+SET foreign_key_checks = 1;
+
+-- Create the fleet table first
 CREATE TABLE fleet (
     botID INT NOT NULL PRIMARY KEY,
     fleetID INT
@@ -56,8 +63,8 @@ CREATE TABLE mission (
     timeEstimated INT, 
     timeCreated TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     lastUpdated TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP, -- when this table is updated, set lastUpdated to current time
-    FOREIGN KEY (fleetID) REFERENCES fleet(botID) 
-);
+    FOREIGN KEY (fleetID) REFERENCES fleet(botID)
+) ENGINE=InnoDB;
 
 INSERT INTO mission (fleetID, missionName, areaCoordinates, progress, avgTemp, timePassed, timeEstimated) 
 VALUES (1, 'Mission K-lona', '{

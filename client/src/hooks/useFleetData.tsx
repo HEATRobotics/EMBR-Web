@@ -95,9 +95,9 @@ export function useFleetData() {
             setBots(botList);
             setFleets(Object.values(fleetMap));
         } catch (err) {
-            setError('Failed to fetch fleet data.');
+            setFleetError('Failed to fetch fleet data.');
         } finally {
-            setLoading(false);
+            setFleetLoading(false);
         }
     };
 
