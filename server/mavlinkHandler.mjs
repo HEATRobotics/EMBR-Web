@@ -72,13 +72,13 @@ function handleMavlinkData() {
 */
 function simulateMavlinkData() {
   console.log("Simulating MAVLink data...");
-  const numBots = 3;
+  const NUM_SIMULATED_BOTS = 3;
 
-  // Initalize list of bot (Assume 5 bots for now)
+  // Initalize list of bot (Assume 3 bots for now)
   let botPositionData = [];
   let botTempData = [];
 
-  for (let i = 0; i < numBots; i++) {
+  for (let i = 0; i < NUM_SIMULATED_BOTS; i++) {
     
     // UBCO location:
     // Lat: 49.939434 -> 499394340
@@ -111,7 +111,7 @@ function simulateMavlinkData() {
   setInterval(() => {
     // Randomly select a bot and update it's postion or temperature value
     const messageType = Math.random() > 0.5 ? "GLOBAL_POSITION_INT" : "NAMED_VALUE_FLOAT";
-    for (let botId = 1; botId < numBots; botId++) {
+    for (let botId = 0; botId < NUM_SIMULATED_BOTS; botId++) {
       if (messageType === "GLOBAL_POSITION_INT") {
         let data = botPositionData[botId];
         // Randomly update data relative to previous value
