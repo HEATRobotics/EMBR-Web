@@ -1,5 +1,5 @@
 import express from 'express';
-import { getMissionByFleetID, getAllMissions, updateMission } from '../database.mjs';
+import { getMissionByFleetID, getAllMissions, updateMission, createMission } from '../database.mjs';
 
 const router = express.Router();
 
@@ -34,6 +34,29 @@ router.put('/update/:id', async (req, res) => {
         res.json({ message: 'Mission updated successfully' });
     } catch (error) {
         res.status(500).json({ message: 'Failed to update mission', error: error.message });
+    }
+});
+
+router.post('/create', async (req, res) => {
+    try {
+        const missionData = req.body; 
+
+        // should be validated on the frontend, but adding here as a backup
+        if (!missionData.name || !missionData.fleetId || !missionData.areaCoordinates) {
+            return res.status(400).json({ message: "Mission name, fleet ID, and area coordinates are required." });
+        }
+
+        const result = await createMission(missionData); // Call the database function
+
+        if (result.success) {
+            res.status(201).json({ message: `Mission with ID ${result.missionID} created successfully`, missionID: result.missionID }); 
+        } else {
+            res.status(500).json({ message: 'Failed to create mission' }); 
+        }
+
+    } catch (error) {
+        console.error('Error in mission creation endpoint:', error);
+        res.status(500).json({ message: 'Failed to create mission', error: error.message }); // Respond with 500 and error message
     }
 });
 

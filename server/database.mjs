@@ -362,4 +362,34 @@ export async function updateMission(missionId, missionData) {
     }
 }
 
+// This function returns an object with "success" as a boolean and "missionID" containing the autoincrement ID of the newly created mission
+export async function createMission(missionData) {
+    let conn;
+    const { name, fleetId, areaCoordinates, process = 0, averageTemperature = 0, timePassed = 0, timeEstimated = 2880 } = missionData; // Default values for optional fields
+
+    if (!name || !fleetId || !areaCoordinates) {
+        throw new Error("Mission name, fleet ID, and area coordinates are required."); // Basic validation
+    }
+
+    try {
+        conn = await pool.getConnection();
+        const query = `
+            INSERT INTO missions (name, fleetId, area_coordinates, progress, avgTemp, timePassed, timeEstimated)
+            VALUES (?, ?, ?, ?, ?, ?, ?)
+        `;
+        const areaCoordinatesJSON = JSON.stringify(areaCoordinates); // Important: stringify areaCoordinates for database storage
+        const [result] = await conn.execute(query, [name, fleetId, areaCoordinatesJSON, process, averageTemperature, timePassed, timeEstimated]);
+
+        return { success: true, missionID: result.insertId };
+
+    } catch (error) {
+        console.error('Error creating mission:', error);
+        throw error; // Re-throw the error to be handled by the endpoint
+    } finally {
+        if (conn) {
+            await conn.release();
+        }
+    }
+}
+
 
