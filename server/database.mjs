@@ -1,0 +1,301 @@
+import mysql from 'mysql2/promise';
+import assert from 'assert';
+
+const pool = mysql.createPool({
+    host: process.env.DB_HOST || "localhost",
+    user: process.env.DB_USER || "testuser",
+    password: process.env.DB_PASSWORD || "pw",
+    database: process.env.DB_NAME || "embr",
+    port: 3306,
+    waitForConnections: true, // if connection limit is reached, queue the connection and wait for it to be released
+    connectionLimit: 5,
+    maxIdle: 10, // max idle connections
+    idleTimeout: 120000, // idle connections timeout: 2 minutes
+    queueLimit: 0,
+    enableKeepAlive: true,
+    keepAliveInitialDelay: 0,
+});
+
+/*
+    Insert function conventions:    
+        - always return true or false depending on if operation was successful
+        - for now, assumes all required keys in the 'data' object passed in are not null
+        - "botID" has both 'I' and 'D' capitalized
+        - always gets a connection from the pool and releases it
+*/
+
+export async function insertPositionData(data) {
+    let conn; 
+    try {
+
+        // console.log("Inside insertPos");
+        // console.log(data);
+
+        const requiredFields = [
+            'botID',
+            'clockTime',
+            'latitude',
+            'longitude',
+            'altitude',
+            'relativeAltitude',
+            'groundXSpeed',
+            'groundYSpeed',
+            'groundZSpeed',
+            'vehicleHeading'
+        ];
+
+        requiredFields.forEach(field => {
+            assert(data[field] !== undefined, `${field} is required`);
+        });
+
+        conn = await pool.getConnection();
+        const query = 
+            `INSERT INTO \`position\`  
+            (botID, clockTime, latitude, longitude, altitude, relativeAltitude, groundXSpeed, groundYSpeed, groundZSpeed, vehicleHeading)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
+        const params = [
+            data.botID,
+            data.clockTime,
+            data.latitude,
+            data.longitude,
+            data.altitude,
+            data.relativeAltitude,
+            data.groundXSpeed,
+            data.groundYSpeed,
+            data.groundZSpeed,
+            data.vehicleHeading,
+        ];
+        const [results] = await conn.execute(query, params);
+        return results.affectedRows === 1;  // If more than one row is affected, then something went wrong
+    } catch (error) { 
+        console.error("Error inserting position data into the database:", error);
+        return false; 
+    } finally {
+        // Note that this is run even if the above blocks hit the return statement
+        if (conn) {
+            await conn.release();
+        }
+    }
+}
+
+export async function insertTemperatureData(data) {
+
+    let conn; 
+    try {
+
+        // console.log("Inside insertTemp");
+        // console.log(data);
+
+        const requiredFields = [
+            'botID',
+            'clockTime',
+            'temperature',
+        ];
+    
+        requiredFields.forEach(field => {
+            assert(data[field] !== undefined, `${field} is required`);
+        });
+        conn = await pool.getConnection();
+        
+        const query = `INSERT INTO temperature (botID, clockTime, temperature) VALUES (?, ?, ?)`;
+        const params = [
+            data.botID,
+            data.clockTime,
+            data.temperature,
+        ];
+        const [results] = await conn.execute(query, params);
+        return results.affectedRows === 1;  // If more than one row is affected, then something went wrong
+
+    } catch (error) { 
+
+        console.error("Error inserting temperature data into the database:", error);
+        console.log(data)
+        return false; 
+
+    } finally {
+        // Note that this is run even if any of the above blocks hit the return statement
+        if (conn) {
+            await conn.release();
+        }
+    }
+}
+
+export async function insertBatteryData(data) {
+
+    let conn; 
+    try {
+
+        // console.log("Inside insertBattery");
+        // console.log(data);
+
+        const requiredFields = [
+            'botID',
+            'clockTime',
+            'battery',
+        ];
+    
+        requiredFields.forEach(field => {
+            assert(data[field] !== undefined, `${field} is required`);
+        });
+        conn = await pool.getConnection();
+        
+        const query = `INSERT INTO battery (botID, clockTime, battery) VALUES (?, ?, ?)`;
+        const params = [
+            data.botID,
+            data.clockTime,
+            data.battery,
+        ];
+        const [results] = await conn.execute(query, params);
+        return results.affectedRows === 1;  // If more than one row is affected, then something went wrong
+
+    } catch (error) { 
+
+        console.error("Error inserting battery data into the database:", error);
+        console.log(data)
+        return false; 
+
+    } finally {
+        // Note that this is run even if any of the above blocks hit the return statement
+        if (conn) {
+            await conn.release();
+        }
+    }
+}
+
+export async function getAllTemperatureData() {
+    let conn;
+    try {
+        conn = await pool.getConnection();
+        const query = `SELECT temperature.botID, fleetID, temperature FROM temperature JOIN fleet WHERE temperature.botID = fleet.botID`;
+        const [rows, fields] = await conn.execute(query);
+        return rows;
+    } catch (error) {
+        console.error("Error fetching temperature data from the database:", error);
+        return false;
+    } finally {
+        if (conn) {
+            await conn.release();
+        }
+    }
+}
+
+export async function getLatestTemperatureData() {
+    let conn;
+    try {
+        conn = await pool.getConnection();
+        const query = 
+            `SELECT temperature.botID, fleetID, temperature, clockTime
+            FROM temperature
+            JOIN fleet ON temperature.botID = fleet.botID
+            JOIN (
+                SELECT botID, MAX(clockTime) AS latestClockTime
+                FROM temperature
+                GROUP BY botID
+            ) latestTemp
+            ON temperature.botID = latestTemp.botID 
+            AND temperature.clockTime = latestTemp.latestClockTime;`;
+        const [rows, fields] = await conn.execute(query);
+        return rows;
+    } catch (error) {
+        console.error("Error fetching battery data from the database:", error);
+        return false;
+    } finally {
+        if (conn) {
+            await conn.release();
+        }
+    }
+}
+
+export async function getAllBatteryData() {
+    let conn;
+    try {
+        conn = await pool.getConnection();
+        const query = `SELECT battery.botID, fleetID, battery FROM battery JOIN fleet WHERE battery.botID = fleet.botID`;
+        const [rows, fields] = await conn.execute(query);
+        return rows;
+    } catch (error) {
+        console.error("Error fetching battery data from the database:", error);
+        return false;
+    } finally {
+        if (conn) {
+            await conn.release();
+        }
+    }
+}
+
+export async function getLatestBatteryData() {
+    let conn;
+    try {
+        conn = await pool.getConnection();
+        const query = 
+            `SELECT battery.botID, fleetID, battery, clockTime
+            FROM battery
+            JOIN fleet ON battery.botID = fleet.botID
+            JOIN (
+                SELECT botID, MAX(clockTime) AS latestClockTime
+                FROM battery
+                GROUP BY botID
+            ) latestBattery
+            ON battery.botID = latestBattery.botID 
+            AND battery.clockTime = latestBattery.latestClockTime;`;
+        const [rows, fields] = await conn.execute(query);
+        return rows;
+    } catch (error) {
+        console.error("Error fetching battery data from the database:", error);
+        return false;
+    } finally {
+        if (conn) {
+            await conn.release();
+        }
+    }
+}
+
+export async function getLatestFleetData() {
+    let conn;
+    try {
+        conn = await pool.getConnection();
+        const query = `
+            SELECT 
+                p.botID,
+                f.fleetID,
+                p.clockTime AS positionTime,
+                p.latitude,
+                p.longitude,
+                p.altitude,
+                p.relativeAltitude,
+                p.groundXSpeed,
+                p.groundYSpeed,
+                p.groundZSpeed,
+                p.vehicleHeading,
+                t.temperature,
+                b.battery
+            FROM (
+                SELECT botID, latitude, longitude, altitude, relativeAltitude, 
+                       groundXSpeed, groundYSpeed, groundZSpeed, vehicleHeading, clockTime
+                FROM position p1
+                WHERE clockTime = (SELECT MAX(clockTime) FROM position p2 WHERE p1.botID = p2.botID)
+            ) p
+            LEFT JOIN fleet f ON p.botID = f.botID
+            LEFT JOIN (
+                SELECT botID, temperature
+                FROM temperature t1
+                WHERE clockTime = (SELECT MAX(clockTime) FROM temperature t2 WHERE t1.botID = t2.botID)
+            ) t ON p.botID = t.botID
+            LEFT JOIN (
+                SELECT botID, battery
+                FROM battery b1
+                WHERE clockTime = (SELECT MAX(clockTime) FROM battery b2 WHERE b1.botID = b2.botID)
+            ) b ON p.botID = b.botID;
+        `;
+        const [rows] = await conn.execute(query);
+        return rows;
+    } catch (error) {
+        console.error("Error fetching latest bot data from the database:", error);
+        return false;
+    } finally {
+        if (conn) {
+            await conn.release();
+        }
+    }
+}
+

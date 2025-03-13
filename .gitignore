@@ -1,12 +1,8 @@
-# Node modules
-/node_modules
-
-# npm debugging logs
-npm-debug.log*
-
-# yarn.lock file
-yarn.lock
-
 # Dependency directories
 /client/node_modules
+/client/.next
+/client/next-env.d.ts
+
 /server/node_modules
+/server/docker/mysql
+/server/package.json

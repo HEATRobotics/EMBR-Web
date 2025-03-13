@@ -1,0 +1,50 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+    --foreground-rgb: 0, 0, 0;
+    --background-start-rgb: 214, 219, 220;
+    --background-end-rgb: 255, 255, 255;
+}
+
+@media (prefers-color-scheme: dark) {
+    :root {
+        --foreground-rgb: 255, 255, 255;
+        --background-start-rgb: 0, 0, 0;
+        --background-end-rgb: 0, 0, 0;
+    }
+}
+
+body {
+}
+
+@layer utilities {
+    .text-balance {
+        text-wrap: balance;
+    }
+}
+
+.gm-bundled-control {
+    margin: 0 !important;
+    margin-right: 35px !important;
+    margin-bottom: 30px !important;
+}
+
+.gm-style-mtc-bbw {
+    margin-right: 35px !important;
+    margin-bottom: 8px !important;
+    flex-direction: column !important;
+    align-items: end !important;
+}
+
+.ant-dropdown-menu-item {
+    width: fit-content !important;
+    padding: 2px 0px !important;
+    background-color: transparent !important;
+}
+
+.ant-dropdown-menu {
+    border-radius: 22px !important;
+    padding: 10px 8px !important;
+}

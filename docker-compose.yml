@@ -1,0 +1,54 @@
+version: "3.5"
+services:
+
+  server:
+    build:
+      context: ./server
+    container_name: embr-server
+    ports:
+      - "3100:3100"
+    environment:
+      DB_HOST: db # the name of the MySQL service below 
+      DB_USER: testuser
+      DB_PASSWORD: pw
+      DB_NAME: embr
+    depends_on:
+      - db
+    networks:
+      - embr-network
+
+  frontend:
+    build:
+      context: ./client
+    command: npx next dev
+    container_name: embr-frontend
+    ports:
+      - "3000:3000"
+    depends_on:
+      - server
+    networks:
+      - embr-network
+
+  db:
+    image: mysql:8.3.0
+    container_name: embr-db
+    environment:
+      MYSQL_DATABASE: 'embr'
+      MYSQL_USER: 'testuser'
+      MYSQL_PASSWORD: 'pw'
+      MYSQL_ROOT_PASSWORD: 'rpw'
+    ports:
+      - '3306:3306'      
+    volumes:
+      - ./server/docker/mysql/data:/var/lib/mysql:rw
+      - ./server/docker/ddl:/docker-entrypoint-initdb.d  # Automatically loads SQL setup on first run
+    networks:
+      - embr-network
+  
+
+networks:
+  embr-network:
+    ipam:
+      driver: default
+      config:
+        - subnet: "192.168.92.0/24"
