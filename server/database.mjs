@@ -166,7 +166,7 @@ export async function getAllTemperatureData() {
     let conn;
     try {
         conn = await pool.getConnection();
-        const query = `SELECT temperature.botID, fleetID, temperature FROM temperature JOIN fleet WHERE temperature.botID = fleet.botID`;
+        const query = `SELECT temperature.botID, temperature FROM temperature JOIN bot WHERE temperature.botID = bot.botID`;
         const [rows, fields] = await conn.execute(query);
         return rows;
     } catch (error) {
@@ -184,9 +184,9 @@ export async function getLatestTemperatureData() {
     try {
         conn = await pool.getConnection();
         const query = 
-            `SELECT temperature.botID, fleetID, temperature, clockTime
+            `SELECT temperature.botID, temperature, clockTime
             FROM temperature
-            JOIN fleet ON temperature.botID = fleet.botID
+            JOIN bot ON temperature.botID = bot.botID
             JOIN (
                 SELECT botID, MAX(clockTime) AS latestClockTime
                 FROM temperature
@@ -210,7 +210,7 @@ export async function getAllBatteryData() {
     let conn;
     try {
         conn = await pool.getConnection();
-        const query = `SELECT battery.botID, fleetID, battery FROM battery JOIN fleet WHERE battery.botID = fleet.botID`;
+        const query = `SELECT battery.botID, battery FROM battery JOIN bot WHERE battery.botID = bot.botID`;
         const [rows, fields] = await conn.execute(query);
         return rows;
     } catch (error) {
@@ -228,9 +228,9 @@ export async function getLatestBatteryData() {
     try {
         conn = await pool.getConnection();
         const query = 
-            `SELECT battery.botID, fleetID, battery, clockTime
+            `SELECT battery.botID, battery, clockTime
             FROM battery
-            JOIN fleet ON battery.botID = fleet.botID
+            JOIN bot ON battery.botID = bot.botID
             JOIN (
                 SELECT botID, MAX(clockTime) AS latestClockTime
                 FROM battery
@@ -255,14 +255,13 @@ export async function getLatestBatteryData() {
     This function retrieves the most recent position, temperature, and battery data for each bot in the fleet.
     Returns an array of objects containing the latest fleet data if successful, or false if an error occurs.
  */
-export async function getLatestFleetData() {
+export async function getLatestBotData() {
     let conn;
     try {
         conn = await pool.getConnection();
         const query = `
             SELECT 
                 p.botID,
-                f.fleetID,
                 p.clockTime AS positionTime,
                 p.latitude,
                 p.longitude,
@@ -280,7 +279,7 @@ export async function getLatestFleetData() {
                 FROM position p1
                 WHERE clockTime = (SELECT MAX(clockTime) FROM position p2 WHERE p1.botID = p2.botID)
             ) p
-            LEFT JOIN fleet f ON p.botID = f.botID
+            LEFT JOIN bot ON p.botID = bot.botID
             LEFT JOIN (
                 SELECT botID, temperature
                 FROM temperature t1
@@ -309,15 +308,15 @@ export async function getLatestFleetData() {
     Mission data includes fleetID, areaCoordinates, progress, avgTemp, etc
     Returns object containing mission data if successful, or false if an error occurs.
  */
-export async function getMissionByFleetID(missionID) {
+export async function getMissionByBotID(missionID) {
     let conn;
     try {
         conn = await pool.getConnection();
-        const query = `SELECT * FROM missions WHERE fleetID = ?`;
+        const query = `SELECT * FROM missions WHERE botID = ?`;
         const [rows] = await conn.execute(query, [missionID]);
         return rows[0];
     } catch (error) {
-        console.error('Error getting mission by Fleet ID:', error);
+        console.error('Error getting mission by Bot ID:', error);
         return false;
     } finally {
         if (conn) {
@@ -365,20 +364,20 @@ export async function updateMission(missionId, missionData) {
 // This function returns an object with "success" as a boolean and "missionID" containing the autoincrement ID of the newly created mission
 export async function createMission(missionData) {
     let conn;
-    const { name, fleetId, areaCoordinates, process = 0, averageTemperature = 0, timePassed = 0, timeEstimated = 2880 } = missionData; // Default values for optional fields
+    const { name, botID, areaCoordinates, process = 0, averageTemperature = 0, timePassed = 0, timeEstimated = 2880 } = missionData; // Default values for optional fields
 
-    if (!name || !fleetId || !areaCoordinates) {
+    if (!name || !botID || !areaCoordinates) {
         throw new Error("Mission name, fleet ID, and area coordinates are required."); // Basic validation
     }
 
     try {
         conn = await pool.getConnection();
         const query = `
-            INSERT INTO missions (name, fleetId, area_coordinates, progress, avgTemp, timePassed, timeEstimated)
+            INSERT INTO missions (name, botID, areaCoordinates, progress, avgTemp, timePassed, timeEstimated)
             VALUES (?, ?, ?, ?, ?, ?, ?)
         `;
         const areaCoordinatesJSON = JSON.stringify(areaCoordinates); // Important: stringify areaCoordinates for database storage
-        const [result] = await conn.execute(query, [name, fleetId, areaCoordinatesJSON, process, averageTemperature, timePassed, timeEstimated]);
+        const [result] = await conn.execute(query, [name, botID, areaCoordinatesJSON, process, averageTemperature, timePassed, timeEstimated]);
 
         return { success: true, missionID: result.insertId };
 

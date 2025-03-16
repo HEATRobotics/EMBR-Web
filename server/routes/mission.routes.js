@@ -1,12 +1,12 @@
 import express from 'express';
-import { getMissionByFleetID, getAllMissions, updateMission, createMission } from '../database.mjs';
+import { getMissionByBotID, getAllMissions, updateMission, createMission } from '../database.mjs';
 
 const router = express.Router();
 
 // Get a mission by ID
 router.get('/get/:id', async (req, res) => {
     try {
-        const mission = await getMissionByFleetID(req.params.id);
+        const mission = await getMissionByBotID(req.params.id);
         if (mission) {
             res.json(mission);
         } else {
@@ -42,8 +42,8 @@ router.post('/create', async (req, res) => {
         const missionData = req.body; 
 
         // should be validated on the frontend, but adding here as a backup
-        if (!missionData.name || !missionData.fleetId || !missionData.areaCoordinates) {
-            return res.status(400).json({ message: "Mission name, fleet ID, and area coordinates are required." });
+        if (!missionData.name || !missionData.botID || !missionData.areaCoordinates) {
+            return res.status(400).json({ message: "Mission name, bot ID, and area coordinates are required." });
         }
 
         const result = await createMission(missionData); // Call the database function

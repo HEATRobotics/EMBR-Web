@@ -1,29 +1,35 @@
-import React, { useEffect, useState } from 'react';
+// MissionCreate.tsx
+import React, { useEffect, useState, useCallback } from 'react';
 import { MissionType } from '@/types/mission.type';
+import { RobotType } from '@/types/robot.type';
 import { Input, Select } from 'antd';
+import MapRectangleDrawTool from '@/components/MapTools/MapRectangleDrawTool'; 
+import { CoordinatesType } from '@/types/coordinate.type';
 
 function MissionCreate({
     cancelCreate,
     saveCreate,
     newMission,
     setNewMission,
-    fleets,
+    bots,
 }: {
     cancelCreate: () => void;
     saveCreate: (mission: MissionType) => void;
     newMission: MissionType;
     setNewMission: React.Dispatch<React.SetStateAction<MissionType>>;
-    fleets: { value: string | number; label: string }[];
+    bots: RobotType[];
 }) {
     const [activeStep, setActiveStep] = useState(0);
     const [inputValue, setInputValue] = useState('');
+    const [isDrawing, setIsDrawing] = useState(false); 
+
+    const botOptions = bots.map((bot) => ({ value: bot.id, label: bot.name }));
 
     useEffect(() => {
         if (newMission) {
             if (newMission.areaCoordinates) {
                 setActiveStep(1);
             }
-
             if (newMission.fleetId) {
                 setActiveStep(2);
             }
@@ -44,6 +50,25 @@ function MissionCreate({
         saveCreate({ ...newMission, name: inputValue });
     };
 
+    const handleAreaSelectClick = () => {
+        setIsDrawing(true); 
+        setActiveStep(0); 
+        setNewMission((prev) => ({ ...prev, areaCoordinates: undefined })); // Clear previous area
+    };
+
+    const handleBoundsChanged = useCallback((bounds: google.maps.LatLngBoundsLiteral | undefined) => {
+        if (bounds) {
+            const coordinates: CoordinatesType[] = [
+                { lat: bounds.north, lng: bounds.west },
+                { lat: bounds.south, lng: bounds.east }
+            ];
+
+            setNewMission((prev) => ({ ...prev, areaCoordinates: coordinates }));
+            setActiveStep(1); // Move to the next step after area is selected
+            setIsDrawing(false); // Turn off drawing mode after rectangle is drawn
+        }
+    }, [setNewMission]);
+
     return (
         <div className="max-w-[310px] justify-self-end self-end flex flex-col items-end gap-y-3">
             <button className="left-[35px] px-3.5 py-1 w-fit rounded-[22px] text-[15px] leading-[18px] bg-orange" onClick={cancelCreate}>
@@ -52,9 +77,21 @@ function MissionCreate({
             <div className="flex flex-col py-5 px-[27px] gap-y-5 rounded-[22px] bg-white">
                 <p className="text-[20px] leading-6">Create a new mission</p>
                 <div className="flex flex-col gap-y-2.5">
-                    <p className="text-[15px] leading-[18px]" style={{ color: activeStep === 0 ? 'black' : '#B1B1B1' }}>
-                        Select an area
-                    </p>
+                    <div className="text-[15px] leading-[18px]" style={{ color: activeStep === 0 ? 'black' : '#B1B1B1' }}>
+                        <p>Select an area</p>
+                        {activeStep <= 0 && (
+                            <button
+                                onClick={handleAreaSelectClick}
+                                className="left-[35px] px-3.5 py-1 rounded-[22px] text-[15px] leading-[18px] border border-black hover:!bg-lightgray disabled:!bg-transparent"
+                            >
+                                Draw Area
+                            </button>
+                        )}
+                         {newMission.areaCoordinates && activeStep >= 1 && (
+                            <p className="text-green-500">Area Selected</p>
+                        )}
+                    </div>
+
                     <div className="text-[15px] leading-[18px] flex flex-col gap-y-2.5" style={{ color: activeStep === 1 ? 'black' : '#B1B1B1' }}>
                         <p>Select a fleet</p>
                         {activeStep >= 1 && (
@@ -68,7 +105,7 @@ function MissionCreate({
                                 className="[&_div.ant-select-selector]:!bg-transparent [&.ant-select-disabled_*]:!cursor-default"
                                 filterOption={(input, option) => (option?.label ?? '').includes(input)}
                                 filterSort={(optionA, optionB) => (optionA?.label ?? '').toLowerCase().localeCompare((optionB?.label ?? '').toLowerCase())}
-                                options={fleets}
+                                options={botOptions}
                             />
                         )}
                     </div>
@@ -78,11 +115,13 @@ function MissionCreate({
                     </div>
                 </div>
             </div>
-            {inputValue && (
+            {inputValue && activeStep >= 2 && ( // Only show save button when name is inputted and at step 2 or later
                 <button className="left-[35px] px-3.5 py-1 w-fit rounded-[22px] text-[15px] leading-[18px] bg-orange" onClick={handleSave}>
                     save
                 </button>
             )}
+             {/* Render MapRectangleDrawTool only when creating mission and after map is loaded */}
+            {/* <MapRectangleDrawTool drawingMode={isDrawing} onBoundsChanged={handleBoundsChanged} /> */}
         </div>
     );
 }
