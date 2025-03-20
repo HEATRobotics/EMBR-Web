@@ -210,7 +210,7 @@ export async function getAllBatteryData() {
     let conn;
     try {
         conn = await pool.getConnection();
-        const query = `SELECT battery.botID, fleetID, battery FROM battery JOIN fleet WHERE battery.botID = fleet.botID`;
+        const query = `SELECT battery.botID, fleetID, battery, clockTime FROM battery JOIN fleet WHERE battery.botID = fleet.botID`;
         const [rows, fields] = await conn.execute(query);
         return rows;
     } catch (error) {

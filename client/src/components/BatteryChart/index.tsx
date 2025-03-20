@@ -3,23 +3,26 @@ import { Line } from 'react-chartjs-2';
 import 'chart.js/auto';
 import { getTagStyle } from '@/utils/getTagStyle';
 import Tag from '@/components/FleetDetails/Tag';
+import { useAllBatteryData } from '@/hooks/useAllBatteryData';
+import { useLatestBatteryData } from '@/hooks/useLatestBatteryData';
 
-interface RealTimeChartProps {
+interface BatteryChart {
     title?: string;
     lineColor?: string;
-    dataFeed?: () => number;
     tags?: { label: string; url?: string }[];
+    size: number;
 }
 
-const RealTimeChart: React.FC<RealTimeChartProps> = ({ title = 'Add a title to the chart', lineColor = 'rgb(75, 192, 192)', dataFeed: dataFeed, tags = [] }) => {
-    const [lastTemperature, setLastTemperature] = useState<number>(50);
-
+const BatteryChart: React.FC<BatteryChart> = ({ title = 'Add a title to the chart', lineColor = 'rgb(75, 192, 192)', tags = [] }) => {
+    const [lastTemperature, setLastTemperature] = useState<number>(-1);
+    const {id, battery, loading, error} = useLatestBatteryData();
+    const { id: allIds, battery: allBatteries, loading: allLoading, error: allError } = useAllBatteryData();
     const [data, setData] = useState({
-        labels: Array.from({ length: 30 }, (_, i) => i),
+        labels: Array.from({ length: 10 }, (_, i) => i),
         datasets: [
             {
                 label: 'Real-time Data',
-                data: Array.from({ length: 30 }, () => (null)), //empty data init
+                data: Array.from({ length: 10 }, () => (null)), // null data init
                 borderColor: lineColor,
                 borderWidth: 2,
                 fill: false,
@@ -28,21 +31,39 @@ const RealTimeChart: React.FC<RealTimeChartProps> = ({ title = 'Add a title to t
         ],
     });
 
+    //this should only be called once to initialize the past data
     useEffect(() => {
+        console.log('INITBATTERY:', allBatteries);
+        if (allBatteries && allBatteries.length > 0) {
+          setData((prevData) => {
+            const newData = { ...prevData };
+            newData.datasets[0].data.shift();
+            newData.datasets[0].data.push(allBatteries[0]);
+            newData.labels = newData.labels.map((label) => label + 1);
+            return newData;
+          });
+        }
+      }, []);
+
+    //this is called regularly
+    useEffect(() => {
+        console.log('BOTDATA:', data);
         const interval = setInterval(() => {
-            setData((prevData) => {
-                const newData = { ...prevData };
-                const newTemp = dataFeed ? dataFeed() : null;
-                newData.datasets[0].data.shift();
-                newData.datasets[0].data.push(newTemp);
-                setLastTemperature(newTemp);
-                newData.labels = newData.labels.map((label) => label + 1);
-                return newData;
-            });
-        }, 800);
+          setData((prevData) => {
+            if (battery && battery.length > 0) {
+              const newData = { ...prevData };
+              console.log('LATESTBATTERY:', battery);
+              newData.datasets[0].data.shift();
+              newData.datasets[0].data.push(battery[0]);
+              newData.labels = newData.labels.map((label) => label + 1);
+              return newData;
+            }
+            return prevData;
+          });
+        }, 5000); //change interval here
 
         return () => clearInterval(interval);
-    }, [dataFeed, lastTemperature]);
+    }, [battery]);
 
     const options = useMemo(
         () => ({
@@ -51,7 +72,7 @@ const RealTimeChart: React.FC<RealTimeChartProps> = ({ title = 'Add a title to t
             scales: {
                 y: {
                     min: 0,
-                    max: 220,
+                    max: 100,
                 },
             },
             plugins: {
@@ -90,4 +111,4 @@ const RealTimeChart: React.FC<RealTimeChartProps> = ({ title = 'Add a title to t
     );
 };
 
-export default RealTimeChart;
+export default BatteryChart;

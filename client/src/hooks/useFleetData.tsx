@@ -51,8 +51,6 @@ export function useFleetData() {
                     name: `Bot ${bot.botID}`,
                     state,
                     coordinates,
-                    temperature: bot.temperature,
-                    battery: bot.battery,
                 };
             });
 
