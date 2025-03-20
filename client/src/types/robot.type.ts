@@ -11,6 +11,4 @@ export interface RobotType {
   name: string;
   state: "active" | "chargingRequired" | "attentionRequired" | "systemFailed";
   coordinates: CoordinatesType;
-  temperature: number;
-  battery: number;
 }

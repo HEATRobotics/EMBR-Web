@@ -2,28 +2,28 @@ import React, { useEffect, useState, useRef, useMemo } from 'react';
 import { Line } from 'react-chartjs-2';
 import 'chart.js/auto';
 import Tag from '@/components/FleetDetails/Tag';
-import { useAllBatteryData } from '@/hooks/useAllBatteryData';
-import { useLatestBatteryData } from '@/hooks/useLatestBatteryData';
+import { useAllTemperatureData } from '@/hooks/useAllTemperatureData';
+import { useLatestTemperatureData } from '@/hooks/useLatestTemperatureData';
 
-interface BatteryChartProps {
+interface TemperatureChartProps {
     title?: string;
     lineColor?: string;
     tags?: { label: string; url?: string }[];
 }
 
-const BatteryChart: React.FC<BatteryChartProps> = ({
-    title = 'Battery Chart',
+const TemperatureChart: React.FC<TemperatureChartProps> = ({
+    title = 'Temperature Chart',
     lineColor = 'rgb(75, 192, 192)',
     tags = [],
 }) => {
-    const {battery: allBatteries, clockTime: allClockTimes } = useAllBatteryData();
-    const {battery, clockTime } = useLatestBatteryData();
+    const {temperature: allTemperatures, clockTime: allClockTimes } = useAllTemperatureData();
+    const {temperature, clockTime } = useLatestTemperatureData();
     
     const [data, setData] = useState({
         labels: [] as string[],
         datasets: [
             {
-                label: 'Battery Level',
+                label: 'Temperature',
                 data: [] as number[],
                 borderColor: lineColor,
                 borderWidth: 2,
@@ -37,7 +37,7 @@ const BatteryChart: React.FC<BatteryChartProps> = ({
     const hasInitialized = useRef(false); // Tracks if effect has already run
 
     useEffect(() => {
-        if (!allBatteries?.length || !allClockTimes?.length) { // Ensure data is available
+        if (!allTemperatures?.length || !allClockTimes?.length) { // Ensure data is available
             return;
         } 
         if (hasInitialized.current) return; // Prevent running more than once
@@ -55,18 +55,18 @@ const BatteryChart: React.FC<BatteryChartProps> = ({
             datasets: [
                 {
                     ...data.datasets[0],
-                    data: allBatteries,
+                    data: allTemperatures,
                 },
             ],
         });
         hasInitialized.current = true;
 
-    }, [allBatteries, allClockTimes]);
+    }, [allTemperatures, allClockTimes]);
 
     // Regularly update chart with new data
     useEffect(() => {
         
-        if (battery.length > 0) {
+        if (temperature.length > 0) {
             setData((prevData) => ({
                 labels: [...prevData.labels, new Date(clockTime[0]).toLocaleString('en-US', { 
                     month: '2-digit',
@@ -79,13 +79,13 @@ const BatteryChart: React.FC<BatteryChartProps> = ({
                 datasets: [
                     {
                         ...prevData.datasets[0],
-                        data: [...prevData.datasets[0].data, battery[0]], // Append new battery value
+                        data: [...prevData.datasets[0].data, temperature[0]], // Append new temperature value
                     },
                 ],
             }));
         }
 
-    }, [battery, clockTime]);
+    }, [temperature, clockTime]);
 
     const options = useMemo(
         () => ({
@@ -122,4 +122,4 @@ const BatteryChart: React.FC<BatteryChartProps> = ({
     );
 };
 
-export default BatteryChart;
+export default TemperatureChart;

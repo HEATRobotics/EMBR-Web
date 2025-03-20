@@ -4,34 +4,34 @@ import axios from 'axios';
 
 const API_BASE_URL = 'http://localhost:3100/api';
 
-export function useAllBatteryData() {
-   // const [id, setId] = useState<Number[]>(null);
-    const [battery, setBattery] = useState<Number[]>([]);
+export function useAllTemperatureData() {
+    // const [id, setId] = useState<Number[]>(null);
+    const [temperature, setTemperature] = useState<Number[]>([]);
     const [clockTime, setClockTime] = useState<Date[]>([]);
     const [loading, setLoading] = useState<boolean>(true);
     const [error, setError] = useState<string | null>(null);
 
-    const fetchAllBatteryData = async () => {
+    const fetchAllTemperatureData = async () => {
         try {
-            const response = await axios.get(`${API_BASE_URL}/battery/all`);
-            console.log('All battery information fetched!', response.data);
+            const response = await axios.get(`${API_BASE_URL}/temperature/all`);
+            console.log('All temperature information fetched!', response.data);
 
             const d = response.data;
 
-            const batteryList: Number[] = [];
-            setBattery(() => {
+            const tempList: Number[] = [];
+            setTemperature(() => {
                 for(let i = 0; i < d.length; i++){
-                    if(d[i].botID == 1){ //NOTE: since there is only one EMBR robot this is hard coded.
-                        batteryList.push(d[i].battery);
+                    if(d[i].botID == 2){ //NOTE: since there is only one EMBR robot this is hard coded.
+                        tempList.push(d[i].temperature);
                     }
                 }
-                return batteryList;
+                return tempList;
             });
 
             const timeList: Date[] = [];
             setClockTime(() => {
                 for(let i = 0; i < d.length; i++){
-                    if(d[i].botID == 1){ //NOTE: since there is only one EMBR robot this is hard coded.
+                    if(d[i].botID == 2){ //NOTE: since there is only one EMBR robot this is hard coded.
                         timeList.push(d[i].clockTime);
                     }
                 }
@@ -39,7 +39,7 @@ export function useAllBatteryData() {
             });
             setError(null);
         } catch (err: any) {
-            setError('Failed to fetch all battery data.');
+            setError('Failed to fetch all temperature data.');
             console.error(err);
         } finally {
             setLoading(false);
@@ -48,10 +48,10 @@ export function useAllBatteryData() {
 
     useEffect(() => {
         // Fetch all data every 5 seconds (adjust as needed)
-        const interval = setInterval(fetchAllBatteryData, 5000);
+        const interval = setInterval(fetchAllTemperatureData, 5000);
 
         return () => clearInterval(interval);
     },[]);
 
-    return {battery, clockTime, loading, error };
+    return {temperature, clockTime, loading, error };
 }

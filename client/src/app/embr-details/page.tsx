@@ -8,6 +8,7 @@ import { generateRandomThermalTemperature } from '@/utils/generateRandomThermalT
 import InfoDetails from '@/components/FleetDetails/InfoDetails';
 import ModelDetails from '@/components/FleetDetails/ModelDetails';
 import Link from 'next/link';
+import TemperatureChart from '@/components/TemperatureChart';
 
 const EmbrDetails = () => {
 
@@ -22,11 +23,10 @@ const EmbrDetails = () => {
                 <BatteryChart
                     lineColor="#008080"
                     title={"Battery"}
-                    tags={[{label: "active"}]}
                 />
-                <BatteryChart
+                <TemperatureChart
+                    lineColor="#FF0000"
                     title={"Temperature Probe"}
-                    tags={[{label: "active"}]}
                 />
             </div>
             <div className="absolute top-5 right-5">
