@@ -2,7 +2,7 @@
 import React from 'react';
 import BatteryChart from '@/components/BatteryChart';
 import FleetTitle from '@/components/FleetDetails/FleetTitle';
-import BatteryIndicatorComponent from '@/components/FleetDetails/BatteryIndicator';
+import StatusOverviewComponent from '@/components/FleetDetails/StatusOverview';
 import InfoDetails from '@/components/FleetDetails/InfoDetails';
 import Link from 'next/link';
 import TemperatureChart from '@/components/TemperatureChart';
@@ -12,9 +12,7 @@ const EmbrDetails = () => {
     return (
         <div className="grid grid-cols-[1fr_4fr] pl-[40px] pr-[40px] h-[100vh] relative">
             <div>
-                <FleetTitle title={"TEST"}/>
-                <BatteryIndicatorComponent level={18}/>
-                <InfoDetails/>
+                <StatusOverviewComponent/>
             </div>
             <div className="grid grid-cols-2 grid-rows-2 gap-4 ml-[40px] pt-[2.5vh] pb-[2.5vh]">
                 <BatteryChart

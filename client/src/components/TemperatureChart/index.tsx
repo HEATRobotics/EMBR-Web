@@ -92,10 +92,7 @@ const TemperatureChart: React.FC<TemperatureChartProps> = ({
             maintainAspectRatio: false,
             responsive: true,
             scales: {
-                y: {
-                    min: 0,
-                    max: 100, //Adjust range accordingly
-                },
+                y: {},//left empty for autoscaling
                 x: {
                     ticks: {
                         autoSkip: true,
