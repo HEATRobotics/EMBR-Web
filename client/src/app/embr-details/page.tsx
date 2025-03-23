@@ -1,12 +1,9 @@
 'use client';
-import React, {useState, useCallback, useEffect} from 'react';
+import React from 'react';
 import BatteryChart from '@/components/BatteryChart';
 import FleetTitle from '@/components/FleetDetails/FleetTitle';
 import BatteryIndicatorComponent from '@/components/FleetDetails/BatteryIndicator';
-import { generateRandomTemperature } from '@/utils/generateRandomTemperature';
-import { generateRandomThermalTemperature } from '@/utils/generateRandomThermalTemperature';
 import InfoDetails from '@/components/FleetDetails/InfoDetails';
-import ModelDetails from '@/components/FleetDetails/ModelDetails';
 import Link from 'next/link';
 import TemperatureChart from '@/components/TemperatureChart';
 

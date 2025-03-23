@@ -94,7 +94,7 @@ const TemperatureChart: React.FC<TemperatureChartProps> = ({
             scales: {
                 y: {
                     min: 0,
-                    max: 100,
+                    max: 100, //Adjust range accordingly
                 },
                 x: {
                     ticks: {
