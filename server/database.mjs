@@ -370,10 +370,12 @@ export async function createMission(missionData) {
         throw new Error("Mission name, fleet ID, and area coordinates are required."); // Basic validation
     }
 
+    console.log("made it in DB createMission");
+
     try {
         conn = await pool.getConnection();
         const query = `
-            INSERT INTO mission (name, botID, areaCoordinates, progress, avgTemp, timePassed, timeEstimated)
+            INSERT INTO mission (missionName, botID, areaCoordinates, progress, avgTemp, timePassed, timeEstimated)
             VALUES (?, ?, ?, ?, ?, ?, ?)
         `;
         const areaCoordinatesJSON = JSON.stringify(areaCoordinates); // Important: stringify areaCoordinates for database storage

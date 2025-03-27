@@ -23,6 +23,7 @@ import MapDrawUtils from "@/utils/MapDrawUtils";
 import MapTools from "@/components/MapTools";
 import EmbrDetails from "@/app/embr-details/page";
 import { RobotType } from "@/types/robot.type";
+import { addMissionToDB } from "@/api/missions.api";
 
 /*
   Main TODO's: 
@@ -125,7 +126,7 @@ const CustomGoogleMap: React.FC = () => {
   const [activeInfoTab, setActiveInfoTab] = useState<"Mission Info" | "Bot Info">("Mission Info");
 
   const { bots, botsLoading, botError } = useBotData();
-  const { missionData, missionLoading, missionError, setMission } = useMissions();
+  const { missionsData, missionsLoading, missionsError, setMissions } = useMissions();
 
   const { isLoaded } = useJsApiLoader({
     id: "google-map-script",
@@ -159,17 +160,19 @@ const CustomGoogleMap: React.FC = () => {
     setMap(null);
   }, []);
 
-  const saveCreate = (mission: MissionType) => {
+  const saveCreate = async (mission: MissionType) => {
     setActiveMissionCreate(false);
     console.log("Called saveCreate");
+
+    // Ensure missionsData is always an array
+    const updatedMissions = [...(missionsData ?? []), mission];
+    setMissions(updatedMissions);
+
+    const response = await addMissionToDB(mission);
+    console.log("Mission with ID ", response.missionID, " created successfully.");
+    console.log("Response from addMissionToDB:", response);
+
     /*
-    console.log
-
-    // Ensure missionData is always an array
-    const updatedMissions = [...(missionData ?? []), mission];
-    setMission(updatedMissions);
-
-
     localStorage.setItem(
       "customMissions",
       JSON.stringify([
@@ -177,8 +180,6 @@ const CustomGoogleMap: React.FC = () => {
         mission,
       ])
     );
-
-    console.log("Calling /create endpoint");
     */
   };
 
@@ -226,7 +227,7 @@ const CustomGoogleMap: React.FC = () => {
 
   // Update map with new fleet data
   useEffect(updateBots, [bots, map])
-  useEffect(updateAreaCoordinates, [missionData, map])
+  useEffect(updateAreaCoordinates, [missionsData, map])
 
   function updateBots() {
     if (!map || !bots || bots.length === 0)
@@ -236,10 +237,10 @@ const CustomGoogleMap: React.FC = () => {
   }
 
   function updateAreaCoordinates() {
-    if (!map || !missionData || missionData.length === 0)
+    if (!map || !missionsData || missionsData.length === 0)
       return;
     console.log("Drawing Rectangle")
-    MapDrawUtils.drawMissionAreas(missionData, map);
+    MapDrawUtils.drawMissionAreas(missionsData, map);
   }
 
   const handleMissionClick: MenuProps["onClick"] = ({ key }) => {

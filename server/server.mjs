@@ -16,6 +16,9 @@ app.use(cors({
     methods: 'GET,POST', // Allow only specified HTTP methods
     credentials: true // Allow cookies to be sent cross-origin
 }));
+app.use(express.json()); 
+
+// Routes (TODO: Move the other routes to separate files, like how we separated the mission routes into mission.routes.js)
 app.use('/api/missions', missionRoutes);
 
 // Object to store latest datapoints of each type of data. Each type is an array so we can keep track of latest position and temp data from multiple bots.
