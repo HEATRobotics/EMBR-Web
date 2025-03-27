@@ -312,7 +312,7 @@ export async function getMissionByBotID(missionID) {
     let conn;
     try {
         conn = await pool.getConnection();
-        const query = `SELECT * FROM missions WHERE botID = ?`;
+        const query = `SELECT * FROM mission WHERE botID = ?`;
         const [rows] = await conn.execute(query, [missionID]);
         return rows[0];
     } catch (error) {
@@ -332,7 +332,7 @@ export async function getAllMissions() {
     let conn;
     try {
         conn = await pool.getConnection();
-        const query = `SELECT * FROM missions`;
+        const query = `SELECT * FROM mission`;
         const [rows] = await conn.execute(query);
         return rows;
     } catch (error) {
@@ -350,7 +350,7 @@ export async function updateMission(missionId, missionData) {
     try {
         const connection = await pool.getConnection();
         await connection.execute(
-            'UPDATE missions SET name = ?, area_coordinates = ?, progress = ?, avgTemp = ?, timePassed = ?, timeEstimated = ? WHERE missionID = ?',
+            'UPDATE mission SET name = ?, area_coordinates = ?, progress = ?, avgTemp = ?, timePassed = ?, timeEstimated = ? WHERE missionID = ?',
             [name, JSON.stringify(areaCoordinates), process, averageTemperature, timePassed, timeEstimated, missionId]
         );
         connection.release();
@@ -373,7 +373,7 @@ export async function createMission(missionData) {
     try {
         conn = await pool.getConnection();
         const query = `
-            INSERT INTO missions (name, botID, areaCoordinates, progress, avgTemp, timePassed, timeEstimated)
+            INSERT INTO mission (name, botID, areaCoordinates, progress, avgTemp, timePassed, timeEstimated)
             VALUES (?, ?, ?, ?, ?, ?, ?)
         `;
         const areaCoordinatesJSON = JSON.stringify(areaCoordinates); // Important: stringify areaCoordinates for database storage

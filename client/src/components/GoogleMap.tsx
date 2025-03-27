@@ -22,6 +22,7 @@ import { useMissions } from "@/hooks/useMissions";
 import MapDrawUtils from "@/utils/MapDrawUtils";
 import MapTools from "@/components/MapTools";
 import EmbrDetails from "@/app/embr-details/page";
+import { RobotType } from "@/types/robot.type";
 
 /*
   Main TODO's: 
@@ -65,14 +66,16 @@ const ubcoCoords: google.maps.LatLngLiteral = {
 
 const newMissionTemplate: MissionType = {
   name: "",
-  fleetId: "",
-  process: 0,
+  botID: 0,
+  progress: 0,
   hotspots: [],
   averageTemperature: 0,
   timePassed: 0,
   timeEstimated: 2880,
-  areaCoordinates: undefined,
-  robots: [],
+  areaCoordinates: [
+    { lat: 49.94909, lng: -119.40673 },
+    { lat: 49.92712, lng: -119.38269 },
+  ],
 };
 
 const items: MenuProps["items"] = [
@@ -112,7 +115,7 @@ const CustomGoogleMap: React.FC = () => {
   const router = useRouter();
   const dispatch = useAppDispatch();
   const [map, setMap] = useState<google.maps.Map | null>(null);
-  const [activeBot, setActiveBot] = useState<string | number | null>(null);
+  const [activeBot, setActiveBot] = useState<RobotType | null>(null);
   const [activeMissionCreate, setActiveMissionCreate] = useState<boolean>(false);
   const [cancelDrawing, setCancelDrawing] = useState<any>();
   const [newMission, setNewMission] = useState<MissionType>(newMissionTemplate);
@@ -158,15 +161,25 @@ const CustomGoogleMap: React.FC = () => {
 
   const saveCreate = (mission: MissionType) => {
     setActiveMissionCreate(false);
-    // Missions not supported yet, so this is commented out for now
-    // updateFleets([mission]);
-    // localStorage.setItem(
-    //   "customMissions",
-    //   JSON.stringify([
-    //     ...JSON.parse(localStorage.getItem("customMissions") || "[]"),
-    //     mission,
-    //   ])
-    // );
+    console.log("Called saveCreate");
+    /*
+    console.log
+
+    // Ensure missionData is always an array
+    const updatedMissions = [...(missionData ?? []), mission];
+    setMission(updatedMissions);
+
+
+    localStorage.setItem(
+      "customMissions",
+      JSON.stringify([
+        ...JSON.parse(localStorage.getItem("customMissions") || "[]"),
+        mission,
+      ])
+    );
+
+    console.log("Calling /create endpoint");
+    */
   };
 
   const cancelCreate = () => {
@@ -192,103 +205,6 @@ const CustomGoogleMap: React.FC = () => {
     });
   };
 
-  /*    This is commented out because it uses hardcoded "missions" for each fleet, and for now the logic for missions is still undecided 
-
-  const updateFleets = (newMissions: MissionType[]) => {
-    const updatedFleets = fleets.map((fleet) => {
-      const fleetMissions = newMissions.filter(
-        (mission: MissionType) => mission.fleetId === fleet.id
-      );
-      return {
-        ...fleet,
-        missions: [...fleet.missions, ...fleetMissions],
-      };
-    });
-
-    setFleets(updatedFleets);
-
-    updatedFleets.forEach((fleet) =>
-      fleet.missions.forEach((mission) => {
-        const redPoly = new google.maps.Polygon({
-          paths: mission.redCoordinates,
-          strokeColor: "#FF3131",
-          strokeWeight: 2,
-          fillColor: "#FF3131",
-          fillOpacity: 0.15,
-        });
-        const orangePoly = new google.maps.Polygon({
-          paths: mission.orangeCoordinates,
-          strokeColor: "#F57C15",
-          strokeWeight: 2,
-          fillColor: "#F57C15",
-          fillOpacity: 0.1,
-        });
-        const bluePoly = new google.maps.Polygon({
-          paths: mission.blueCoordinates,
-          strokeColor: "#0054EA",
-          strokeWeight: 2,
-          fillColor: "#0054EA",
-          fillOpacity: 0.05,
-        });
-
-        mission.robots?.forEach((robot: RobotType) => {
-          const svgMarker = {
-            path: `M5,10a5,5 0 1,0 10,0a5,5 0 1,0 -10,0`,
-            fillColor: RobotStateType[robot.state].color,
-            fillOpacity: 1,
-            strokeWeight: 0,
-            rotation: 0,
-            scale: 2,
-            anchor: new google.maps.Point(10, 10),
-          };
-
-          const marker = new google.maps.Marker({
-            position: robot.coordinates,
-            icon: svgMarker,
-            label: {
-              text: robot.name,
-              color: RobotStateType[robot.state].color,
-            },
-            map,
-          });
-
-          marker.addListener("click", () => {
-            router.push("/embr-details");
-          });
-        });
-
-      })
-    );
-
-    return updatedFleets;
-  };
-
-  */
-
-  const drawMissionAreaRectangles = useCallback(() => {
-    if (!map || !missionData) {
-      return;
-    }
-
-    missionData.forEach((mission: any) => {
-      if (mission.areaCoordinates) {
-        const bounds = new google.maps.LatLngBounds(
-          { lat: mission.areaCoordinates.south, lng: mission.areaCoordinates.west }, // southwest/bottom-left corner
-          { lat: mission.areaCoordinates.north, lng: mission.areaCoordinates.east }  // northeast/top-right corner
-        );
-
-        const missionRectangle = new google.maps.Rectangle({
-          bounds: bounds,
-          fillColor: "#AA0000",
-          fillOpacity: 0.2,
-          strokeColor: "#FF0000",
-          strokeWeight: 1,
-          map: map,
-        });
-      }
-    });
-  }, [map, missionData]);
-
   // Adjust Camera Position to Active Fleet. 
   // If none move camera to UBCO campus.
   useEffect(() => {
@@ -303,14 +219,14 @@ const CustomGoogleMap: React.FC = () => {
     }
 
     // Center on active fleet
-    map.setCenter(bots.find((bot) => bot.id === activeBot)?.coordinates!);
+    map.setCenter(bots.find((bot) => bot.id === activeBot.id)?.coordinates!);
     map.setZoom(zoomFleet);
 
   }, [activeBot, map]);
 
   // Update map with new fleet data
   useEffect(updateBots, [bots, map])
-  useEffect(updateAreaCoordinates, [drawMissionAreaRectangles, missionData, map])
+  useEffect(updateAreaCoordinates, [missionData, map])
 
   function updateBots() {
     if (!map || !bots || bots.length === 0)
@@ -323,7 +239,7 @@ const CustomGoogleMap: React.FC = () => {
     if (!map || !missionData || missionData.length === 0)
       return;
     console.log("Drawing Rectangle")
-    drawMissionAreaRectangles();
+    MapDrawUtils.drawMissionAreas(missionData, map);
   }
 
   const handleMissionClick: MenuProps["onClick"] = ({ key }) => {
@@ -448,6 +364,7 @@ const CustomGoogleMap: React.FC = () => {
                       newMission={newMission}
                       setNewMission={setNewMission}
                       bots={bots}
+                      map={map}
                     />
                   ) : (
                     <></>
@@ -456,13 +373,14 @@ const CustomGoogleMap: React.FC = () => {
               )}
             </>
           ) : activeMissionCreate ? (
-            // This should render mission create when no fleet is selected; i.e. we need to show all fleets to pick from 
+            // This should render mission create when no fleet is selected; i.e. we need to show all bots to pick from for now, currently not supported since I don't yet support being able to select bots
             <MissionCreate
               cancelCreate={cancelCreate}
               saveCreate={saveCreate}
               newMission={newMission}
               setNewMission={setNewMission}
               bots={bots}
+              map={map}
             />
           ) : (
             <></>

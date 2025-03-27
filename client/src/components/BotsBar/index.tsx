@@ -2,6 +2,10 @@ import React from 'react';
 import Item from './Item';
 import { RobotType } from '@/types/robot.type';
 
+/*
+TODO: on hover over the "Edit", "Create" and "Delete" buttons, show a tooltip that says not supported. Or maybe just use a gray background to indicate that they are disabled. 
+*/
+
 function BotsBar({ 
     bots, 
     activeBot, 
@@ -9,9 +13,9 @@ function BotsBar({
     setActiveBot 
 }: { 
     bots: RobotType[]; 
-    activeBot: string | number | null; 
+    activeBot: RobotType | null; 
     disabled: boolean; 
-    setActiveBot: React.Dispatch<React.SetStateAction<string | number | null>> 
+    setActiveBot: React.Dispatch<React.SetStateAction<RobotType | null>> 
 }) {
     return (
         <div className="absolute py-[30px] px-[30px] flex flex-col gap-y-2.5 items-start z-[10]">

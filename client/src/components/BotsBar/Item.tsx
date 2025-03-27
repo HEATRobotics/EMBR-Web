@@ -4,8 +4,11 @@ import React from 'react';
 import { Tooltip } from 'antd';
 
 import { RobotStateType } from '@/constants/robotConstants';
-import { FleetItemType } from '@/types/fleet.type';
 import { RobotType } from '@/types/robot.type';
+
+/*
+TODO: Add more info to tooltip like status, mission progress and battery level
+*/
 
 function Item({ 
     bot, 
@@ -14,13 +17,13 @@ function Item({
     setActiveBot 
 }: { 
     bot: RobotType; 
-    activeBot: string | number | null; 
+    activeBot: RobotType | null; 
     disabled: boolean; 
-    setActiveBot: React.Dispatch<React.SetStateAction<string | number | null>> 
+    setActiveBot: React.Dispatch<React.SetStateAction<RobotType | null>> 
 }) {
 
     const handleBotClick = () => {
-        setActiveBot((prev) => (prev === bot.id ? null : bot.id));
+        setActiveBot((prev) => (prev === bot ? null : bot));
     };
 
     return (

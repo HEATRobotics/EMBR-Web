@@ -3,7 +3,7 @@ import React, { useEffect, useState, useCallback } from 'react';
 import { MissionType } from '@/types/mission.type';
 import { RobotType } from '@/types/robot.type';
 import { Input, Select } from 'antd';
-import MapRectangleDrawTool from '@/components/MapTools/MapRectangleDrawTool'; 
+import MissionCreateRectangle from '@/components/MapTools/MissionCreateRectangle'; 
 import { CoordinatesType } from '@/types/coordinate.type';
 
 function MissionCreate({
@@ -12,12 +12,14 @@ function MissionCreate({
     newMission,
     setNewMission,
     bots,
+    map,
 }: {
     cancelCreate: () => void;
     saveCreate: (mission: MissionType) => void;
     newMission: MissionType;
     setNewMission: React.Dispatch<React.SetStateAction<MissionType>>;
     bots: RobotType[];
+    map: google.maps.Map | null;
 }) {
     const [activeStep, setActiveStep] = useState(0);
     const [inputValue, setInputValue] = useState('');
@@ -25,20 +27,22 @@ function MissionCreate({
 
     const botOptions = bots.map((bot) => ({ value: bot.id, label: bot.name }));
 
+
     useEffect(() => {
         if (newMission) {
             if (newMission.areaCoordinates) {
                 setActiveStep(1);
             }
-            if (newMission.fleetId) {
+            if (newMission.botID) {
                 setActiveStep(2);
             }
         }
     }, [newMission]);
 
-    const handleSelect = (value: string | number, label: string) => {
+    const handleSelect = (value: number, label: string) => {
         setActiveStep(2);
-        setNewMission((prev) => ({ ...prev, fleetId: value, fleetName: label }));
+        console.log("Set active state to 2");
+        setNewMission((prev) => ({ ...prev, botID: value }));
     };
 
     const handleNameInput = (value: string) => {
@@ -46,9 +50,20 @@ function MissionCreate({
     };
 
     const handleSave = () => {
-        setNewMission((prev) => ({ ...prev, name: inputValue }));
-        saveCreate({ ...newMission, name: inputValue });
-    };
+      const updatedMission: MissionType = {
+          ...newMission,  // Retain the existing data
+          name: inputValue,  
+          botID: newMission.botID,  
+          areaCoordinates: newMission.areaCoordinates,  
+          progress: newMission.progress || 0,  
+          averageTemperature: newMission.averageTemperature || 0,  
+          timePassed: newMission.timePassed || 0,  
+          timeEstimated: newMission.timeEstimated || 0,  
+          hotspots: newMission.hotspots || []  
+      };
+  
+      saveCreate(updatedMission);  // Pass the updated mission object to save
+  };
 
     const handleAreaSelectClick = () => {
         setIsDrawing(true); 
@@ -93,14 +108,14 @@ function MissionCreate({
                     </div>
 
                     <div className="text-[15px] leading-[18px] flex flex-col gap-y-2.5" style={{ color: activeStep === 1 ? 'black' : '#B1B1B1' }}>
-                        <p>Select a fleet</p>
+                        <p>Select a bot</p>
                         {activeStep >= 1 && (
                             <Select
                                 disabled={activeStep !== 1}
                                 onSelect={(value, { label }) => handleSelect(value, label)}
                                 showSearch
-                                value={newMission.fleetId || undefined}
-                                placeholder="Select a fleet"
+                                value={newMission.botID || undefined}
+                                placeholder="Select a bot"
                                 optionFilterProp="children"
                                 className="[&_div.ant-select-selector]:!bg-transparent [&.ant-select-disabled_*]:!cursor-default"
                                 filterOption={(input, option) => (option?.label ?? '').includes(input)}
@@ -111,7 +126,7 @@ function MissionCreate({
                     </div>
                     <div className="text-[15px] leading-[18px] flex flex-col gap-y-2.5" style={{ color: activeStep === 2 ? 'black' : '#B1B1B1' }}>
                         <p>Name the mission</p>
-                        {activeStep >= 2 && <Input placeholder="Enter the name of the mission..." onChange={(e) => handleNameInput(e.target.value)} />}
+                        {activeStep >= 2 && <Input placeholder="Enter the name of the mission..." value={inputValue} onChange={(e) => handleNameInput(e.target.value)} />}
                     </div>
                 </div>
             </div>
@@ -120,8 +135,8 @@ function MissionCreate({
                     save
                 </button>
             )}
-             {/* Render MapRectangleDrawTool only when creating mission and after map is loaded */}
-            {/* <MapRectangleDrawTool drawingMode={isDrawing} onBoundsChanged={handleBoundsChanged} /> */}
+             {/* Render MissionCreateRectangle only when creating mission and after map is loaded */}
+            <MissionCreateRectangle onBoundsChanged={handleBoundsChanged} map={map} />
         </div>
     );
 }

@@ -46,7 +46,7 @@ router.post('/create', async (req, res) => {
             return res.status(400).json({ message: "Mission name, bot ID, and area coordinates are required." });
         }
 
-        const result = await createMission(missionData); // Call the database function
+        const result = await createMission(missionData); 
 
         if (result.success) {
             res.status(201).json({ message: `Mission with ID ${result.missionID} created successfully`, missionID: result.missionID }); 

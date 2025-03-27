@@ -11,12 +11,11 @@ import { RobotType } from "./robot.type";
 */
 export interface MissionType {
   name: string;
-  process: number;
+  progress: number;
   averageTemperature: number;
   timePassed: number;
   timeEstimated: number;
-  areaCoordinates?: CoordinatesType[];
-  robots?: RobotType[];
+  areaCoordinates: CoordinatesType[];
+  botID: number;
   hotspots?: CoordinatesType[];
-  fleetId?: string | number;
 }
