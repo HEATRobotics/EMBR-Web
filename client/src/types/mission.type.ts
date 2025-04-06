@@ -15,7 +15,7 @@ export interface MissionType {
   averageTemperature: number;
   timePassed: number;
   timeEstimated: number;
-  areaCoordinates: CoordinatesType[];
+  areaCoordinates: CoordinatesType[] | undefined;
   botID: number;
   hotspots?: CoordinatesType[];
 }
