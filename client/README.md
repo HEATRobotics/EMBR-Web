@@ -1,36 +1,110 @@
-This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+# Client Documentation
 
-## Getting Started
+The `/client` directory contains the frontend code for the EMBR-Web project. It is built using modern web development tools and frameworks, including React, TypeScript, and Next.js. Below is an overview of the directory structure, conventions, and important components.
 
-First, run the development server:
+---
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+## **Directory Structure**
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+#### **1. `/components`**
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+This directory contains reusable React components that are used throughout the application. Components are organized by functionality or feature.
 
-This project uses [`next/font`](https://nextjs.org/docs/basic-features/font-optimization) to automatically optimize and load Inter, a custom Google Font.
+#### **2. `/hooks`**
 
-## Learn More
+This directory contains custom React hooks that encapsulate reusable logic for managing state and side effects. Currently, we have the following hooks:
 
-To learn more about Next.js, take a look at the following resources:
+- **`useMissions.tsx`**: A hook for fetching and managing mission data from the backend API.
+- **`useBotData.tsx`**: A hook for retrieving and managing bot-related data.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+#### **3. `/types`**
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js/) - your feedback and contributions are welcome!
+This directory defines TypeScript types and interfaces used throughout the application to ensure type safety.
 
-## Deploy on Vercel
+- **`mission.type.ts`**: Defines the structure of a mission object, including fields like `missionID`, `botID`, `progress`, and `areaCoordinates`.
+- **`robot.type.ts`**: Defines the structure of a robot object, including fields like `id`, `name`, `state`, and `coordinates`.
+- **Conventions**: Types are named very closely to the way tables are named in SQL.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+#### **4. `/api`**
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
+This directory contains functions for interacting with the backend API. These functions abstract HTTP requests and provide a clean interface for fetching or updating data.
+
+- **`missions.api.ts`**: Contains functions like `fetchMissions` and `updateMission` for interacting with the missions API.
+- **Conventions**: API files are named after the feature they interact with (e.g., `missions.api.ts` for missions).
+
+#### **5. `/app`**
+
+This directory is specific to Next.js and contains application-level files, including layouts, pages, and global styles.
+
+- **`layout.tsx`**: Defines the root layout for the application, including global providers like `StoreProvider`.
+- **`globals.css`**: Contains global CSS styles for the application.
+- **`embr-details/page.tsx`**: A page for displaying detailed information about a fleet, including charts and video streams.
+
+#### **6. `/public`**
+
+This directory contains static assets like images, icons, and other files that are served directly by the application.
+
+---
+
+### **Conventions**
+
+#### **Component Organization**
+
+- Components are organized by feature or functionality.
+- Reusable components are placed in their respective directories under `/components`.
+- Each component is typically accompanied by its styles and tests (if applicable).
+
+#### **API Interaction**
+
+- API calls are abstracted into functions in the `/api` directory.
+- These functions use `axios` for making HTTP requests and handle error management.
+
+---
+
+### **Important Components**
+
+#### **`MissionCreate`**
+
+- **Location**: `/components/MissionControls/MissionCreate.tsx`
+- **Purpose**: Provides a form for creating new missions, including selecting a fleet and defining mission parameters.
+- **Props**:
+  - `cancelCreate`: Function to cancel mission creation.
+  - `saveCreate`: Function to save the new mission.
+  - `newMission`: The current state of the mission being created.
+  - `setNewMission`: Function to update the mission state.
+  - `fleets`: List of available fleets to assign the mission to.
+
+#### **`MapTools`**
+
+- **Location**: `/components/MapTools/index.tsx`
+- **Purpose**: Provides tools for interacting with the map, such as toggling satellite view and zooming.
+- **Props**:
+  - `satelliteValue`: Boolean indicating whether satellite view is enabled.
+  - `onSatelliteViewChange`: Function to toggle satellite view.
+
+#### **`RealTimeChart`**
+
+- **Location**: `/components/RealTimeChart/index.tsx`
+- **Purpose**: Displays real-time data visualizations, such as temperature or sensor readings.
+- **Props**:
+  - **`lineColor`**: Color of the chart line.
+  - **`randomGenerator`**: Function to generate random data for the chart.
+  - **`title`**: Title of the chart.
+  - **`tags`**: Additional metadata or actions for the chart.
+
+#### **`BotsBar`**
+
+- **Location**: `/components/BotsBar/index.tsx`
+- **Props**:
+
+  - **`bots`**: An array of bot objects (`RobotType[]`) to be displayed in the sidebar.
+  - **`activeBot`**: The currently selected bot (`RobotType | null`).
+  - **`disabled`**: A boolean indicating whether interactions with the bots or buttons are disabled.
+  - **`setActiveBot`**: A state setter function (`React.Dispatch<React.SetStateAction<RobotType | null>>`) to update the active bot.
+
+- **What it does**:
+  - Displays a list of bots using the `Item` subcomponent.
+  - Includes disabled action buttons (`Edit`, `Create`, `Delete`) for potential future functionality.
+  - Shows a message ("No bots available") if the `bots` array is empty. The `bots` array is fetched from the database using the `useBotData` hook.
+
+---
