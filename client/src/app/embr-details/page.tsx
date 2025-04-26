@@ -1,49 +1,27 @@
 'use client';
-
-import RealTimeChart from '@/components/RealTimeChart';
+import React from 'react';
+import BatteryChart from '@/components/BatteryChart';
 import FleetTitle from '@/components/FleetDetails/FleetTitle';
-import BatteryIndicatorComponent from '@/components/FleetDetails/BatteryIndicator';
-import { generateRandomTemperature } from '@/utils/generateRandomTemperature';
-import { generateRandomThermalTemperature } from '@/utils/generateRandomThermalTemperature';
+import StatusOverviewComponent from '@/components/FleetDetails/StatusOverview';
 import InfoDetails from '@/components/FleetDetails/InfoDetails';
-import ModelDetails from '@/components/FleetDetails/ModelDetails';
 import Link from 'next/link';
-import JanusStreaming from '@/components/VideoStream';
-
+import TemperatureChart from '@/components/TemperatureChart';
 
 const EmbrDetails = () => {
+
     return (
         <div className="grid grid-cols-[1fr_4fr] pl-[40px] pr-[40px] h-[100vh] relative">
             <div>
-                <FleetTitle title={"TEST"}/>
-                <BatteryIndicatorComponent level={18}/>
-                <InfoDetails/>
-                <JanusStreaming></JanusStreaming>
+                <StatusOverviewComponent/>
             </div>
             <div className="grid grid-cols-2 grid-rows-2 gap-4 ml-[40px] pt-[2.5vh] pb-[2.5vh]">
-                <RealTimeChart 
-                    lineColor="#008080" 
-                    randomGenerator={generateRandomTemperature}
-                    title={"CPU"}
-                    tags={[{label: "active"}]}
+                <BatteryChart
+                    lineColor="#008080"
+                    title={"Battery"}
                 />
-                <RealTimeChart 
-                    randomGenerator={generateRandomThermalTemperature}
+                <TemperatureChart
+                    lineColor="#FF0000"
                     title={"Temperature Probe"}
-                    tags={[{label: "active"}]}
-                />
-                <RealTimeChart 
-                    lineColor="#5c9c60"
-                    title={"Smoke Sensor"}
-                    tags={[{label: "attention required"}]}
-                />
-                <RealTimeChart 
-                    lineColor="#c96184"
-                    title={"Thermal Camera"}
-                    tags={[
-                        {label: "view snapshots", url: "https://google.com"}, 
-                        {label: "active"}
-                    ]}
                 />
             </div>
             <div className="absolute top-5 right-5">

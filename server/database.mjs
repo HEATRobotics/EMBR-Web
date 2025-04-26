@@ -166,7 +166,7 @@ export async function getAllTemperatureData() {
     let conn;
     try {
         conn = await pool.getConnection();
-        const query = `SELECT temperature.botID, temperature FROM temperature JOIN bot WHERE temperature.botID = bot.botID`;
+        const query = `SELECT temperature.botID, fleetID, temperature, clockTime FROM temperature JOIN fleet WHERE temperature.botID = fleet.botID ORDER BY clockTime ASC;`;
         const [rows, fields] = await conn.execute(query);
         return rows;
     } catch (error) {
@@ -193,7 +193,8 @@ export async function getLatestTemperatureData() {
                 GROUP BY botID
             ) latestTemp
             ON temperature.botID = latestTemp.botID 
-            AND temperature.clockTime = latestTemp.latestClockTime;`;
+            AND temperature.clockTime = latestTemp.latestClockTime 
+            ORDER BY clockTime ASC;`;
         const [rows, fields] = await conn.execute(query);
         return rows;
     } catch (error) {
@@ -210,7 +211,7 @@ export async function getAllBatteryData() {
     let conn;
     try {
         conn = await pool.getConnection();
-        const query = `SELECT battery.botID, battery FROM battery JOIN bot WHERE battery.botID = bot.botID`;
+        const query = `SELECT battery.botID, fleetID, battery, clockTime FROM battery JOIN fleet WHERE battery.botID = fleet.botID ORDER BY clockTime ASC;`;
         const [rows, fields] = await conn.execute(query);
         return rows;
     } catch (error) {
@@ -237,7 +238,8 @@ export async function getLatestBatteryData() {
                 GROUP BY botID
             ) latestBattery
             ON battery.botID = latestBattery.botID 
-            AND battery.clockTime = latestBattery.latestClockTime;`;
+            AND battery.clockTime = latestBattery.latestClockTime 
+            ORDER BY clockTime ASC;`;
         const [rows, fields] = await conn.execute(query);
         return rows;
     } catch (error) {
