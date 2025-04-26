@@ -1,18 +1,37 @@
 import React from 'react';
 import Item from './Item';
-import { FleetItemType } from '@/types/fleet.type';
+import { RobotType } from '@/types/robot.type';
 
-function FleetBar({ fleets, activeFleet, disabled, setActiveFleet }: { fleets: FleetItemType[]; activeFleet: string | number | null; disabled: boolean; setActiveFleet: React.Dispatch<React.SetStateAction<string | number | null>> }) {
+/*
+TODO: on hover over the "Edit", "Create" and "Delete" buttons, show a tooltip that says not supported. Or maybe just use a gray background to indicate that they are disabled. 
+*/
+
+function BotsBar({ 
+    bots, 
+    activeBot, 
+    disabled, 
+    setActiveBot 
+}: { 
+    bots: RobotType[]; 
+    activeBot: RobotType | null; 
+    disabled: boolean; 
+    setActiveBot: React.Dispatch<React.SetStateAction<RobotType | null>> 
+}) {
     return (
         <div className="absolute py-[30px] px-[30px] flex flex-col gap-y-2.5 items-start z-[10]">
             <div className="flex flex-col gap-y-2.5">
-                {fleets.length > 0 ? (
-                    fleets.map((fleet) => (
-                        <Item key={fleet.id} fleet={fleet} disabled={disabled} activeFleet={activeFleet}
-                              setActiveFleet={setActiveFleet}/>
+                {bots.length > 0 ? (
+                    bots.map((bot) => (
+                        <Item 
+                            bot={bot}
+                            key={bot.id} 
+                            disabled={disabled} 
+                            activeBot={activeBot}
+                            setActiveBot={setActiveBot}
+                        />
                     ))
                 ) : (
-                    <p className="text-gray-500">No fleets available.</p>
+                    <p className="text-gray-500">No bots available.</p>
                 )}
             </div>
 
@@ -41,4 +60,4 @@ function FleetBar({ fleets, activeFleet, disabled, setActiveFleet }: { fleets: F
     );
 }
 
-export default FleetBar;
+export default BotsBar;
