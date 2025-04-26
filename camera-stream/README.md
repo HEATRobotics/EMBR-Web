@@ -85,7 +85,7 @@ The device id for this device is: `/dev/video0`
 ffmpeg -f avfoundation -list_devices true -i ""
 ```
 
-#### Updating the docker compose 
+### Updating the docker compose 
 
 Next update the docker compose with the new device id. 
 

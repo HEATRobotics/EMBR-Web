@@ -1,5 +1,11 @@
 import express from 'express';
-import { getMissionByBotID, getAllMissions, updateMission, createMission } from '../database.mjs';
+import {
+    getMissionByBotID,
+    getAllMissions,
+    updateMission,
+    createMission,
+    getLatestLidarData
+} from '../database.mjs';
 
 const router = express.Router();
 
@@ -59,5 +65,14 @@ router.post('/create', async (req, res) => {
         res.status(500).json({ message: 'Failed to create mission', error: error.message }); // Respond with 500 and error message
     }
 });
+
+router.get('/lidar', async (req, res) => {
+    try {
+        const missions = await getLatestLidarData();
+        res.json(missions);
+    } catch (error) {
+        res.status(500).json({ message: 'Failed to get missions', error: error.message });
+    }
+})
 
 export default router;

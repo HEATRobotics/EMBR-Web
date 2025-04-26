@@ -23,11 +23,11 @@ const REGISTRY = {
 
 function handleMavlinkData() {
   //serialPort.close();
-  const portSerialNumber = "\\\\.\\COM18";
+  const portSerialNumber = "/dev/ttyUSB0";
 
   const serialPort = new SerialPort({
     path: portSerialNumber,
-    baudRate: 1200,
+    baudRate: 57600,
   });
 
   //constructing a reader that will emit each packet separately
@@ -39,16 +39,24 @@ function handleMavlinkData() {
 
   //setup mavlink to listen for packets
   mavlinkRead.on("data", async (packet) => {
+    console.log("Packet received");
     const clazz = REGISTRY[packet.header.msgid];
     if (clazz) {
       const data = packet.protocol.data(packet.payload, clazz);
+      data.timeBootMs = new Date();
       //process the parsed data based on type
       switch (clazz.MSG_NAME) {
         case "GLOBAL_POSITION_INT":
+          console.log("GLOBAL_POSITION_INT");
           processGlobalPositionMessage(data);
           break;
         case "NAMED_VALUE_FLOAT":
+          console.log("NAMED_VALUE_FLOAT");
           processTemperatureMessage(data);
+          break;
+        case "OBSTACLE_DISTANCE":
+          console.log("OBSTACLE_DISTANCE");
+          processLidarMessage(data);
           break;
         default:
           console.log("Unknown message type:", clazz.MSG_NAME);
@@ -176,19 +184,19 @@ function processGlobalPositionMessage(data) {
     vehicleHeading: data.hdg / 100.0,
   };
 
-  storeMavlinkData(globalPositionData);
+  // storeMavlinkData(globalPositionData);
 }
 
 function processTemperatureMessage(data) {
   
   const temperatureData = {
     type: "temp_data",
-    botID: data.id,
+    botID: 1,
     clockTime: data.timeBootMs,
     temperature: data.value,
   };
 
-  storeMavlinkData(temperatureData);
+  // storeMavlinkData(temperatureData);
 }
 
 function processBatteryMessage(data) {
@@ -199,12 +207,26 @@ function processBatteryMessage(data) {
 
   const batteryData = {
     type: "battery_data",
-    botID: data.id,
+    botID: 1,
     clockTime: data.timeBootMs,
     battery: data.battery
   };
 
-  storeMavlinkData(batteryData);
+  // storeMavlinkData(batteryData);
+}
+
+function processLidarMessage(data) {
+
+  console.log(data);
+
+  const lidarData = {
+    type: "lidar_data",
+    botID: 1,
+    clockTime: data.timeBootMs,
+    distances: data.distances
+  }
+
+  storeMavlinkData(lidarData);
 }
 
 export { handleMavlinkData, simulateMavlinkData };

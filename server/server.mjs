@@ -5,7 +5,7 @@ import assert from 'assert';
 import missionRoutes from './routes/mission.routes.js';
 
 import { handleMavlinkData, simulateMavlinkData } from './mavlinkHandler.mjs';
-import { insertPositionData, insertTemperatureData, insertBatteryData } from './database.mjs';
+import {insertPositionData, insertTemperatureData, insertBatteryData, insertLidarData} from './database.mjs';
 import { getAllBatteryData, getLatestBatteryData, getAllTemperatureData, getLatestTemperatureData, getLatestBotData } from './database.mjs';
 
 const app = express();
@@ -30,15 +30,17 @@ let latestMavlinkData = {
 /*
     Setup handler to receive realtime MAVLink data
 */
-// handleMavlinkData();     for real data, untouched from last year's competition
-simulateMavlinkData();  // for simulated data, copying the format of real data
+handleMavlinkData();      // for real data, untouched from last year's competition
+// simulateMavlinkData();  // for simulated data, copying the format of real data
 
-/* 
+
+
+/*
     Function to update the database and set latestMavlinkData to newest datapoint 
 */
 async function storeMavlinkData(data) {
 
-    assert(data.type === 'global_position' || data.type === 'temp_data' || data.type === 'battery_data', "Invalid MAVLink data type");
+    assert(data.type === 'global_position' || data.type === 'temp_data' || data.type === 'battery_data' || data.type === 'lidar_data', "Invalid MAVLink data type");
 
     // Change date/time to a format that works with the database
     data.clockTime = parseDateTime(data.clockTime);
@@ -48,6 +50,8 @@ async function storeMavlinkData(data) {
     } else if (data.type === 'temp_data') {
         await insertTemperatureData(data);
         // console.log(await getAllTemperatureData());
+    } else if (data.type === 'lidar_data') {
+        await insertLidarData(data);
     } else {
         await insertBatteryData(data);
         // console.log(await getAllBatteryData());
