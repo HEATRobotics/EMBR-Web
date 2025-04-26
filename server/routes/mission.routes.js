@@ -66,13 +66,5 @@ router.post('/create', async (req, res) => {
     }
 });
 
-router.get('/lidar', async (req, res) => {
-    try {
-        const missions = await getLatestLidarData();
-        res.json(missions);
-    } catch (error) {
-        res.status(500).json({ message: 'Failed to get missions', error: error.message });
-    }
-})
 
 export default router;

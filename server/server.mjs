@@ -5,8 +5,15 @@ import assert from 'assert';
 import missionRoutes from './routes/mission.routes.js';
 
 import { handleMavlinkData, simulateMavlinkData } from './mavlinkHandler.mjs';
-import {insertPositionData, insertTemperatureData, insertBatteryData, insertLidarData} from './database.mjs';
+import {
+    insertPositionData,
+    insertTemperatureData,
+    insertBatteryData,
+    insertLidarData,
+    getLatestLidarData
+} from './database.mjs';
 import { getAllBatteryData, getLatestBatteryData, getAllTemperatureData, getLatestTemperatureData, getLatestBotData } from './database.mjs';
+import router from "./routes/mission.routes.js";
 
 const app = express();
 const port = 3100; 
@@ -145,6 +152,16 @@ app.get('/api/bots/latest', async (req, res) => {
         res.status(500).json({ error: `There was an error with calling the getLatestBotData database function: ${error.message}` });
     }
 });
+
+app.get('/api/lidar', async (req, res) => {
+    try {
+        const missions = await getLatestLidarData();
+        res.status(200).json(missions);
+    } catch (error) {
+        res.status(500).json({ message: 'Failed to get lidar data', error: error.message });
+    }
+})
+
 
 // Start server
 app.listen(port, () => {

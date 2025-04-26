@@ -25,7 +25,6 @@ const EmbrDetails = () => {
                     title={"Temperature Probe"}
                 />
                 <LidarVisualizer
-                    data={[0]}
                     minAngle={0}
                     maxAngle={360}>
                 </LidarVisualizer>

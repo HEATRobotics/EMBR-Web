@@ -395,13 +395,13 @@ export async function getLatestLidarData() {
         const query = `
             SELECT *
             FROM lidar_measurements
-            ORDER BY time_usec DESC
+            ORDER BY clockTime DESC
                 LIMIT 1;
         `;
         const [rows] = await conn.execute(query);
         return rows;
     } catch (error) {
-        console.error('Error fetching all missions:', error);
+        console.error('Error fetching lidar data:', error);
         return false;
     } finally {
         if (conn) {
