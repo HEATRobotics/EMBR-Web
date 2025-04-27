@@ -417,7 +417,7 @@ const CustomGoogleMap: React.FC = () => {
         )}
 
         {/* Split screen to show bot statistics */}
-        {activeBot !== null && activeInfoTab === 'Bot Info' ? ( 
+        {activeBot !== null && activeInfoTab === 'Bot Info' ? (
           <div className="h-full max-h-lvh p-4 bg-gray-100 overflow-y-auto" style={{ width: `${100 - mapWidth}%` }}>
             <EmbrDetails></EmbrDetails>
           </div>

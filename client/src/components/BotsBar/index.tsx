@@ -18,43 +18,51 @@ function BotsBar({
     setActiveBot: React.Dispatch<React.SetStateAction<RobotType | null>> 
 }) {
     return (
-        <div className="absolute py-[30px] px-[30px] flex flex-col gap-y-2.5 items-start z-[10]">
+        <div className="absolute flex flex-col gap-y-1 m-1 z-[10]">
             <div className="flex flex-col gap-y-2.5">
                 {bots.length > 0 ? (
                     bots.map((bot) => (
-                        <Item 
-                            bot={bot}
-                            key={bot.id} 
-                            disabled={disabled} 
-                            activeBot={activeBot}
-                            setActiveBot={setActiveBot}
-                        />
+                        <div
+                            key={bot.id}
+                            className="bg-white border border-gray-300 rounded-md shadow-sm hover:bg-gray-50 transition-colors"
+                        >
+                            <Item
+                                bot={bot}
+                                disabled={disabled}
+                                activeBot={activeBot}
+                                setActiveBot={setActiveBot}
+                            />
+                        </div>
                     ))
                 ) : (
-                    <p className="text-gray-500">No bots available.</p>
+                    <p className="bg-white text-gray-500 text-center py-4 border border-dashed border-gray-300 rounded-md bg-gray-50 opacity-75">
+                        No bots available.
+                    </p>
                 )}
             </div>
 
-            <div className="flex justify-start items-center gap-x-1">
+
+            <div className="inline-flex rounded-md shadow-sm overflow-hidden">
                 <button
                     disabled
-                    className="left-[35px] text-[12px] leading-[15px] px-2 py-0.5 rounded-[22px] bg-white"
+                    className="bg-white text-gray-800 font-medium py-2 px-4 border border-gray-300 first:rounded-l-md last:rounded-r-md hover:bg-gray-100 disabled:opacity-75 disabled:cursor-not-allowed"
                 >
                     Edit
                 </button>
                 <button
                     disabled
-                    className="left-[35px] px-2 py-0.5 text-[12px] leading-[15px] rounded-[22px] bg-white"
+                    className="bg-white text-gray-800 font-medium py-2 px-4 border-t border-b border-gray-300 hover:bg-gray-100 disabled:opacity-75 disabled:cursor-not-allowed"
                 >
                     Create
                 </button>
                 <button
                     disabled
-                    className="left-[35px] px-2 py-0.5 text-[12px] leading-[15px] rounded-[22px] bg-white"
+                    className="bg-white text-gray-800 font-medium py-2 px-4 border border-gray-300 first:rounded-l-md last:rounded-r-md hover:bg-gray-100 disabled:opacity-75 disabled:cursor-not-allowed"
                 >
                     Delete
                 </button>
             </div>
+
         </div>
 
     );
