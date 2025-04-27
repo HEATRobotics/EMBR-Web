@@ -207,7 +207,7 @@ export async function getAllTemperatureData() {
     let conn;
     try {
         conn = await pool.getConnection();
-        const query = `SELECT temperature.botID, fleetID, temperature, clockTime FROM temperature JOIN fleet WHERE temperature.botID = fleet.botID ORDER BY clockTime ASC;`;
+        const query = `SELECT temperature.botID, temperature, clockTime FROM temperature ORDER BY clockTime ASC;`;
         const [rows, fields] = await conn.execute(query);
         return rows;
     } catch (error) {

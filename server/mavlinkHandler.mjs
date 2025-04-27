@@ -172,19 +172,19 @@ function simulateMavlinkData() {
 function processGlobalPositionMessage(data) {
   const globalPositionData = {
     type: "global_position",
-    botID: data.id,
+    botID: 1,
     clockTime: data.timeBootMs,
     latitude: data.lat / 1.0e7,
     longitude: data.lon / 1.0e7,
     altitude: data.alt / 1000.0,
-    relativeAltitude: data.relative_alt / 1000.0,
-    groundXSpeed: data.vx / 100.0,
-    groundYSpeed: data.vy / 100.0,
-    groundZSpeed: data.vz / 100.0,
+    relativeAltitude: 0,
+    groundXSpeed: data.vx,
+    groundYSpeed: data.vy,
+    groundZSpeed: data.vz,
     vehicleHeading: data.hdg / 100.0,
   };
 
-  // storeMavlinkData(globalPositionData);
+  storeMavlinkData(globalPositionData);
 }
 
 function processTemperatureMessage(data) {
@@ -196,7 +196,7 @@ function processTemperatureMessage(data) {
     temperature: data.value,
   };
 
-  // storeMavlinkData(temperatureData);
+  storeMavlinkData(temperatureData);
 }
 
 function processBatteryMessage(data) {

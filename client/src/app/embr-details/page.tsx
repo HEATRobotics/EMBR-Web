@@ -1,5 +1,5 @@
 'use client';
-import React from 'react';
+import React, {useState} from 'react';
 import BatteryChart from '@/components/BatteryChart';
 import FleetTitle from '@/components/FleetDetails/FleetTitle';
 import StatusOverviewComponent from '@/components/FleetDetails/StatusOverview';
@@ -10,16 +10,17 @@ import LidarVisualizer from "@/components/Lidar/LidarVisualizer";
 
 const EmbrDetails = () => {
 
+
     return (
         <div className="grid grid-cols-[1fr_4fr] pl-[40px] pr-[40px] h-[100vh] relative">
             <div>
                 <StatusOverviewComponent/>
             </div>
             <div className="grid grid-cols-2 grid-rows-2 gap-4 ml-[40px] pt-[2.5vh] pb-[2.5vh]">
-                <BatteryChart
-                    lineColor="#008080"
-                    title={"Battery"}
-                />
+                {/*<BatteryChart*/}
+                {/*    lineColor="#008080"*/}
+                {/*    title={"Battery"}*/}
+                {/*/>*/}
                 <TemperatureChart
                     lineColor="#FF0000"
                     title={"Temperature Probe"}

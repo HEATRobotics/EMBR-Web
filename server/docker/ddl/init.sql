@@ -80,3 +80,19 @@ VALUES (1, 'Mission K-lona', '{
     "east": -119.38269345092772,
     "west": -119.40673239135744
   }', 50.00, 22.50, 120, 240);
+
+
+-- Insert fake data into the position table for botID 1
+INSERT INTO position (botID, clockTime, latitude, longitude, altitude, relativeAltitude, groundXSpeed, groundYSpeed, groundZSpeed, vehicleHeading)
+VALUES
+    (1, '2025-04-26 00:00:00', 51.5074, -0.1278, 10.5, 0.5, 0.0, 1.5, 0.2, 90.0),  -- Example with latitude, longitude of London
+    (1, '2025-04-26 01:00:00', 51.5075, -0.1277, 11.0, 1.0, 0.1, 1.6, 0.3, 91.0),
+    (1, '2025-04-26 02:00:00', 51.5076, -0.1276, 12.0, 1.2, 0.2, 1.7, 0.4, 92.0);
+
+-- Insert fake data into the temperature table for botID 1
+INSERT INTO temperature (botID, clockTime, temperature)
+VALUES
+    (1, '2025-04-26 00:00:00', 22.5),
+    (1, '2025-04-26 01:00:00', 22.7),
+    (1, '2025-04-26 02:00:00', 22.8);
+

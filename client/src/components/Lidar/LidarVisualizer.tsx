@@ -72,6 +72,11 @@ const LidarVisualizer: React.FC<LidarVisualizerProps> = ({ minAngle, maxAngle })
 
     return (
         <div style={{ width, height, backgroundColor: "white" }}>
+            <div id="debug">
+                <span>Max: {maxDistance}</span>
+                <span>Min: {minDistance}</span>
+                <span>NumPoints: {numPoints}</span>
+            </div>
             <svg width={width} height={height} style={{ border: "1px solid black" }}>
                 {/* Polygon Around the Bot */}
                 <polygon

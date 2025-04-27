@@ -48,9 +48,9 @@ export function useLatestBatteryData() {
 
     useEffect(() => {
         // Fetch data every 5 seconds (adjust as needed)
-        const interval = setInterval(fetchLatestBatteryData, 5000);
+        // const interval = setInterval(fetchLatestBatteryData, 5000);
 
-        return () => clearInterval(interval);
+        // return () => clearInterval(interval);
     },);
 
     return {battery, clockTime, loading, error };
