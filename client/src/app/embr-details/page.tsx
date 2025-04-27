@@ -7,10 +7,13 @@ import InfoDetails from '@/components/FleetDetails/InfoDetails';
 import Link from 'next/link';
 import TemperatureChart from '@/components/TemperatureChart';
 import LidarVisualizer from "@/components/Lidar/LidarVisualizer";
+import {RobotType} from "@/types/robot.type";
 
-const EmbrDetails = () => {
-
-
+function EmbrDetails({
+                      activeBot,
+                  }: {
+    activeBot: RobotType;
+})  {
     return (
         <div className="grid grid-cols-[1fr_4fr] pl-[40px] pr-[40px] h-[100vh] relative">
             <div>

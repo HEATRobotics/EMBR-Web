@@ -24,6 +24,7 @@ import MapTools from "@/components/MapTools";
 import EmbrDetails from "@/app/embr-details/page";
 import { RobotType } from "@/types/robot.type";
 import { addMissionToDB } from "@/api/missions.api";
+import DetailsPanel from "@/components/Details/DetailsPanel";
 
 /*
   Main TODO's: 
@@ -316,77 +317,77 @@ const CustomGoogleMap: React.FC = () => {
       {/* Top Right Bar */}
       <div className="absolute py-[30px] px-[30px] right-[0] flex flex-col gap-y-[36px] items-end max-w-[400px] z-[10]">
         {/* <Search /> */}
-        <div className="flex flex-col gap-y-3 w-full">
-          {activeBot !== null ? (
-            <>
-              <div className="flex justify-start items-center gap-x-2.5">
-                <button
-                  className={`px-3.5 py-1 rounded-[22px] text-[15px] leading-[18px] bg-white ${activeInfoTab === 'Mission Info' ? '!bg-lightgray' : ''}`}
-                  onClick={() => setActiveInfoTab('Mission Info')}
-                >
-                  Mission Info
-                </button>
-                <button
-                  className={`px-3.5 py-1 rounded-[22px] text-[15px] leading-[18px] bg-white ${activeInfoTab === 'Bot Info' ? '!bg-lightgray' : ''}`}
-                  onClick={() => setActiveInfoTab('Bot Info')}
-                >
-                  Bot Info
-                </button>
-              </div>
+        {/*<div className="flex flex-col gap-y-3 w-full">*/}
+        {/*  {activeBot !== null ? (*/}
+        {/*    <>*/}
+        {/*      <div className="flex justify-start items-center gap-x-2.5">*/}
+        {/*        <button*/}
+        {/*          className={`px-3.5 py-1 rounded-[22px] text-[15px] leading-[18px] bg-white ${activeInfoTab === 'Mission Info' ? '!bg-lightgray' : ''}`}*/}
+        {/*          onClick={() => setActiveInfoTab('Mission Info')}*/}
+        {/*        >*/}
+        {/*          Mission Info*/}
+        {/*        </button>*/}
+        {/*        <button*/}
+        {/*          className={`px-3.5 py-1 rounded-[22px] text-[15px] leading-[18px] bg-white ${activeInfoTab === 'Bot Info' ? '!bg-lightgray' : ''}`}*/}
+        {/*          onClick={() => setActiveInfoTab('Bot Info')}*/}
+        {/*        >*/}
+        {/*          Bot Info*/}
+        {/*        </button>*/}
+        {/*      </div>*/}
 
-              {activeInfoTab === 'Mission Info' && (
-                <>
-                  <div className="flex justify-start items-center gap-x-2.5">
-                    <button className="left-[35px] px-3.5 py-1 rounded-[22px] text-[15px] leading-[18px] bg-white">
-                      Past
-                    </button>
-                    <button className="left-[35px] px-3.5 py-1 rounded-[22px] text-[15px] leading-[18px] bg-white">
-                      Current
-                    </button>
-                    <button className="left-[35px] px-3.5 py-1 rounded-[22px] text-[15px] leading-[18px] bg-white">
-                      All
-                    </button>
-                    <Dropdown
-                      menu={{ items, onClick: handleMissionClick }}
-                      align={{ offset: [60, -26] }}
-                      placement="bottomRight"
-                      className="cursor-pointer left-[35px] px-3.5 py-1 rounded-[22px] text-[15px] leading-[18px] bg-white select-none"
-                      trigger={["click"]}
-                    >
-                      <span>•••</span>
-                    </Dropdown>
-                  </div>
-                  {activeMissionCreate ? (
-                    // This should render mission create when a fleet is already selected; 
-                    // i.e. we don't need to show options and there should be an indicator that a fleet is already selected
-                    <MissionCreate
-                      cancelCreate={cancelCreate}
-                      saveCreate={saveCreate}
-                      newMission={newMission}
-                      setNewMission={setNewMission}
-                      bots={bots}
-                      map={map}
-                    />
-                  ) : (
-                    <></>
-                  )}
-                </>
-              )}
-            </>
-          ) : activeMissionCreate ? (
-            // This should render mission create when no fleet is selected; i.e. we need to show all bots to pick from for now, currently not supported since I don't yet support being able to select bots
-            <MissionCreate
-              cancelCreate={cancelCreate}
-              saveCreate={saveCreate}
-              newMission={newMission}
-              setNewMission={setNewMission}
-              bots={bots}
-              map={map}
-            />
-          ) : (
-            <></>
-          )}
-        </div>
+        {/*      {activeInfoTab === 'Mission Info' && (*/}
+        {/*        <>*/}
+        {/*          <div className="flex justify-start items-center gap-x-2.5">*/}
+        {/*            <button className="left-[35px] px-3.5 py-1 rounded-[22px] text-[15px] leading-[18px] bg-white">*/}
+        {/*              Past*/}
+        {/*            </button>*/}
+        {/*            <button className="left-[35px] px-3.5 py-1 rounded-[22px] text-[15px] leading-[18px] bg-white">*/}
+        {/*              Current*/}
+        {/*            </button>*/}
+        {/*            <button className="left-[35px] px-3.5 py-1 rounded-[22px] text-[15px] leading-[18px] bg-white">*/}
+        {/*              All*/}
+        {/*            </button>*/}
+        {/*            <Dropdown*/}
+        {/*              menu={{ items, onClick: handleMissionClick }}*/}
+        {/*              align={{ offset: [60, -26] }}*/}
+        {/*              placement="bottomRight"*/}
+        {/*              className="cursor-pointer left-[35px] px-3.5 py-1 rounded-[22px] text-[15px] leading-[18px] bg-white select-none"*/}
+        {/*              trigger={["click"]}*/}
+        {/*            >*/}
+        {/*              <span>•••</span>*/}
+        {/*            </Dropdown>*/}
+        {/*          </div>*/}
+        {/*          {activeMissionCreate ? (*/}
+        {/*            // This should render mission create when a fleet is already selected; */}
+        {/*            // i.e. we don't need to show options and there should be an indicator that a fleet is already selected*/}
+        {/*            <MissionCreate*/}
+        {/*              cancelCreate={cancelCreate}*/}
+        {/*              saveCreate={saveCreate}*/}
+        {/*              newMission={newMission}*/}
+        {/*              setNewMission={setNewMission}*/}
+        {/*              bots={bots}*/}
+        {/*              map={map}*/}
+        {/*            />*/}
+        {/*          ) : (*/}
+        {/*            <></>*/}
+        {/*          )}*/}
+        {/*        </>*/}
+        {/*      )}*/}
+        {/*    </>*/}
+        {/*  ) : activeMissionCreate ? (*/}
+        {/*    // This should render mission create when no fleet is selected; i.e. we need to show all bots to pick from for now, currently not supported since I don't yet support being able to select bots*/}
+        {/*    <MissionCreate*/}
+        {/*      cancelCreate={cancelCreate}*/}
+        {/*      saveCreate={saveCreate}*/}
+        {/*      newMission={newMission}*/}
+        {/*      setNewMission={setNewMission}*/}
+        {/*      bots={bots}*/}
+        {/*      map={map}*/}
+        {/*    />*/}
+        {/*  ) : (*/}
+        {/*    <></>*/}
+        {/*  )}*/}
+        {/*</div>*/}
       </div>
 
       {/* Map */}
@@ -408,7 +409,7 @@ const CustomGoogleMap: React.FC = () => {
         {/* Resizable Slider */}
         {activeBot !== null ? (
           <div
-            className="w-2 bg-gray-400 cursor-ew-resize"
+            className="w-0.5 bg-black cursor-ew-resize"
             onMouseDown={handleResizeStart}
             onTouchStart={handleResizeStart}
           ></div>
@@ -417,9 +418,11 @@ const CustomGoogleMap: React.FC = () => {
         )}
 
         {/* Split screen to show bot statistics */}
-        {activeBot !== null && activeInfoTab === 'Bot Info' ? (
-          <div className="h-full max-h-lvh p-4 bg-gray-100 overflow-y-auto" style={{ width: `${100 - mapWidth}%` }}>
-            <EmbrDetails></EmbrDetails>
+        {activeBot !== null ? (
+          <div className="h-full max-h-lvh bg-gray-100 overflow-y-auto" style={{ width: `${100 - mapWidth}%` }}>
+            <DetailsPanel
+              activeBot={activeBot}
+            ></DetailsPanel>
           </div>
         ) : (
           <></>

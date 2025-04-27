@@ -110,9 +110,10 @@ const TemperatureChart: React.FC<TemperatureChartProps> = ({
 
     return (
         <div>
-            <h2>{title}</h2>
+            {/*<h2>{title}</h2>*/}
             
-            <div style={{ width: '100%', height: '300px' }}>
+            <div style={{ width: '100%', height: '300px' }}
+                className="p-4">
                 <Line data={data} options={options} />
             </div>
         </div>

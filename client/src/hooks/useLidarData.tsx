@@ -21,7 +21,7 @@ export const useLidarData = () => {
             }
         }
 
-        const interval = setInterval(loadData, 5000);
+        const interval = setInterval(loadData, 100);
         return () => clearInterval(interval);
     }, []);
 

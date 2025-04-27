@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useLidarData } from "@/hooks/useLidarData";
+import InfoGrid from "@/components/Details/BotInfo/InfoGrid";
 
 type Point = {
     x: number;
@@ -30,9 +31,9 @@ const LidarVisualizer: React.FC<LidarVisualizerProps> = ({ minAngle, maxAngle })
     const { lidarData, loading } = useLidarData();
 
     // @ts-ignore
-    const width = 400;
+    const width = 325;
 
-    const height = 400;
+    const height = 325;
     const centerX = width / 2;
     const centerY = height / 2;
     if (loading || !lidarData) {
@@ -70,48 +71,60 @@ const LidarVisualizer: React.FC<LidarVisualizerProps> = ({ minAngle, maxAngle })
         { x: centerX + (centerY * Math.tan(maxRad)), y: height, distance: 0 },
     ];
 
+    const info = [
+        { title: "Min Distance", value: minDistance + " cm" },
+        { title: "Max Distance", value: maxDistance + " cm" }
+    ];
+
     return (
-        <div style={{ width, height, backgroundColor: "white" }}>
-            <div id="debug">
-                <span>Max: {maxDistance}</span>
-                <span>Min: {minDistance}</span>
-                <span>NumPoints: {numPoints}</span>
-            </div>
-            <svg width={width} height={height} style={{ border: "1px solid black" }}>
-                {/* Polygon Around the Bot */}
-                <polygon
-                    points={points.map((p) => `${p.x},${p.y}`).join(" ")}
-                    fill="rgba(49, 49, 58, 0.4)"
-                    stroke="none"
-                />
+        <>
+            <div className="flex items-center justify-center">
+                {/*<div id="debug">*/}
+                {/*    <span>Max: {maxDistance}</span>*/}
+                {/*    <span>Min: {minDistance}</span>*/}
+                {/*    <span>NumPoints: {numPoints}</span>*/}
+                {/*</div>*/}
 
-                {/* Points */}
-                {points.map((point, index) => (
-                    <circle
-                        key={index}
-                        cx={point.x}
-                        cy={point.y}
-                        r="2"
-                        fill={getColor(point, minDistance, maxDistance)}
+
+
+                <svg className=""  width={width} height={height}>
+                    {/* Polygon Around the Bot */}
+                    <polygon
+                        points={points.map((p) => `${p.x},${p.y}`).join(" ")}
+                        fill="rgba(49, 49, 58, 0.4)"
+                        stroke="none"
                     />
-                ))}
 
-                {/* Lidar Center */}
-                <circle cx={centerX} cy={centerY} r="5" fill="black" />
+                    {/* Points */}
+                    {points.map((point, index) => (
+                        <circle
+                            key={index}
+                            cx={point.x}
+                            cy={point.y}
+                            r="2"
+                            fill={getColor(point, minDistance, maxDistance)}
+                        />
+                    ))}
 
-                {/* Distance Circles */}
-                <circle cx={centerX} cy={centerY} r={maxDistance * scale} stroke="green" fill="none" />
-                <circle cx={centerX} cy={centerY} r={medDistance * scale} stroke="orange" fill="none" />
-                <circle cx={centerX} cy={centerY} r={minDistance * scale} stroke="red" fill="none" />
+                    {/* Lidar Center */}
+                    <circle cx={centerX} cy={centerY} r="5" fill="black" />
 
-                {/* Blind Spot */}
-                <polygon
-                    points={blindspotPoints.map((p) => `${p.x},${p.y}`).join(" ")}
-                    fill="rgba(49, 49, 58, 1)"
-                    stroke="none"
-                />
-            </svg>
-        </div>
+                    {/* Distance Circles */}
+                    <circle cx={centerX} cy={centerY} r={maxDistance * scale} stroke="green" fill="none" />
+                    <circle cx={centerX} cy={centerY} r={medDistance * scale} stroke="orange" fill="none" />
+                    <circle cx={centerX} cy={centerY} r={minDistance * scale} stroke="red" fill="none" />
+
+                    {/* Blind Spot */}
+                    <polygon
+                        points={blindspotPoints.map((p) => `${p.x},${p.y}`).join(" ")}
+                        fill="rgba(49, 49, 58, 1)"
+                        stroke="none"
+                    />
+                </svg>
+            </div>
+
+            <InfoGrid data={info}/>
+        </>
     );
 };
 
