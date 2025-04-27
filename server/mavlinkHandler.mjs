@@ -22,6 +22,7 @@ const REGISTRY = {
 // substitute /dev/ttyACM0 with your serial port!
 
 function handleMavlinkData() {
+
   //serialPort.close();
   const portSerialNumber = "/dev/ttyUSB0";
 

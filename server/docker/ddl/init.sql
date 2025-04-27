@@ -21,6 +21,7 @@ CREATE TABLE bot (
 ) ENGINE=InnoDB;
 
 CREATE TABLE position (
+    id INT AUTO_INCREMENT PRIMARY KEY,
     botID INT NOT NULL,
     clockTime DATETIME NOT NULL,
     latitude DECIMAL(9,7), -- Allow for 1mm accuracy
@@ -31,23 +32,22 @@ CREATE TABLE position (
     groundYSpeed FLOAT,
     groundZSpeed FLOAT,
     vehicleHeading FLOAT,
-    PRIMARY KEY(botID, clockTime),
     FOREIGN KEY (botID) REFERENCES bot(botID) ON DELETE CASCADE
 ) ENGINE=InnoDB;
 
 CREATE TABLE temperature (
+    id INT AUTO_INCREMENT PRIMARY KEY,
     botID INT NOT NULL,
     clockTime DATETIME NOT NULL,
     temperature FLOAT NOT NULL,
-    PRIMARY KEY(botID, clockTime),
     FOREIGN KEY (botID) REFERENCES bot(botID) ON DELETE CASCADE     -- if bot is deleted, also delete its records in this table
 ) ENGINE=InnoDB;
 
 CREATE TABLE battery (
+    id INT AUTO_INCREMENT PRIMARY KEY,
     botID INT NOT NULL,
     clockTime DATETIME NOT NULL,
     battery INT NOT NULL,
-    PRIMARY KEY(botID, clockTime),
     FOREIGN KEY (botID) REFERENCES bot(botID) ON DELETE CASCADE     -- if bot is deleted, also delete its records in this table
 ) ENGINE=InnoDB;
 
