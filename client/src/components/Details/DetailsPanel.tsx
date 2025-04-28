@@ -2,14 +2,16 @@ import {RobotType} from "@/types/robot.type";
 import BotPanel from "@/components/Details/BotPanel";
 import {useState} from "react";
 import MissionPanel from "@/components/Details/MissionPanel";
+import {MissionType} from "@/types/mission.type";
 
 function DetailsPanel({
                      activeBot,
+                     activeMission,
                  }: {
     activeBot: RobotType;
+    activeMission: MissionType | undefined;
 }) {
     const [activeTab, setActiveTab] = useState<"Mission Info" | "Bot Info">("Bot Info");
-
 
     return (
         <>
@@ -42,7 +44,8 @@ function DetailsPanel({
             )}
 
             {activeTab === 'Mission Info' && (
-                <MissionPanel activeBot={activeBot}/>
+                <MissionPanel activeBot={activeBot}
+                    activeMission={activeMission}/>
             )}
 
         </>

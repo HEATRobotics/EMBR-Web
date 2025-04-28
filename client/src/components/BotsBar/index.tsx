@@ -10,12 +10,16 @@ function BotsBar({
     bots, 
     activeBot, 
     disabled, 
-    setActiveBot 
+    setActiveBot,
+    createMissionCallback,
+    deleteMissionCallback,
 }: { 
     bots: RobotType[]; 
     activeBot: RobotType | null; 
     disabled: boolean; 
-    setActiveBot: React.Dispatch<React.SetStateAction<RobotType | null>> 
+    setActiveBot: React.Dispatch<React.SetStateAction<RobotType | null>>;
+    createMissionCallback: () => void;
+    deleteMissionCallback: () => void;
 }) {
     return (
         <div className="absolute flex flex-col gap-y-1 m-1 z-[10]">
@@ -44,22 +48,17 @@ function BotsBar({
 
             <div className="inline-flex rounded-md shadow-sm overflow-hidden">
                 <button
-                    disabled
-                    className="bg-white text-gray-800 font-medium py-2 px-4 border border-gray-300 first:rounded-l-md last:rounded-r-md hover:bg-gray-100 disabled:opacity-75 disabled:cursor-not-allowed"
-                >
-                    Edit
-                </button>
-                <button
-                    disabled
+                    onClick={createMissionCallback}
                     className="bg-white text-gray-800 font-medium py-2 px-4 border-t border-b border-gray-300 hover:bg-gray-100 disabled:opacity-75 disabled:cursor-not-allowed"
                 >
-                    Create
+                    Create Mission
                 </button>
                 <button
                     disabled
+                    onClick={deleteMissionCallback}
                     className="bg-white text-gray-800 font-medium py-2 px-4 border border-gray-300 first:rounded-l-md last:rounded-r-md hover:bg-gray-100 disabled:opacity-75 disabled:cursor-not-allowed"
                 >
-                    Delete
+                    Delete Mission
                 </button>
             </div>
 

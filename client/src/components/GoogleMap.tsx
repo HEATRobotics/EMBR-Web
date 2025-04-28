@@ -25,6 +25,7 @@ import EmbrDetails from "@/app/embr-details/page";
 import { RobotType } from "@/types/robot.type";
 import { addMissionToDB } from "@/api/missions.api";
 import DetailsPanel from "@/components/Details/DetailsPanel";
+import MissionCreateRectangle from "@/components/MapTools/MissionCreateRectangle";
 
 /*
   Main TODO's: 
@@ -124,7 +125,6 @@ const CustomGoogleMap: React.FC = () => {
   const [satelliteView, setSatelliteView] = useState<boolean>(false);
   const [zoomLevel, setZoomLevel] = useState<number>(zoom);
   const [mapWidth, setMapWidth] = useState(66.67);
-  const [activeInfoTab, setActiveInfoTab] = useState<"Mission Info" | "Bot Info">("Mission Info");
 
   const { bots, botsLoading, botError } = useBotData();
   const { missionsData, missionsLoading, missionsError, setMissions } = useMissions();
@@ -244,34 +244,19 @@ const CustomGoogleMap: React.FC = () => {
     MapDrawUtils.drawMissionAreas(missionsData, map);
   }
 
-  const handleMissionClick: MenuProps["onClick"] = ({ key }) => {
-    setActiveBot(null);
-    switch (key) {
-      case "create":
-        console.log('DEBUG: Create Fleet Event');
-        setActiveMissionCreate(true);
-        // handleDraw();
-        break;
-      case "edit":
-        console.log('DEBUG: Edit Fleet Event');
-        undefined;
-        break;
-      case "delete":
-        console.log('DEBUG: Delete Fleet Event');
-        undefined;
-        break;
-      default:
-        console.log('DEBUG: ERROR: key undefined in fleet event');
-        undefined;
-        break;
-    }
-  };
-
   // Display loading page if page has not been loaded
   if (!isLoaded) {
     return (
       <></>
     );
+  }
+
+  const createMission = () => {
+    setActiveMissionCreate(true);
+  }
+
+  const deleteMission = () => {
+
   }
 
   const handleResizeStart = (e: React.MouseEvent | React.TouchEvent) => {
@@ -306,6 +291,8 @@ const CustomGoogleMap: React.FC = () => {
         activeBot={activeBot}
         setActiveBot={setActiveBot}
         disabled={activeMissionCreate}
+        createMissionCallback={createMission}
+        deleteMissionCallback={deleteMission}
       />
 
       {/* Map tools */}
@@ -314,85 +301,22 @@ const CustomGoogleMap: React.FC = () => {
         onSatelliteViewChange={setSatelliteView}
       />
 
-      {/* Top Right Bar */}
-      <div className="absolute py-[30px] px-[30px] right-[0] flex flex-col gap-y-[36px] items-end max-w-[400px] z-[10]">
-        {/* <Search /> */}
-        {/*<div className="flex flex-col gap-y-3 w-full">*/}
-        {/*  {activeBot !== null ? (*/}
-        {/*    <>*/}
-        {/*      <div className="flex justify-start items-center gap-x-2.5">*/}
-        {/*        <button*/}
-        {/*          className={`px-3.5 py-1 rounded-[22px] text-[15px] leading-[18px] bg-white ${activeInfoTab === 'Mission Info' ? '!bg-lightgray' : ''}`}*/}
-        {/*          onClick={() => setActiveInfoTab('Mission Info')}*/}
-        {/*        >*/}
-        {/*          Mission Info*/}
-        {/*        </button>*/}
-        {/*        <button*/}
-        {/*          className={`px-3.5 py-1 rounded-[22px] text-[15px] leading-[18px] bg-white ${activeInfoTab === 'Bot Info' ? '!bg-lightgray' : ''}`}*/}
-        {/*          onClick={() => setActiveInfoTab('Bot Info')}*/}
-        {/*        >*/}
-        {/*          Bot Info*/}
-        {/*        </button>*/}
-        {/*      </div>*/}
-
-        {/*      {activeInfoTab === 'Mission Info' && (*/}
-        {/*        <>*/}
-        {/*          <div className="flex justify-start items-center gap-x-2.5">*/}
-        {/*            <button className="left-[35px] px-3.5 py-1 rounded-[22px] text-[15px] leading-[18px] bg-white">*/}
-        {/*              Past*/}
-        {/*            </button>*/}
-        {/*            <button className="left-[35px] px-3.5 py-1 rounded-[22px] text-[15px] leading-[18px] bg-white">*/}
-        {/*              Current*/}
-        {/*            </button>*/}
-        {/*            <button className="left-[35px] px-3.5 py-1 rounded-[22px] text-[15px] leading-[18px] bg-white">*/}
-        {/*              All*/}
-        {/*            </button>*/}
-        {/*            <Dropdown*/}
-        {/*              menu={{ items, onClick: handleMissionClick }}*/}
-        {/*              align={{ offset: [60, -26] }}*/}
-        {/*              placement="bottomRight"*/}
-        {/*              className="cursor-pointer left-[35px] px-3.5 py-1 rounded-[22px] text-[15px] leading-[18px] bg-white select-none"*/}
-        {/*              trigger={["click"]}*/}
-        {/*            >*/}
-        {/*              <span>•••</span>*/}
-        {/*            </Dropdown>*/}
-        {/*          </div>*/}
-        {/*          {activeMissionCreate ? (*/}
-        {/*            // This should render mission create when a fleet is already selected; */}
-        {/*            // i.e. we don't need to show options and there should be an indicator that a fleet is already selected*/}
-        {/*            <MissionCreate*/}
-        {/*              cancelCreate={cancelCreate}*/}
-        {/*              saveCreate={saveCreate}*/}
-        {/*              newMission={newMission}*/}
-        {/*              setNewMission={setNewMission}*/}
-        {/*              bots={bots}*/}
-        {/*              map={map}*/}
-        {/*            />*/}
-        {/*          ) : (*/}
-        {/*            <></>*/}
-        {/*          )}*/}
-        {/*        </>*/}
-        {/*      )}*/}
-        {/*    </>*/}
-        {/*  ) : activeMissionCreate ? (*/}
-        {/*    // This should render mission create when no fleet is selected; i.e. we need to show all bots to pick from for now, currently not supported since I don't yet support being able to select bots*/}
-        {/*    <MissionCreate*/}
-        {/*      cancelCreate={cancelCreate}*/}
-        {/*      saveCreate={saveCreate}*/}
-        {/*      newMission={newMission}*/}
-        {/*      setNewMission={setNewMission}*/}
-        {/*      bots={bots}*/}
-        {/*      map={map}*/}
-        {/*    />*/}
-        {/*  ) : (*/}
-        {/*    <></>*/}
-        {/*  )}*/}
-        {/*</div>*/}
-      </div>
-
-      {/* Map */}
       <div className="flex h-screen max-w-screen max-h-screen overflow-hidden">
+
+
+        {/* Map */}
         <div className="h-full" style={{ width: `${activeBot !== null ? mapWidth : '100'}%` }}>
+          {activeMissionCreate && (
+              <div className="z-[10] absolute right-0 top-0">
+                <MissionCreate
+                    cancelCreate={cancelCreate}
+                    saveCreate={saveCreate}
+                    newMission={newMission}
+                    setNewMission={setNewMission}
+                    bots={bots}
+                    map={map}/>
+              </div>
+          )}
           <GoogleMap
             options={mapOptions}
             mapContainerClassName="h-screen w-full"
@@ -404,6 +328,7 @@ const CustomGoogleMap: React.FC = () => {
               if (map) setZoomLevel(map.getZoom() || zoom);
             }}
           />
+
         </div>
 
         {/* Resizable Slider */}
@@ -418,10 +343,11 @@ const CustomGoogleMap: React.FC = () => {
         )}
 
         {/* Split screen to show bot statistics */}
-        {activeBot !== null ? (
+        {activeBot !== null && missionsData ? (
           <div className="h-full max-h-lvh bg-gray-100 overflow-y-auto" style={{ width: `${100 - mapWidth}%` }}>
             <DetailsPanel
               activeBot={activeBot}
+              activeMission={missionsData.filter((mission) => mission.botID === Number(activeBot.id))[0]}
             ></DetailsPanel>
           </div>
         ) : (

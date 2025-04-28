@@ -11,4 +11,12 @@ export interface RobotType {
   name: string;
   state: "active" | "chargingRequired" | "attentionRequired" | "systemFailed";
   coordinates: CoordinatesType;
+  lastMove: string;
+  gx: number;
+  gy: number;
+  gz: number;
+  lat: number;
+  lng: number;
+  temperature: number;
+  heading: number;
 }

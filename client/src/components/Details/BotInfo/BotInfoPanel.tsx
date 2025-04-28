@@ -1,5 +1,5 @@
 import {RobotType} from "@/types/robot.type";
-import {useState} from "react";
+import {useEffect, useState} from "react";
 import InfoGrid from "@/components/Details/BotInfo/InfoGrid";
 import TemperatureChart from "@/components/TemperatureChart";
 import LidarVisualizer from "@/components/Lidar/LidarVisualizer";
@@ -13,26 +13,51 @@ function BotInfoPanel({
 }) {
     const [activeTab, setActiveTab] = useState<"Overview" | "Orientation" | "Position" | "Temperature" | "Lidar">("Orientation");
 
-    const overviewData = [
-        { title: "Battery", value: "85%" },
-        { title: "Temperature", value: "42°C" },
-        { title: "Speed", value: "1.5 m/s" },
-        { title: "Altitude", value: "120 m" },
-    ];
+    const [overviewData, setOverviewData] = useState([
+        { title: "Battery", value: "" },
+        { title: "Temperature", value: "" },
+        { title: "Speed", value: "" },
+        { title: "Altitude", value: "" },
+    ]);
 
-    const orientationData = [
-        { title: "Yaw", value: "85.8°" },
-        { title: "Roll", value: "-12.9°" },
-        { title: "Pitch", value: "2.3°" },
-        { title: "Ground Speed", value: "1.25 m/s" },
-    ];
+    const [orientationData, setOrientationData] = useState([
+        { title: "Yaw", value: "" },
+        { title: "Roll", value: "" },
+        { title: "Pitch", value: "" },
+        { title: "Ground Speed", value: "" },
+    ]);
 
-    const positionData = [
-        { title: "Latitude", value: "49.94308" },
-        { title: "Longitude", value: "-119.37831" },
-        { title: "Altitude", value: "120 m" },
-        { title: "Speed", value: "1.5 m/s" },
-    ];
+    const [positionData, setPositionData] = useState([
+        { title: "Latitude", value: "" },
+        { title: "Longitude", value: "" },
+        { title: "Altitude", value: "" },
+        { title: "Speed", value: "" },
+    ]);
+
+    useEffect(() => {
+        if (!activeBot) return; // Safeguard against undefined
+
+        setOverviewData([
+            { title: "Battery", value: `75.1%` },
+            { title: "Temperature", value: `${Math.round(activeBot.temperature * 100) / 100}°C` },
+            { title: "Speed", value: `${ Math.sqrt(activeBot.gz ** 2 + activeBot.gy ** 2 + activeBot.gx ** 2)  ?? "N/A"} m/s` },
+            { title: "Altitude", value: `0 m` },
+        ]);
+
+        setOrientationData([
+            { title: "Yaw", value: `N/A°` },
+            { title: "Roll", value: `N/A°` },
+            { title: "Pitch", value: `N/A°` },
+            { title: "Ground Speed", value: `${ Math.sqrt(activeBot.gz ** 2 + activeBot.gy ** 2 + activeBot.gx ** 2)  ?? "N/A"} m/s` },
+        ]);
+
+        setPositionData([
+            { title: "Latitude", value: `${activeBot.lat ?? "N/A"}` },
+            { title: "Longitude", value: `${activeBot.lng ?? "N/A"}` },
+            { title: "Altitude", value: `0 m` },
+            { title: "Speed", value: `${ Math.sqrt(activeBot.gz ** 2 + activeBot.gy ** 2 + activeBot.gx ** 2)  ?? "N/A"} m/s` },
+        ]);
+    }, [activeBot]);
 
 
     return (

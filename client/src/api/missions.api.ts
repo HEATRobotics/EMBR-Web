@@ -37,10 +37,10 @@ export const addMissionToDB = async (mission: MissionType): Promise<{ message: s
         name: mission.name,
         botID: mission.botID,
         areaCoordinates: {
-            north: mission.areaCoordinates[0].lat,
-            west: mission.areaCoordinates[0].lng,
-            south: mission.areaCoordinates[1].lat,
-            east: mission.areaCoordinates[1].lng,
+            north: mission.areaCoordinates![0].lat,
+            west: mission.areaCoordinates![0].lng,
+            south: mission.areaCoordinates![1].lat,
+            east: mission.areaCoordinates![1].lng,
         },
     };
     console.log("Calling /create endpoint with:", missionForDB);
