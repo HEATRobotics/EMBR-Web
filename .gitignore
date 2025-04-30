@@ -1,8 +1,10 @@
 # Dependency directories
 /client/node_modules
 /client/.next
+/client/.idea
 /client/next-env.d.ts
 
 /server/node_modules
 /server/docker/mysql
 /server/package.json
+

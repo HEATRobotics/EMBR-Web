@@ -39,7 +39,7 @@ function BotPanel({ activeBot }: { activeBot: RobotType }) {
                     {/*<JanusStreaming/>*/}
                     <div className="w-full overflow-hidden shadow bg-white">
                         <img
-                            src="/robot.jpeg"
+                            src="/fpv_sample.jpg"
                             alt="LiDAR Image"
                             className="w-full max-h-80 object-contain"
                         />
@@ -50,7 +50,7 @@ function BotPanel({ activeBot }: { activeBot: RobotType }) {
             {activeTab === "Flir" && (
                 <div className="w-full overflow-hidden shadow bg-white">
                     <img
-                        src="/home.png"
+                        src="/flir_sample.png"
                         alt="Flir Image"
                         className="w-full max-h-80 object-contain"
                     />

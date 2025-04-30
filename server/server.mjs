@@ -37,7 +37,7 @@ let latestMavlinkData = {
 /*
     Setup handler to receive realtime MAVLink data
 */
-handleMavlinkData();      // for real data, untouched from last year's competition
+// handleMavlinkData();      // for real data, untouched from last year's competition
 // simulateMavlinkData();  // for simulated data, copying the format of real data
 
 
