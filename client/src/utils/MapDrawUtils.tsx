@@ -1,25 +1,23 @@
 import { RobotStateType } from "@/constants/robotConstants";
-import { FleetItemType } from "@/types/fleet.type";
 import { RobotType } from "@/types/robot.type";
 import { Marker } from "@react-google-maps/api";
+import { MissionType } from "@/types/mission.type";
 
 export default class MapDrawUtils {
 
   static markers: google.maps.Marker[] = [];
+  static missionAreas: google.maps.Rectangle[] = [];
   
-  static drawFleets(fleets: FleetItemType[], map: google.maps.Map) {
-    this.removeOldMarkers();
-    
-    // Draw each fleet
-    fleets.forEach((fleet: FleetItemType) => {
-      // Draw bots in fleet
-      this.drawBots(fleet.bots, map);
-    });
-  }
-
   static drawBots(robots: RobotType[], map: google.maps.Map) {
+    this.removeOldMarkers();
     // Draw each bot in the list
     robots.forEach((robot: RobotType) => this.drawBot(robot, map));
+  }
+
+  static drawMissionAreas(missions: MissionType[], map: google.maps.Map) {
+    this.removeOldMissionAreas();
+    // Draw each mission area in the list
+    missions.forEach((mission) => this.drawMissionArea(mission, map));
   }
 
   private static drawBot(robot: RobotType, map: google.maps.Map) {
@@ -44,12 +42,42 @@ export default class MapDrawUtils {
     this.markers.push(marker);
   }
 
+  private static drawMissionArea(mission: MissionType, map: google.maps.Map) {
+    if (!mission.areaCoordinates) return;
+
+    console.log(mission.areaCoordinates);
+
+    const bounds: google.maps.LatLngBoundsLiteral = {
+      north: mission.areaCoordinates[0].lat,
+      south: mission.areaCoordinates[1].lat,
+      west: mission.areaCoordinates[0].lng,
+      east: mission.areaCoordinates[1].lng,
+    };
+
+    const rectangle = new google.maps.Rectangle({
+      bounds,
+      map,
+      strokeColor: "#FF0000",
+      strokeOpacity: 0.8,
+      strokeWeight: 2,
+      fillColor: "#FF0000",
+      fillOpacity: 0.35,
+    });
+
+    this.missionAreas.push(rectangle);
+  }
+
   private static removeOldMarkers() {
     this.markers.forEach((marker) => {
       marker.setMap(null);
     })
 
     this.markers = [];
+  }
+
+  private static removeOldMissionAreas() {
+    this.missionAreas.forEach((missionArea) => missionArea.setMap(null));
+    this.missionAreas = [];
   }
 
 }

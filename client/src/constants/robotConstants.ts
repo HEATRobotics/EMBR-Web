@@ -1,3 +1,5 @@
+// These are required for the robot state badge colors and texts
+
 const RobotStateBadgeColors = {
   active: "#93FF9E",
   chargingRequired: "#FFFB93",

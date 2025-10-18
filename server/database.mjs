@@ -9,7 +9,7 @@ const pool = mysql.createPool({
     port: 3306,
     waitForConnections: true, // if connection limit is reached, queue the connection and wait for it to be released
     connectionLimit: 5,
-    maxIdle: 10, // max idle connections
+    maxIDle: 10, // max idle connections
     idleTimeout: 120000, // idle connections timeout: 2 minutes
     queueLimit: 0,
     enableKeepAlive: true,
@@ -166,7 +166,7 @@ export async function getAllTemperatureData() {
     let conn;
     try {
         conn = await pool.getConnection();
-        const query = `SELECT temperature.botID, fleetID, temperature FROM temperature JOIN fleet WHERE temperature.botID = fleet.botID`;
+        const query = `SELECT temperature.botID, temperature FROM temperature JOIN bot WHERE temperature.botID = bot.botID`;
         const [rows, fields] = await conn.execute(query);
         return rows;
     } catch (error) {
@@ -184,9 +184,9 @@ export async function getLatestTemperatureData() {
     try {
         conn = await pool.getConnection();
         const query = 
-            `SELECT temperature.botID, fleetID, temperature, clockTime
+            `SELECT temperature.botID, temperature, clockTime
             FROM temperature
-            JOIN fleet ON temperature.botID = fleet.botID
+            JOIN bot ON temperature.botID = bot.botID
             JOIN (
                 SELECT botID, MAX(clockTime) AS latestClockTime
                 FROM temperature
@@ -210,7 +210,7 @@ export async function getAllBatteryData() {
     let conn;
     try {
         conn = await pool.getConnection();
-        const query = `SELECT battery.botID, fleetID, battery FROM battery JOIN fleet WHERE battery.botID = fleet.botID`;
+        const query = `SELECT battery.botID, battery FROM battery JOIN bot WHERE battery.botID = bot.botID`;
         const [rows, fields] = await conn.execute(query);
         return rows;
     } catch (error) {
@@ -228,9 +228,9 @@ export async function getLatestBatteryData() {
     try {
         conn = await pool.getConnection();
         const query = 
-            `SELECT battery.botID, fleetID, battery, clockTime
+            `SELECT battery.botID, battery, clockTime
             FROM battery
-            JOIN fleet ON battery.botID = fleet.botID
+            JOIN bot ON battery.botID = bot.botID
             JOIN (
                 SELECT botID, MAX(clockTime) AS latestClockTime
                 FROM battery
@@ -250,14 +250,18 @@ export async function getLatestBatteryData() {
     }
 }
 
-export async function getLatestFleetData() {
+/*
+    Fetches the latest fleet data from the database.
+    This function retrieves the most recent position, temperature, and battery data for each bot in the fleet.
+    Returns an array of objects containing the latest fleet data if successful, or false if an error occurs.
+ */
+export async function getLatestBotData() {
     let conn;
     try {
         conn = await pool.getConnection();
         const query = `
             SELECT 
                 p.botID,
-                f.fleetID,
                 p.clockTime AS positionTime,
                 p.latitude,
                 p.longitude,
@@ -275,7 +279,7 @@ export async function getLatestFleetData() {
                 FROM position p1
                 WHERE clockTime = (SELECT MAX(clockTime) FROM position p2 WHERE p1.botID = p2.botID)
             ) p
-            LEFT JOIN fleet f ON p.botID = f.botID
+            LEFT JOIN bot ON p.botID = bot.botID
             LEFT JOIN (
                 SELECT botID, temperature
                 FROM temperature t1
@@ -298,4 +302,95 @@ export async function getLatestFleetData() {
         }
     }
 }
+
+/*
+    Fetches the latest mission data for a particular fleet from the database.
+    Mission data includes fleetID, areaCoordinates, progress, avgTemp, etc
+    Returns object containing mission data if successful, or false if an error occurs.
+ */
+export async function getMissionByBotID(missionID) {
+    let conn;
+    try {
+        conn = await pool.getConnection();
+        const query = `SELECT * FROM mission WHERE botID = ?`;
+        const [rows] = await conn.execute(query, [missionID]);
+        return rows[0];
+    } catch (error) {
+        console.error('Error getting mission by Bot ID:', error);
+        return false;
+    } finally {
+        if (conn) {
+            await conn.release();
+        }
+    }
+}
+/*
+    Fetches all missions from the database.
+    Returns an array of mission objects if successful, or false if an error occurs.
+ */
+export async function getAllMissions() {
+    let conn;
+    try {
+        conn = await pool.getConnection();
+        const query = `SELECT * FROM mission`;
+        const [rows] = await conn.execute(query);
+        return rows;
+    } catch (error) {
+        console.error('Error fetching all missions:', error);
+        return false;
+    } finally {
+        if (conn) {
+            await conn.release();
+        }
+    }
+}
+
+export async function updateMission(missionId, missionData) {
+    const { name, areaCoordinates, process, averageTemperature, timePassed, timeEstimated } = missionData;
+    try {
+        const connection = await pool.getConnection();
+        await connection.execute(
+            'UPDATE mission SET name = ?, area_coordinates = ?, progress = ?, avgTemp = ?, timePassed = ?, timeEstimated = ? WHERE missionID = ?',
+            [name, JSON.stringify(areaCoordinates), process, averageTemperature, timePassed, timeEstimated, missionId]
+        );
+        connection.release();
+        return { success: true }; 
+    } catch (error) {
+        console.error('Error updating mission:', error);
+        throw error;
+    }
+}
+
+// This function returns an object with "success" as a boolean and "missionID" containing the autoincrement ID of the newly created mission
+export async function createMission(missionData) {
+    let conn;
+    const { name, botID, areaCoordinates, process = 0, averageTemperature = 0, timePassed = 0, timeEstimated = 2880 } = missionData; // Default values for optional fields
+
+    if (!name || !botID || !areaCoordinates) {
+        throw new Error("Mission name, fleet ID, and area coordinates are required."); // Basic validation
+    }
+
+    console.log("made it in DB createMission");
+
+    try {
+        conn = await pool.getConnection();
+        const query = `
+            INSERT INTO mission (missionName, botID, areaCoordinates, progress, avgTemp, timePassed, timeEstimated)
+            VALUES (?, ?, ?, ?, ?, ?, ?)
+        `;
+        const areaCoordinatesJSON = JSON.stringify(areaCoordinates); // Important: stringify areaCoordinates for database storage
+        const [result] = await conn.execute(query, [name, botID, areaCoordinatesJSON, process, averageTemperature, timePassed, timeEstimated]);
+
+        return { success: true, missionID: result.insertId };
+
+    } catch (error) {
+        console.error('Error creating mission:', error);
+        throw error; // Re-throw the error to be handled by the endpoint
+    } finally {
+        if (conn) {
+            await conn.release();
+        }
+    }
+}
+
 

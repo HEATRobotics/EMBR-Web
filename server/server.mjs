@@ -2,12 +2,24 @@ import express from 'express'
 import cors from 'cors';
 import assert from 'assert';
 
+import missionRoutes from './routes/mission.routes.js';
+
 import { handleMavlinkData, simulateMavlinkData } from './mavlinkHandler.mjs';
 import { insertPositionData, insertTemperatureData, insertBatteryData } from './database.mjs';
-import { getAllBatteryData, getLatestBatteryData, getAllTemperatureData, getLatestTemperatureData, getLatestFleetData } from './database.mjs';
+import { getAllBatteryData, getLatestBatteryData, getAllTemperatureData, getLatestTemperatureData, getLatestBotData } from './database.mjs';
 
 const app = express();
 const port = 3100; 
+
+app.use(cors({
+    origin: 'http://localhost:3000', // Allow requests only from this origin
+    methods: 'GET,POST', // Allow only specified HTTP methods
+    credentials: true // Allow cookies to be sent cross-origin
+}));
+app.use(express.json()); 
+
+// Routes (TODO: Move the other routes to separate files, like how we separated the mission routes into mission.routes.js)
+app.use('/api/missions', missionRoutes);
 
 // Object to store latest datapoints of each type of data. Each type is an array so we can keep track of latest position and temp data from multiple bots.
 let latestMavlinkData = {
@@ -60,12 +72,6 @@ function parseDateTime(datetime){
     return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
 }
 
-app.use(cors({
-    origin: 'http://localhost:3000', // Allow requests only from this origin
-    methods: 'GET,POST', // Allow only specified HTTP methods
-    credentials: true // Allow cookies to be sent cross-origin
-}));
-
 // Get all temperature data
 app.get('/api/temperature/all', async (req, res) => {
     try {
@@ -73,10 +79,10 @@ app.get('/api/temperature/all', async (req, res) => {
         if (data) {
             res.status(200).json(data);
         } else {
-            res.status(500).json({ error: 'Failed to fetch temperature data.' });
+            res.status(500).json({ error: 'Database function returned null.' });
         }
     } catch (error) {
-        res.status(500).json({ error: 'An error occurred while fetching temperature data.' });
+        res.status(500).json({ error: `There was an error with calling the getAllTemperatureData database function: ${error.message}` });
     }
 });
 
@@ -87,10 +93,10 @@ app.get('/api/temperature/latest', async (req, res) => {
         if (data) {
             res.status(200).json(data);
         } else {
-            res.status(500).json({ error: 'Failed to fetch the latest temperature data.' });
+            res.status(500).json({ error: 'Database function returned null.' });
         }
     } catch (error) {
-        res.status(500).json({ error: 'An error occurred while fetching the latest temperature data.' });
+        res.status(500).json({ error: `There was an error with calling the getLatestTemperatureData database function: ${error.message}` });
     }
 });
 
@@ -101,10 +107,10 @@ app.get('/api/battery/all', async (req, res) => {
         if (data) {
             res.status(200).json(data);
         } else {
-            res.status(500).json({ error: 'Failed to fetch battery data.' });
+            res.status(500).json({ error: 'Database function returned null.' });
         }
     } catch (error) {
-        res.status(500).json({ error: 'An error occurred while fetching battery data.' });
+        res.status(500).json({ error: `There was an error with calling the getAllBatteryData database function: ${error.message}` });
     }
 });
 
@@ -115,24 +121,24 @@ app.get('/api/battery/latest', async (req, res) => {
         if (data) {
             res.status(200).json(data);
         } else {
-            res.status(500).json({ error: 'Failed to fetch the latest battery data.' });
+            res.status(500).json({ error: 'Database function returned null.' });
         }
     } catch (error) {
-        res.status(500).json({ error: 'An error occurred while fetching the latest battery data.' });
+        res.status(500).json({ error: `There was an error with calling the getLatestBatteryData database function: ${error.message}` });
     }
 });
 
-// Get latest fleets data
-app.get('/api/fleets/latest', async (req, res) => {
+// Get latest bots data
+app.get('/api/bots/latest', async (req, res) => {
     try {
-        const data = await getLatestFleetData();
+        const data = await getLatestBotData();
         if (data) {
             res.status(200).json(data);
         } else {
-            res.status(500).json({ error: 'Failed to fetch latest bot data.' });
+            res.status(500).json({ error: 'Database function returned null.' });
         }
     } catch (error) {
-        res.status(500).json({ error: 'An error occurred while fetching latest bot data.' });
+        res.status(500).json({ error: `There was an error with calling the getLatestBotData database function: ${error.message}` });
     }
 });
 
