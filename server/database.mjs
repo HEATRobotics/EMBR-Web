@@ -120,6 +120,47 @@ export async function insertTemperatureData(data) {
     }
 }
 
+export async function insertLidarData(data) {
+    let conn;
+
+    try {
+        const requiredFields = [
+            'clockTime',
+            'distances',
+        ];
+
+        requiredFields.forEach(field => {
+            assert(data[field] !== undefined, `${field} is required`);
+        })
+
+        conn = await pool.getConnection();
+
+        const query = `
+            INSERT INTO lidar_measurements (clockTime, distances) VALUES (?, ?);
+        `
+
+        const params = [
+            data.clockTime,
+            JSON.stringify(data.distances),
+        ];
+
+        const [results] = await conn.execute(query, params);
+        return results.affectedRows === 1;  // If more than one row is affected, then something went wrong
+
+    } catch (error) {
+
+        console.error("Error inserting lidar data into the database:", error);
+        console.log(data)
+        return false;
+
+    } finally {
+        // Note that this is run even if any of the above blocks hit the return statement
+        if (conn) {
+            await conn.release();
+        }
+    }
+}
+
 export async function insertBatteryData(data) {
 
     let conn; 
@@ -166,7 +207,7 @@ export async function getAllTemperatureData() {
     let conn;
     try {
         conn = await pool.getConnection();
-        const query = `SELECT temperature.botID, temperature FROM temperature JOIN bot WHERE temperature.botID = bot.botID`;
+        const query = `SELECT temperature.botID, temperature, clockTime FROM temperature ORDER BY clockTime ASC;`;
         const [rows, fields] = await conn.execute(query);
         return rows;
     } catch (error) {
@@ -193,7 +234,8 @@ export async function getLatestTemperatureData() {
                 GROUP BY botID
             ) latestTemp
             ON temperature.botID = latestTemp.botID 
-            AND temperature.clockTime = latestTemp.latestClockTime;`;
+            AND temperature.clockTime = latestTemp.latestClockTime 
+            ORDER BY clockTime ASC;`;
         const [rows, fields] = await conn.execute(query);
         return rows;
     } catch (error) {
@@ -210,7 +252,7 @@ export async function getAllBatteryData() {
     let conn;
     try {
         conn = await pool.getConnection();
-        const query = `SELECT battery.botID, battery FROM battery JOIN bot WHERE battery.botID = bot.botID`;
+        const query = `SELECT battery.botID, fleetID, battery, clockTime FROM battery JOIN fleet WHERE battery.botID = fleet.botID ORDER BY clockTime ASC;`;
         const [rows, fields] = await conn.execute(query);
         return rows;
     } catch (error) {
@@ -237,7 +279,8 @@ export async function getLatestBatteryData() {
                 GROUP BY botID
             ) latestBattery
             ON battery.botID = latestBattery.botID 
-            AND battery.clockTime = latestBattery.latestClockTime;`;
+            AND battery.clockTime = latestBattery.latestClockTime 
+            ORDER BY clockTime ASC;`;
         const [rows, fields] = await conn.execute(query);
         return rows;
     } catch (error) {
@@ -260,8 +303,8 @@ export async function getLatestBotData() {
     try {
         conn = await pool.getConnection();
         const query = `
-            SELECT 
-                p.botID,
+            SELECT DISTINCT 
+                b.botID,
                 p.clockTime AS positionTime,
                 p.latitude,
                 p.longitude,
@@ -272,24 +315,38 @@ export async function getLatestBotData() {
                 p.groundZSpeed,
                 p.vehicleHeading,
                 t.temperature,
-                b.battery
-            FROM (
-                SELECT botID, latitude, longitude, altitude, relativeAltitude, 
-                       groundXSpeed, groundYSpeed, groundZSpeed, vehicleHeading, clockTime
+                ba.battery
+            FROM bot b
+                     LEFT JOIN (
+                SELECT p1.*
                 FROM position p1
-                WHERE clockTime = (SELECT MAX(clockTime) FROM position p2 WHERE p1.botID = p2.botID)
-            ) p
-            LEFT JOIN bot ON p.botID = bot.botID
-            LEFT JOIN (
-                SELECT botID, temperature
+                         INNER JOIN (
+                    SELECT botID, MAX(clockTime) AS maxClockTime
+                    FROM position
+                    GROUP BY botID
+                ) p2 ON p1.botID = p2.botID AND p1.clockTime = p2.maxClockTime
+                ORDER BY p1.id DESC LIMIT 1
+            ) AS p ON b.botID = p.botID
+                     LEFT JOIN (
+                SELECT t1.*
                 FROM temperature t1
-                WHERE clockTime = (SELECT MAX(clockTime) FROM temperature t2 WHERE t1.botID = t2.botID)
-            ) t ON p.botID = t.botID
-            LEFT JOIN (
-                SELECT botID, battery
-                FROM battery b1
-                WHERE clockTime = (SELECT MAX(clockTime) FROM battery b2 WHERE b1.botID = b2.botID)
-            ) b ON p.botID = b.botID;
+                         INNER JOIN (
+                    SELECT botID, MAX(clockTime) AS maxClockTime
+                    FROM temperature
+                    GROUP BY botID
+                ) t2 ON t1.botID = t2.botID AND t1.clockTime = t2.maxClockTime
+                ORDER BY t1.id DESC LIMIT 1
+            ) AS t ON b.botID = t.botID
+                     LEFT JOIN (
+                SELECT ba1.*
+                FROM battery ba1
+                         INNER JOIN (
+                    SELECT botID, MAX(clockTime) AS maxClockTime
+                    FROM battery
+                    GROUP BY botID
+                ) ba2 ON ba1.botID = ba2.botID AND ba1.clockTime = ba2.maxClockTime
+                ORDER BY ba1.id DESC LIMIT 1
+            ) AS ba ON ba.botID = b.botID;
         `;
         const [rows] = await conn.execute(query);
         return rows;
@@ -337,6 +394,28 @@ export async function getAllMissions() {
         return rows;
     } catch (error) {
         console.error('Error fetching all missions:', error);
+        return false;
+    } finally {
+        if (conn) {
+            await conn.release();
+        }
+    }
+}
+
+export async function getLatestLidarData() {
+    let conn;
+    try {
+        conn = await pool.getConnection();
+        const query = `
+            SELECT *
+            FROM lidar_measurements
+            ORDER BY clockTime DESC
+                LIMIT 1;
+        `;
+        const [rows] = await conn.execute(query);
+        return rows;
+    } catch (error) {
+        console.error('Error fetching lidar data:', error);
         return false;
     } finally {
         if (conn) {

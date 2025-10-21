@@ -5,8 +5,15 @@ import assert from 'assert';
 import missionRoutes from './routes/mission.routes.js';
 
 import { handleMavlinkData, simulateMavlinkData } from './mavlinkHandler.mjs';
-import { insertPositionData, insertTemperatureData, insertBatteryData } from './database.mjs';
+import {
+    insertPositionData,
+    insertTemperatureData,
+    insertBatteryData,
+    insertLidarData,
+    getLatestLidarData
+} from './database.mjs';
 import { getAllBatteryData, getLatestBatteryData, getAllTemperatureData, getLatestTemperatureData, getLatestBotData } from './database.mjs';
+import router from "./routes/mission.routes.js";
 
 const app = express();
 const port = 3100; 
@@ -30,15 +37,17 @@ let latestMavlinkData = {
 /*
     Setup handler to receive realtime MAVLink data
 */
-// handleMavlinkData();     for real data, untouched from last year's competition
-simulateMavlinkData();  // for simulated data, copying the format of real data
+// handleMavlinkData();      // for real data, untouched from last year's competition
+// simulateMavlinkData();  // for simulated data, copying the format of real data
 
-/* 
+
+
+/*
     Function to update the database and set latestMavlinkData to newest datapoint 
 */
 async function storeMavlinkData(data) {
 
-    assert(data.type === 'global_position' || data.type === 'temp_data' || data.type === 'battery_data', "Invalid MAVLink data type");
+    assert(data.type === 'global_position' || data.type === 'temp_data' || data.type === 'battery_data' || data.type === 'lidar_data', "Invalid MAVLink data type");
 
     // Change date/time to a format that works with the database
     data.clockTime = parseDateTime(data.clockTime);
@@ -48,6 +57,8 @@ async function storeMavlinkData(data) {
     } else if (data.type === 'temp_data') {
         await insertTemperatureData(data);
         // console.log(await getAllTemperatureData());
+    } else if (data.type === 'lidar_data') {
+        await insertLidarData(data);
     } else {
         await insertBatteryData(data);
         // console.log(await getAllBatteryData());
@@ -141,6 +152,16 @@ app.get('/api/bots/latest', async (req, res) => {
         res.status(500).json({ error: `There was an error with calling the getLatestBotData database function: ${error.message}` });
     }
 });
+
+app.get('/api/lidar', async (req, res) => {
+    try {
+        const missions = await getLatestLidarData();
+        res.status(200).json(missions);
+    } catch (error) {
+        res.status(500).json({ message: 'Failed to get lidar data', error: error.message });
+    }
+})
+
 
 // Start server
 app.listen(port, () => {

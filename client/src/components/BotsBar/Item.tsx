@@ -28,7 +28,8 @@ function Item({
 
     return (
         <div
-            className="cursor-pointer min-w-[190px] rounded-[22px] p-3.5 text-[20px] leading-6 text-center transition-all duration-300"
+            className="text-gray-800 font-medium text-center py-2 px-4 first:rounded-l-md last:rounded-r-md hover:bg-gray-100 opacity-75"
+            style={{ backgroundColor: RobotStateType[bot.state].bgColor }}
             onClick={!disabled ? handleBotClick : () => {}}
         >
             <Tooltip
@@ -45,8 +46,7 @@ function Item({
                 arrow={undefined}
             >
                 <span
-                    style={{ backgroundColor: RobotStateType[bot.state].bgColor }}
-                    className="rounded-[22px] block p-3.5"
+
                 >
                     {bot.name}
                 </span>

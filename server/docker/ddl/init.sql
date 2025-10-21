@@ -21,6 +21,7 @@ CREATE TABLE bot (
 ) ENGINE=InnoDB;
 
 CREATE TABLE position (
+    id INT AUTO_INCREMENT PRIMARY KEY,
     botID INT NOT NULL,
     clockTime DATETIME NOT NULL,
     latitude DECIMAL(9,7), -- Allow for 1mm accuracy
@@ -31,23 +32,22 @@ CREATE TABLE position (
     groundYSpeed FLOAT,
     groundZSpeed FLOAT,
     vehicleHeading FLOAT,
-    PRIMARY KEY(botID, clockTime),
     FOREIGN KEY (botID) REFERENCES bot(botID) ON DELETE CASCADE
 ) ENGINE=InnoDB;
 
 CREATE TABLE temperature (
+    id INT AUTO_INCREMENT PRIMARY KEY,
     botID INT NOT NULL,
     clockTime DATETIME NOT NULL,
     temperature FLOAT NOT NULL,
-    PRIMARY KEY(botID, clockTime),
     FOREIGN KEY (botID) REFERENCES bot(botID) ON DELETE CASCADE     -- if bot is deleted, also delete its records in this table
 ) ENGINE=InnoDB;
 
 CREATE TABLE battery (
+    id INT AUTO_INCREMENT PRIMARY KEY,
     botID INT NOT NULL,
     clockTime DATETIME NOT NULL,
     battery INT NOT NULL,
-    PRIMARY KEY(botID, clockTime),
     FOREIGN KEY (botID) REFERENCES bot(botID) ON DELETE CASCADE     -- if bot is deleted, also delete its records in this table
 ) ENGINE=InnoDB;
 
@@ -65,6 +65,12 @@ CREATE TABLE mission (
     FOREIGN KEY (botID) REFERENCES bot(botID) ON DELETE CASCADE     -- if bot is deleted, also delete its records in this table
 ) ENGINE=InnoDB;
 
+CREATE TABLE lidar_measurements (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    clockTime DATETIME NOT NULL,
+    distances JSON NOT NULL
+);
+
 INSERT INTO bot (botID) VALUES (1), (2), (3);       -- create 3 sample bots
 
 INSERT INTO mission (botID, missionName, areaCoordinates, progress, avgTemp, timePassed, timeEstimated) 
@@ -74,3 +80,19 @@ VALUES (1, 'Mission K-lona', '{
     "east": -119.38269345092772,
     "west": -119.40673239135744
   }', 50.00, 22.50, 120, 240);
+
+
+-- Insert fake data into the position table for botID 1
+INSERT INTO position (botID, clockTime, latitude, longitude, altitude, relativeAltitude, groundXSpeed, groundYSpeed, groundZSpeed, vehicleHeading)
+VALUES
+    (1, '2025-04-26 00:00:00', 51.5074, -0.1278, 10.5, 0.5, 0.0, 1.5, 0.2, 90.0),  -- Example with latitude, longitude of London
+    (1, '2025-04-26 01:00:00', 51.5075, -0.1277, 11.0, 1.0, 0.1, 1.6, 0.3, 91.0),
+    (1, '2025-04-26 02:00:00', 51.5076, -0.1276, 12.0, 1.2, 0.2, 1.7, 0.4, 92.0);
+
+-- Insert fake data into the temperature table for botID 1
+INSERT INTO temperature (botID, clockTime, temperature)
+VALUES
+    (1, '2025-04-26 00:00:00', 22.5),
+    (1, '2025-04-26 01:00:00', 22.7),
+    (1, '2025-04-26 02:00:00', 22.8);
+

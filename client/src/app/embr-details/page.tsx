@@ -1,50 +1,37 @@
 'use client';
-
-import RealTimeChart from '@/components/RealTimeChart';
+import React, {useState} from 'react';
+import BatteryChart from '@/components/BatteryChart';
 import FleetTitle from '@/components/FleetDetails/FleetTitle';
-import BatteryIndicatorComponent from '@/components/FleetDetails/BatteryIndicator';
-import { generateRandomTemperature } from '@/utils/generateRandomTemperature';
-import { generateRandomThermalTemperature } from '@/utils/generateRandomThermalTemperature';
+import StatusOverviewComponent from '@/components/FleetDetails/StatusOverview';
 import InfoDetails from '@/components/FleetDetails/InfoDetails';
-import ModelDetails from '@/components/FleetDetails/ModelDetails';
 import Link from 'next/link';
-import JanusStreaming from '@/components/VideoStream';
+import TemperatureChart from '@/components/TemperatureChart';
+import LidarVisualizer from "@/components/Lidar/LidarVisualizer";
+import {RobotType} from "@/types/robot.type";
 
-
-const EmbrDetails = () => {
+function EmbrDetails({
+                      activeBot,
+                  }: {
+    activeBot: RobotType;
+})  {
     return (
         <div className="grid grid-cols-[1fr_4fr] pl-[40px] pr-[40px] h-[100vh] relative">
             <div>
-                <FleetTitle title={"TEST"}/>
-                <BatteryIndicatorComponent level={18}/>
-                <InfoDetails/>
-                <JanusStreaming></JanusStreaming>
+                <StatusOverviewComponent/>
             </div>
             <div className="grid grid-cols-2 grid-rows-2 gap-4 ml-[40px] pt-[2.5vh] pb-[2.5vh]">
-                <RealTimeChart 
-                    lineColor="#008080" 
-                    randomGenerator={generateRandomTemperature}
-                    title={"CPU"}
-                    tags={[{label: "active"}]}
-                />
-                <RealTimeChart 
-                    randomGenerator={generateRandomThermalTemperature}
+                {/*<BatteryChart*/}
+                {/*    lineColor="#008080"*/}
+                {/*    title={"Battery"}*/}
+                {/*/>*/}
+                <TemperatureChart
+                    lineColor="#FF0000"
                     title={"Temperature Probe"}
-                    tags={[{label: "active"}]}
                 />
-                <RealTimeChart 
-                    lineColor="#5c9c60"
-                    title={"Smoke Sensor"}
-                    tags={[{label: "attention required"}]}
-                />
-                <RealTimeChart 
-                    lineColor="#c96184"
-                    title={"Thermal Camera"}
-                    tags={[
-                        {label: "view snapshots", url: "https://google.com"}, 
-                        {label: "active"}
-                    ]}
-                />
+                <LidarVisualizer
+                    minAngle={0}
+                    maxAngle={360}>
+                </LidarVisualizer>
             </div>
             <div className="absolute top-5 right-5">
                 <Link href="/" className="p-2 rounded-full bg-red-600 text-black border-black border-2 shadow-lg hover:bg-red-700 cursor-pointer flex items-center justify-center w-8 h-8 group">

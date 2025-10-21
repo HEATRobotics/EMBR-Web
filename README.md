@@ -2,10 +2,10 @@
 
 ## To run the project with Docker
 
-Have Docker Desktop open, ensure you are in the root directory (`embr-web`), and run:
+Have [Docker Desktop](https://docs.docker.com/desktop/) open, ensure you are in the root directory (`embr-web`), and run:
 
 ```bash
-docker-compose up -d --build
+docker compose up -d --build
 ```
 
 > `-d`: detached mode, allows you to still access the terminal that you ran the command from

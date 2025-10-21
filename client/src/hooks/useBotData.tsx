@@ -51,9 +51,18 @@ export function useBotData() {
                     name: `Bot ${bot.botID}`,
                     state,
                     coordinates,
+                    lastMove: bot.positionTime,
+                    gx: Number(bot.groundXSpeed),
+                    gy: Number(bot.groundYSpeed),
+                    gz: Number(bot.groundZSpeed),
+                    lat: Number(bot.latitude),
+                    lng: Number(bot.longitude),
+                    temperature: Number(bot.temperature),
+                    heading: Number(bot.vehicleHeading),
                 };
             });
             setBots(botList);
+            console.log(botList);
         } catch (err) {
             setBotError('Failed to fetch bot data.');
         } finally {
