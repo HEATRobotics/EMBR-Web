@@ -45,7 +45,7 @@ function Stats({ missions }: Readonly<{ missions: MissionType[] }>) {
             key={i}
             className="flex flex-col py-6 px-[30px] gap-y-2.5 rounded-[22px] bg-white"
           >
-            <p className="mb-2.5">{mission.name} Stats</p>
+            <p className="mb-2.5">{mission.missionName} Stats</p>
             <div className="w-full flex justify-start items-center gap-x-3">
               <div className="rounded-[22px] bg-white border-2 border-black max-w-[293px] h-[30px] w-full relative">
                 <div

@@ -52,7 +52,7 @@ function MissionCreate({
     const handleSave = () => {
       const updatedMission: MissionType = {
           ...newMission,  // Retain the existing data
-          name: inputValue,  
+          missionName: inputValue,  
           botID: newMission.botID,  
           areaCoordinates: newMission.areaCoordinates,  
           progress: newMission.progress || 0,  

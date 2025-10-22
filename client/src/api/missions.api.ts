@@ -34,7 +34,7 @@ export const fetchMissions = async (): Promise<MissionType[]> => {
 export const addMissionToDB = async (mission: MissionType): Promise<{ message: string; missionID: string }> => {
     // Before sending to the server, reverse the transformation from fetchMissions (since the database stores coords in north, south, east, west format):
     const missionForDB = {
-        name: mission.name,
+        name: mission.missionName,
         botID: mission.botID,
         areaCoordinates: {
             north: mission.areaCoordinates![0].lat,

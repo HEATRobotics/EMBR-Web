@@ -68,7 +68,7 @@ const ubcoCoords: google.maps.LatLngLiteral = {
 };
 
 const newMissionTemplate: MissionType = {
-  name: "",
+  missionName: "",
   botID: 0,
   progress: 0,
   hotspots: [],

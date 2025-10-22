@@ -10,7 +10,7 @@ import { RobotType } from "./robot.type";
     - add some internal logic to determine what is a hotspot
 */
 export interface MissionType {
-  name: string;
+  missionName: string;
   progress: number;
   averageTemperature: number;
   timePassed: number;
