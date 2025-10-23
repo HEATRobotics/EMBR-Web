@@ -55,10 +55,6 @@ function handleMavlinkData() {
           console.log("NAMED_VALUE_FLOAT");
           processTemperatureMessage(data);
           break;
-        case "OBSTACLE_DISTANCE":
-          console.log("OBSTACLE_DISTANCE");
-          processLidarMessage(data);
-          break;
         default:
           console.log("Unknown message type:", clazz.MSG_NAME);
       }
@@ -216,18 +212,5 @@ function processBatteryMessage(data) {
   // storeMavlinkData(batteryData);
 }
 
-function processLidarMessage(data) {
-
-  console.log(data);
-
-  const lidarData = {
-    type: "lidar_data",
-    botID: 1,
-    clockTime: data.timeBootMs,
-    distances: data.distances
-  }
-
-  storeMavlinkData(lidarData);
-}
 
 export { handleMavlinkData, simulateMavlinkData };

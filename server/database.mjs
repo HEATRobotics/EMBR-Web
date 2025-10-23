@@ -120,46 +120,7 @@ export async function insertTemperatureData(data) {
     }
 }
 
-export async function insertLidarData(data) {
-    let conn;
 
-    try {
-        const requiredFields = [
-            'clockTime',
-            'distances',
-        ];
-
-        requiredFields.forEach(field => {
-            assert(data[field] !== undefined, `${field} is required`);
-        })
-
-        conn = await pool.getConnection();
-
-        const query = `
-            INSERT INTO lidar_measurements (clockTime, distances) VALUES (?, ?);
-        `
-
-        const params = [
-            data.clockTime,
-            JSON.stringify(data.distances),
-        ];
-
-        const [results] = await conn.execute(query, params);
-        return results.affectedRows === 1;  // If more than one row is affected, then something went wrong
-
-    } catch (error) {
-
-        console.error("Error inserting lidar data into the database:", error);
-        console.log(data)
-        return false;
-
-    } finally {
-        // Note that this is run even if any of the above blocks hit the return statement
-        if (conn) {
-            await conn.release();
-        }
-    }
-}
 
 export async function insertBatteryData(data) {
 
@@ -402,27 +363,7 @@ export async function getAllMissions() {
     }
 }
 
-export async function getLatestLidarData() {
-    let conn;
-    try {
-        conn = await pool.getConnection();
-        const query = `
-            SELECT *
-            FROM lidar_measurements
-            ORDER BY clockTime DESC
-                LIMIT 1;
-        `;
-        const [rows] = await conn.execute(query);
-        return rows;
-    } catch (error) {
-        console.error('Error fetching lidar data:', error);
-        return false;
-    } finally {
-        if (conn) {
-            await conn.release();
-        }
-    }
-}
+
 
 export async function updateMission(missionId, missionData) {
     const { name, areaCoordinates, process, averageTemperature, timePassed, timeEstimated } = missionData;

@@ -40,7 +40,7 @@ function BotPanel({ activeBot }: { activeBot: RobotType }) {
                     <div className="w-full overflow-hidden shadow bg-white">
                         <img
                             src="/fpv_sample.jpg"
-                            alt="LiDAR Image"
+                            alt="fpv Image"
                             className="w-full max-h-80 object-contain"
                         />
                     </div>
