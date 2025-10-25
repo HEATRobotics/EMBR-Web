@@ -33,6 +33,9 @@ Select all that apply:
 Describe how this change was tested.  
 Include commands or steps used, and confirm successful results.
 
+## Image of GUI change (if applicable)
+Paste an image of what you changed on the GUI. 
+
 ---
 
 ## ✅ Pre-Merge Checklist
