@@ -85,7 +85,7 @@ function MissionPanel({ activeBot, activeMission }: { activeBot: RobotType, acti
                 <span
                     className={`w-full py-3 text-center text-sm font-semibold transition-colors duration-200 bg-gray-100 text-gray-600 hover:bg-gray-200 hover:text-gray-800"}`}
                 >
-                General Information
+                General Information for {activeMission.missionName}
                 </span>
             </div>
             <InfoGrid data={areaData}/>
