@@ -35,6 +35,11 @@ Include commands or steps used, and confirm successful results.
 
 ---
 
+## Image of GUI change (if applicable)
+Paste an image of the GUI change.
+
+---
+
 ## ✅ Pre-Merge Checklist
 
 * [ ] PR started as a **Draft**
