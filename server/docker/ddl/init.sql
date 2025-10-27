@@ -65,11 +65,7 @@ CREATE TABLE mission (
     FOREIGN KEY (botID) REFERENCES bot(botID) ON DELETE CASCADE     -- if bot is deleted, also delete its records in this table
 ) ENGINE=InnoDB;
 
-CREATE TABLE lidar_measurements (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    clockTime DATETIME NOT NULL,
-    distances JSON NOT NULL
-);
+
 
 INSERT INTO bot (botID) VALUES (1), (2), (3);       -- create 3 sample bots
 

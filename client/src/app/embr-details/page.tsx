@@ -6,7 +6,6 @@ import StatusOverviewComponent from '@/components/FleetDetails/StatusOverview';
 import InfoDetails from '@/components/FleetDetails/InfoDetails';
 import Link from 'next/link';
 import TemperatureChart from '@/components/TemperatureChart';
-import LidarVisualizer from "@/components/Lidar/LidarVisualizer";
 import {RobotType} from "@/types/robot.type";
 
 function EmbrDetails({
@@ -28,10 +27,7 @@ function EmbrDetails({
                     lineColor="#FF0000"
                     title={"Temperature Probe"}
                 />
-                <LidarVisualizer
-                    minAngle={0}
-                    maxAngle={360}>
-                </LidarVisualizer>
+                
             </div>
             <div className="absolute top-5 right-5">
                 <Link href="/" className="p-2 rounded-full bg-red-600 text-black border-black border-2 shadow-lg hover:bg-red-700 cursor-pointer flex items-center justify-center w-8 h-8 group">

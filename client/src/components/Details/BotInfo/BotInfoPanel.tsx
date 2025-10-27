@@ -2,7 +2,7 @@ import {RobotType} from "@/types/robot.type";
 import {useEffect, useState} from "react";
 import InfoGrid from "@/components/Details/BotInfo/InfoGrid";
 import TemperatureChart from "@/components/TemperatureChart";
-import LidarVisualizer from "@/components/Lidar/LidarVisualizer";
+
 
 
 
@@ -11,7 +11,7 @@ function BotInfoPanel({
                       }: {
     activeBot: RobotType;
 }) {
-    const [activeTab, setActiveTab] = useState<"Overview" | "Orientation" | "Position" | "Temperature" | "Lidar">("Orientation");
+    const [activeTab, setActiveTab] = useState<"Overview" | "Orientation" | "Position" | "Temperature" >("Orientation");
 
     const [overviewData, setOverviewData] = useState([
         { title: "Battery", value: "" },
@@ -94,16 +94,7 @@ function BotInfoPanel({
                 >
                     Position
                 </button>
-                <button
-                    onClick={() => setActiveTab("Lidar")}
-                    className={`w-1/2 py-3 text-center text-sm font-semibold transition-colors duration-200 ${
-                        activeTab === "Lidar"
-                            ? "bg-blue-100 text-blue-800"
-                            : "bg-gray-100 text-gray-600 hover:bg-gray-200 hover:text-gray-800"
-                    }`}
-                >
-                    Lidar
-                </button>
+                
                 <button
                     onClick={() => setActiveTab("Temperature")}
                     className={`w-1/2 py-3 text-center text-sm font-semibold transition-colors duration-200 ${
@@ -127,10 +118,6 @@ function BotInfoPanel({
 
             {activeTab === "Position" && (
                 <InfoGrid data={positionData}/>
-            )}
-
-            {activeTab === "Lidar" && (
-                <LidarVisualizer minAngle={0} maxAngle={360}/>
             )}
 
             {activeTab === "Temperature" && (

@@ -3,8 +3,7 @@ import {
     getMissionByBotID,
     getAllMissions,
     updateMission,
-    createMission,
-    getLatestLidarData
+    createMission
 } from '../database.mjs';
 
 const router = express.Router();
