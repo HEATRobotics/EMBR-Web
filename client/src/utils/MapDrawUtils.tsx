@@ -1,4 +1,4 @@
-import { RobotStateType } from "@/constants/robotConstants";
+import { RobotOperationalStatusType } from "@/constants/robotConstants";
 import { RobotType } from "@/types/robot.type";
 import { Marker } from "@react-google-maps/api";
 import { MissionType } from "@/types/mission.type";
@@ -24,7 +24,7 @@ export default class MapDrawUtils {
 
     const svgData = `
       <svg width="20" height="20" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
-        <circle cx="10" cy="10" r="5" fill="${RobotStateType[robot.state].color}" />
+  <circle cx="10" cy="10" r="5" fill="${RobotOperationalStatusType[robot.operationalStatus].color}" />
       </svg>
     `;
 

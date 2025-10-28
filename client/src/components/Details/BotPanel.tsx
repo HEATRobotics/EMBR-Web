@@ -4,8 +4,8 @@ import JanusStreaming from "@/components/VideoStream";
 import BotInfoPanel from "@/components/Details/BotInfo/BotInfoPanel";
 
 
-function BotPanel({ activeBot }: { activeBot: RobotType }) {
-    const [activeTab, setActiveTab] = useState<"Flir" | "FPV">("Flir");
+function BotPanel({ selectedBot }: { selectedBot: RobotType }) {
+    const [currentTab, setCurrentTab] = useState<"Flir" | "FPV">("Flir");
 
 
     return (
@@ -13,9 +13,9 @@ function BotPanel({ activeBot }: { activeBot: RobotType }) {
             {/* Tab Menu */}
             <div className="flex w-full overflow-hidden shadow border-b border-black">
                 <button
-                    onClick={() => setActiveTab("Flir")}
+                    onClick={() => setCurrentTab("Flir")}
                     className={`w-1/2 py-3 text-center text-sm font-semibold transition-colors duration-200 ${
-                        activeTab === "Flir"
+                        currentTab === "Flir"
                             ? "bg-blue-100 text-blue-800"
                             : "bg-gray-100 text-gray-600 hover:bg-gray-200 hover:text-gray-800"
                     }`}
@@ -23,9 +23,9 @@ function BotPanel({ activeBot }: { activeBot: RobotType }) {
                     Flir
                 </button>
                 <button
-                    onClick={() => setActiveTab("FPV")}
+                    onClick={() => setCurrentTab("FPV")}
                     className={`w-1/2 py-3 text-center text-sm font-semibold transition-colors duration-200 ${
-                        activeTab === "FPV"
+                        currentTab === "FPV"
                             ? "bg-blue-100 text-blue-800"
                             : "bg-gray-100 text-gray-600 hover:bg-gray-200 hover:text-gray-800"
                     }`}
@@ -34,7 +34,7 @@ function BotPanel({ activeBot }: { activeBot: RobotType }) {
                 </button>
             </div>
 
-            {activeTab === "FPV" && (
+            {currentTab === "FPV" && (
                 <>
                     {/*<JanusStreaming/>*/}
                     <div className="w-full overflow-hidden shadow bg-white">
@@ -47,7 +47,7 @@ function BotPanel({ activeBot }: { activeBot: RobotType }) {
                 </>
             )}
 
-            {activeTab === "Flir" && (
+            {currentTab === "Flir" && (
                 <div className="w-full overflow-hidden shadow bg-white">
                     <img
                         src="/flir_sample.png"
@@ -57,7 +57,7 @@ function BotPanel({ activeBot }: { activeBot: RobotType }) {
                 </div>
             )}
 
-            <BotInfoPanel activeBot={activeBot}/>
+            <BotInfoPanel selectedBot={selectedBot}/>
         </>
     )
 }

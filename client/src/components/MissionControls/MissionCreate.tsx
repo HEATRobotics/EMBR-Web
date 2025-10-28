@@ -21,27 +21,33 @@ function MissionCreate({
     bots: RobotType[];
     map: google.maps.Map | null;
 }) {
-    const [activeStep, setActiveStep] = useState(0);
+    const [currentStep, setCurrentStep] = useState(0);
     const [inputValue, setInputValue] = useState('');
     const [isDrawing, setIsDrawing] = useState(false); 
 
-    const botOptions = bots.map((bot) => ({ value: bot.id, label: bot.name }));
+    // Filter to show only bots that are ready (not assigned or inactive)
+    const availableBots = bots.filter(bot => bot.assignmentStatus === "ready");
+    
+    const botOptions = availableBots.map((bot) => ({ 
+        value: bot.id, 
+        label: `${bot.name} (${bot.operationalStatus})` 
+    }));
 
 
     useEffect(() => {
         if (newMission) {
             if (newMission.areaCoordinates) {
-                setActiveStep(1);
+                setCurrentStep(1);
             }
             if (newMission.botID) {
-                setActiveStep(2);
+                setCurrentStep(2);
             }
         }
     }, [newMission]);
 
     const handleSelect = (value: number, label: string) => {
-        setActiveStep(2);
-        console.log("Set active state to 2");
+        setCurrentStep(2);
+        console.log("Set current step to 2");
         setNewMission((prev) => ({ ...prev, botID: value }));
     };
 
@@ -67,7 +73,7 @@ function MissionCreate({
 
     const handleAreaSelectClick = () => {
         setIsDrawing(true); 
-        setActiveStep(0); 
+        setCurrentStep(0); 
         setNewMission((prev) => ({ ...prev, areaCoordinates: undefined })); // Clear previous area
     };
 
@@ -79,7 +85,7 @@ function MissionCreate({
             ];
 
             setNewMission((prev) => ({ ...prev, areaCoordinates: coordinates }));
-            setActiveStep(1); // Move to the next step after area is selected
+            setCurrentStep(1); // Move to the next step after area is selected
             setIsDrawing(false); // Turn off drawing mode after rectangle is drawn
         }
     }, [setNewMission]);
@@ -92,9 +98,9 @@ function MissionCreate({
             <div className="flex flex-col py-5 px-[27px] gap-y-5 rounded-[22px] bg-white">
                 <p className="text-[20px] leading-6">Create a new mission</p>
                 <div className="flex flex-col gap-y-2.5">
-                    <div className="text-[15px] leading-[18px]" style={{ color: activeStep === 0 ? 'black' : '#B1B1B1' }}>
+                    <div className="text-[15px] leading-[18px]" style={{ color: currentStep === 0 ? 'black' : '#B1B1B1' }}>
                         <p>Select an area</p>
-                        {activeStep <= 0 && (
+                        {currentStep <= 0 && (
                             <button
                                 onClick={handleAreaSelectClick}
                                 className="left-[35px] px-3.5 py-1 rounded-[22px] text-[15px] leading-[18px] border border-black hover:!bg-lightgray disabled:!bg-transparent"
@@ -102,16 +108,16 @@ function MissionCreate({
                                 Draw Area
                             </button>
                         )}
-                         {newMission.areaCoordinates && activeStep >= 1 && (
+                         {newMission.areaCoordinates && currentStep >= 1 && (
                             <p className="text-green-500">Area Selected</p>
                         )}
                     </div>
 
-                    <div className="text-[15px] leading-[18px] flex flex-col gap-y-2.5" style={{ color: activeStep === 1 ? 'black' : '#B1B1B1' }}>
+                    <div className="text-[15px] leading-[18px] flex flex-col gap-y-2.5" style={{ color: currentStep === 1 ? 'black' : '#B1B1B1' }}>
                         <p>Select a bot</p>
-                        {activeStep >= 1 && (
+                        {currentStep >= 1 && (
                             <Select
-                                disabled={activeStep !== 1}
+                                disabled={currentStep !== 1}
                                 onSelect={(value, { label }) => handleSelect(value, label)}
                                 showSearch
                                 value={newMission.botID || undefined}
@@ -124,13 +130,13 @@ function MissionCreate({
                             />
                         )}
                     </div>
-                    <div className="text-[15px] leading-[18px] flex flex-col gap-y-2.5" style={{ color: activeStep === 2 ? 'black' : '#B1B1B1' }}>
+                    <div className="text-[15px] leading-[18px] flex flex-col gap-y-2.5" style={{ color: currentStep === 2 ? 'black' : '#B1B1B1' }}>
                         <p>Name the mission</p>
-                        {activeStep >= 2 && <Input placeholder="Enter the name of the mission..." value={inputValue} onChange={(e) => handleNameInput(e.target.value)} />}
+                        {currentStep >= 2 && <Input placeholder="Enter the name of the mission..." value={inputValue} onChange={(e) => handleNameInput(e.target.value)} />}
                     </div>
                 </div>
             </div>
-            {inputValue && activeStep >= 2 && ( // Only show save button when name is inputted and at step 2 or later
+            {inputValue && currentStep >= 2 && ( // Only show save button when name is inputted and at step 2 or later
                 <button className="left-[35px] px-3.5 py-1 w-fit rounded-[22px] text-[15px] leading-[18px] bg-orange" onClick={handleSave}>
                     save
                 </button>

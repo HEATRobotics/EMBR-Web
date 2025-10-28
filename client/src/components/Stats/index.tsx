@@ -9,34 +9,33 @@ const StatLine = ({ name, value }: { name: string; value: string }) => (
   </p>
 );
 
-function Stats({ missions }: Readonly<{ missions: MissionType[] }>) {
-  console.log(missions.map((mission) => mission.robots));
+function Stats({ missions, bots }: Readonly<{ missions: MissionType[], bots?: RobotType[] }>) {
+  // Calculate bot statistics if bots are provided
+  const readyBots = bots?.filter(bot => bot.assignmentStatus === "ready").length || 0;
+  const assignedBots = bots?.filter(bot => bot.assignmentStatus === "assigned").length || 0;
+  const totalBots = bots?.length || 0;
+  
   return (
     <div className="flex flex-col gap-y-3 w-full text-[20px] leading-6">
       <div className="flex flex-col py-5 px-[30px] gap-y-2.5 rounded-[22px] bg-white">
         <p className="mb-2.5">Fleet Stats</p>
+        {bots && (
+          <>
+            <StatLine
+              name="Ready Bots"
+              value={`${readyBots}/${totalBots} available`}
+            />
+            <StatLine
+              name="Assigned Bots"
+              value={`${assignedBots}/${totalBots} on missions`}
+            />
+          </>
+        )}
         <StatLine
-          name="# of active robots"
-          value={`${
-            []
-              .concat(
-                ...(missions.map((mission) => mission.robots ?? []) as any)
-              )
-              .filter((robot) => robot != null)
-              .filter((robot: RobotType) => robot.state === "active").length
-          }/${
-            []
-              .concat(
-                ...(missions.map((mission) => mission.robots ?? []) as any)
-              )
-              .filter((robot) => robot != null).length
-          } active robots in the fleet`}
-        />
-        <StatLine
-          name="Next Missions"
+          name="Total Missions"
           value={`${missions.length} mission${
             missions.length === 1 ? "" : "s"
-          } assigned to the fleet`}
+          } in the system`}
         />
       </div>
       <div className="flex flex-col gap-y-3 w-full overflow-auto h-full max-h-[calc(100vh-320px)]">

@@ -11,63 +11,35 @@ import {
 import BotsBar from "./BotsBar";
 import MissionCreate from "./MissionControls/MissionCreate";
 import { useAppDispatch, useAppSelector } from "@/redux/hooks";
-
-// types/interfaces
 import { MissionType } from "@/types/mission.type";
-
-// custom hooks
 import { useBotData } from "@/hooks/useBotData";
 import { useMissions } from "@/hooks/useMissions";
-
 import MapDrawUtils from "@/utils/MapDrawUtils";
 import MapTools from "@/components/MapTools";
 import EmbrDetails from "@/app/embr-details/page";
 import { RobotType } from "@/types/robot.type";
 import { addMissionToDB } from "@/api/missions.api";
 import DetailsPanel from "@/components/Details/DetailsPanel";
-import MissionCreateRectangle from "@/components/MapTools/MissionCreateRectangle";
 
-/*
-  Main TODO's: 
-    - Create a mission
-    - Assign a fleet to the mission
-    - View the bot and its details: including preview under mission stats, and details in embr-details (with charts, and cams)
-    - Get the bot positions and show live movement maybe
-  
-  Just focus on one bot
-  Improve logic for detecting and showing hotspots on the map
-  Look into whether its possible to send mission coords to the bot based on what's drawn
-*/
+// ========== CONSTANTS ==========
 
-const exampleMapStyles: google.maps.MapTypeStyle[] = [
-  {
-    featureType: "poi",
-    elementType: "geometry",
-    stylers: [
-      {
-        color: "#eeeeee",
-      },
-    ],
-  },
-  {
-    featureType: "water",
-    elementType: "labels.text.fill",
-    stylers: [
-      {
-        color: "#9e9e9e",
-      },
-    ],
-  },
-];
+// Map Zoom Levels
+const DEFAULT_ZOOM = 14;
+const BOT_FOCUS_ZOOM = 20;
 
-const zoom: number = 14;
-const zoomFleet: number = 20;
-const ubcoCoords: google.maps.LatLngLiteral = {
+// Map Width Constraints (percentage)
+const MIN_MAP_WIDTH = 30;
+const MAX_MAP_WIDTH = 70;
+const DEFAULT_MAP_WIDTH = 66.67;
+
+// Default Map Center (UBCO Campus)
+const UBCO_COORDS: google.maps.LatLngLiteral = {
   lat: 49.939434,
   lng: -119.396427,
 };
 
-const newMissionTemplate: MissionType = {
+// Mission Template
+const NEW_MISSION_TEMPLATE: MissionType = {
   missionName: "",
   botID: 0,
   progress: 0,
@@ -81,6 +53,21 @@ const newMissionTemplate: MissionType = {
   ],
 };
 
+// Map Styling
+const exampleMapStyles: google.maps.MapTypeStyle[] = [
+  {
+    featureType: "poi",
+    elementType: "geometry",
+    stylers: [{ color: "#eeeeee" }],
+  },
+  {
+    featureType: "water",
+    elementType: "labels.text.fill",
+    stylers: [{ color: "#9e9e9e" }],
+  },
+];
+
+// Dropdown Menu Items (currently disabled)
 const items: MenuProps["items"] = [
   {
     key: "edit",
@@ -114,18 +101,24 @@ const items: MenuProps["items"] = [
   },
 ];
 
+// ========== COMPONENT ==========
+
 const CustomGoogleMap: React.FC = () => {
   const router = useRouter();
   const dispatch = useAppDispatch();
+  
+  // Map State
   const [map, setMap] = useState<google.maps.Map | null>(null);
-  const [activeBot, setActiveBot] = useState<RobotType | null>(null);
-  const [activeMissionCreate, setActiveMissionCreate] = useState<boolean>(false);
-  const [cancelDrawing, setCancelDrawing] = useState<any>();
-  const [newMission, setNewMission] = useState<MissionType>(newMissionTemplate);
   const [satelliteView, setSatelliteView] = useState<boolean>(false);
-  const [zoomLevel, setZoomLevel] = useState<number>(zoom);
-  const [mapWidth, setMapWidth] = useState(66.67);
+  const [zoomLevel, setZoomLevel] = useState<number>(DEFAULT_ZOOM);
+  const [mapWidth, setMapWidth] = useState(DEFAULT_MAP_WIDTH);
+  
+  // Bot & Mission State
+  const [selectedBot, setSelectedBot] = useState<RobotType | null>(null);
+  const [activeMissionCreate, setActiveMissionCreate] = useState<boolean>(false);
+  const [newMission, setNewMission] = useState<MissionType>(NEW_MISSION_TEMPLATE);
 
+  // Data Hooks
   const { bots, botsLoading, botError } = useBotData();
   const { missionsData, missionsLoading, missionsError, setMissions } = useMissions();
 
@@ -153,6 +146,8 @@ const CustomGoogleMap: React.FC = () => {
     }
     : {};
 
+  // ========== MAP CALLBACKS ==========
+
   const onLoad = useCallback(function callback(map: google.maps.Map | null) {
     if (map) setMap(map);
   }, []);
@@ -161,36 +156,37 @@ const CustomGoogleMap: React.FC = () => {
     setMap(null);
   }, []);
 
+  // ========== MISSION HANDLERS ==========
+
   const saveCreate = async (mission: MissionType) => {
     setActiveMissionCreate(false);
-    console.log("Called saveCreate");
+    console.log("Saving mission:", mission);
 
-    // Ensure missionsData is always an array
     const updatedMissions = [...(missionsData ?? []), mission];
     setMissions(updatedMissions);
 
     const response = await addMissionToDB(mission);
-    console.log("Mission with ID ", response.missionID, " created successfully.");
-    console.log("Response from addMissionToDB:", response);
-
-    /*
-    localStorage.setItem(
-      "customMissions",
-      JSON.stringify([
-        ...JSON.parse(localStorage.getItem("customMissions") || "[]"),
-        mission,
-      ])
-    );
-    */
+    console.log("Mission created with ID:", response.missionID);
+    if (map) enableMapInteraction(map);
   };
 
   const cancelCreate = () => {
     setActiveMissionCreate(false);
-    cancelDrawing.cancelDrawing();
-    enable(map!);
+    if (map) enableMapInteraction(map);
   };
 
-  const disable = (map: google.maps.Map) => {
+  const createMission = () => {
+    setActiveMissionCreate(true);
+    if (map) disableMapInteraction(map);
+  };
+
+  const deleteMission = () => {
+    // TODO: Implement mission deletion
+  };
+
+  // ========== MAP INTERACTION HELPERS ==========
+
+  const disableMapInteraction = (map: google.maps.Map) => {
     map.setOptions({
       draggable: false,
       zoomControl: false,
@@ -199,7 +195,7 @@ const CustomGoogleMap: React.FC = () => {
     });
   };
 
-  const enable = (map: google.maps.Map) => {
+  const enableMapInteraction = (map: google.maps.Map) => {
     map.setOptions({
       draggable: true,
       scrollwheel: true,
@@ -207,57 +203,40 @@ const CustomGoogleMap: React.FC = () => {
     });
   };
 
-  // Adjust Camera Position to Active Fleet. 
-  // If none move camera to UBCO campus.
-  useEffect(() => {
-    if (map === null)
-      return;
+  // ========== EFFECTS ==========
 
-    // No active fleet center on UBCO campus
-    if (activeBot === null) {
-      map.setCenter(ubcoCoords);
-      map.setZoom(zoom);
+  // Adjust camera position when bot is selected
+  useEffect(() => {
+    if (map === null) return;
+
+    if (selectedBot === null) {
+      // No bot selected - center on default location
+      map.setCenter(UBCO_COORDS);
+      map.setZoom(DEFAULT_ZOOM);
       return;
     }
 
-    // Center on active fleet
-    map.setCenter(bots.find((bot) => bot.id === activeBot.id)?.coordinates!);
-    map.setZoom(zoomFleet);
+    // Center on selected bot
+    const botPosition = bots.find((bot) => bot.id === selectedBot.id)?.coordinates;
+    if (botPosition) {
+      map.setCenter(botPosition);
+      map.setZoom(BOT_FOCUS_ZOOM);
+    }
+  }, [selectedBot, map, bots]);
 
-  }, [activeBot, map]);
-
-  // Update map with new fleet data
-  useEffect(updateBots, [bots, map])
-  useEffect(updateAreaCoordinates, [missionsData, map])
-
-  function updateBots() {
-    if (!map || !bots || bots.length === 0)
-      return;
-
+  // Update bot markers on map
+  useEffect(() => {
+    if (!map || !bots || bots.length === 0) return;
     MapDrawUtils.drawBots(bots, map);
-  }
+  }, [bots, map]);
 
-  function updateAreaCoordinates() {
-    if (!map || !missionsData || missionsData.length === 0)
-      return;
-    console.log("Drawing Rectangle")
+  // Update mission areas on map
+  useEffect(() => {
+    if (!map || !missionsData || missionsData.length === 0) return;
     MapDrawUtils.drawMissionAreas(missionsData, map);
-  }
+  }, [missionsData, map]);
 
-  // Display loading page if page has not been loaded
-  if (!isLoaded) {
-    return (
-      <></>
-    );
-  }
-
-  const createMission = () => {
-    setActiveMissionCreate(true);
-  }
-
-  const deleteMission = () => {
-
-  }
+  // ========== RESIZE HANDLER ==========
 
   const handleResizeStart = (e: React.MouseEvent | React.TouchEvent) => {
     const startX = "touches" in e ? e.touches[0].clientX : e.clientX;
@@ -266,7 +245,10 @@ const CustomGoogleMap: React.FC = () => {
     const onMove = (event: MouseEvent | TouchEvent) => {
       const clientX = "touches" in event ? event.touches[0].clientX : event.clientX;
       const deltaX = clientX - startX;
-      const newWidth = Math.min(Math.max(startWidth + (deltaX / window.innerWidth) * 100, 30), 70);
+      const newWidth = Math.min(
+        Math.max(startWidth + (deltaX / window.innerWidth) * 100, MIN_MAP_WIDTH), 
+        MAX_MAP_WIDTH
+      );
       setMapWidth(newWidth);
     };
 
@@ -283,13 +265,19 @@ const CustomGoogleMap: React.FC = () => {
     window.addEventListener("touchend", onEnd);
   };
 
-  // Display map page
+  // ========== LOADING STATE ==========
+
+  if (!isLoaded) {
+    return <></>;
+  }
+
+  // ========== RENDER ==========
   return (
     <>
       <BotsBar
         bots={bots}
-        activeBot={activeBot}
-        setActiveBot={setActiveBot}
+        selectedBot={selectedBot}
+        setSelectedBot={setSelectedBot}
         disabled={activeMissionCreate}
         createMissionCallback={createMission}
         deleteMissionCallback={deleteMission}
@@ -302,10 +290,8 @@ const CustomGoogleMap: React.FC = () => {
       />
 
       <div className="flex h-screen max-w-screen max-h-screen overflow-hidden">
-
-
-        {/* Map */}
-        <div className="h-full" style={{ width: `${activeBot !== null ? mapWidth : '100'}%` }}>
+        {/* Map Container */}
+        <div className="h-full" style={{ width: `${selectedBot !== null ? mapWidth : '100'}%` }}>
           {activeMissionCreate && (
               <div className="z-[10] absolute right-0 top-0">
                 <MissionCreate
@@ -320,19 +306,18 @@ const CustomGoogleMap: React.FC = () => {
           <GoogleMap
             options={mapOptions}
             mapContainerClassName="h-screen w-full"
-            center={ubcoCoords}
-            zoom={zoom}
+            center={UBCO_COORDS}
+            zoom={DEFAULT_ZOOM}
             onLoad={onLoad}
             onUnmount={onUnmount}
             onZoomChanged={() => {
-              if (map) setZoomLevel(map.getZoom() || zoom);
+              if (map) setZoomLevel(map.getZoom() || DEFAULT_ZOOM);
             }}
           />
-
         </div>
 
         {/* Resizable Slider */}
-        {activeBot !== null ? (
+        {selectedBot !== null ? (
           <div
             className="w-0.5 bg-black cursor-ew-resize"
             onMouseDown={handleResizeStart}
@@ -342,12 +327,12 @@ const CustomGoogleMap: React.FC = () => {
           <></>
         )}
 
-        {/* Split screen to show bot statistics */}
-        {activeBot !== null && missionsData ? (
+        {/* Split Screen Details Panel */}
+        {selectedBot !== null && missionsData ? (
           <div className="h-full max-h-lvh bg-gray-100 overflow-y-auto" style={{ width: `${100 - mapWidth}%` }}>
             <DetailsPanel
-              activeBot={activeBot}
-              activeMission={missionsData.filter((mission) => mission.botID === Number(activeBot.id))[0]}
+              selectedBot={selectedBot}
+              activeMission={missionsData.filter((mission) => mission.botID === Number(selectedBot.id))[0]}
             ></DetailsPanel>
           </div>
         ) : (

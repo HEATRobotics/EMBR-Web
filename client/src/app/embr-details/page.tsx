@@ -9,9 +9,9 @@ import TemperatureChart from '@/components/TemperatureChart';
 import {RobotType} from "@/types/robot.type";
 
 function EmbrDetails({
-                      activeBot,
+                      selectedBot,
                   }: {
-    activeBot: RobotType;
+    selectedBot: RobotType;
 })  {
     return (
         <div className="grid grid-cols-[1fr_4fr] pl-[40px] pr-[40px] h-[100vh] relative">

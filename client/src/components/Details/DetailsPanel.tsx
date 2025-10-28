@@ -5,22 +5,22 @@ import MissionPanel from "@/components/Details/MissionPanel";
 import {MissionType} from "@/types/mission.type";
 
 function DetailsPanel({
-                     activeBot,
+                     selectedBot,
                      activeMission,
                  }: {
-    activeBot: RobotType;
+    selectedBot: RobotType;
     activeMission: MissionType | undefined;
 }) {
-    const [activeTab, setActiveTab] = useState<"Mission Info" | "Bot Info">("Bot Info");
+    const [currentTab, setCurrentTab] = useState<"Mission Info" | "Bot Info">("Bot Info");
 
     return (
         <>
             {/* Tab Menu */}
             <div className="flex w-full overflow-hidden shadow border-b border-black">
                 <button
-                    onClick={() => setActiveTab("Bot Info")}
+                    onClick={() => setCurrentTab("Bot Info")}
                     className={`w-1/2 py-3 text-center text-sm font-semibold transition-colors duration-200 ${
-                        activeTab === "Bot Info"
+                        currentTab === "Bot Info"
                             ? "bg-blue-100 text-blue-800"
                             : "bg-gray-100 text-gray-600 hover:bg-gray-200 hover:text-gray-800"
                     }`}
@@ -28,9 +28,9 @@ function DetailsPanel({
                     Bot Info
                 </button>
                 <button
-                    onClick={() => setActiveTab("Mission Info")}
+                    onClick={() => setCurrentTab("Mission Info")}
                     className={`w-1/2 py-3 text-center text-sm font-semibold transition-colors duration-200 ${
-                        activeTab === "Mission Info"
+                        currentTab === "Mission Info"
                             ? "bg-blue-100 text-blue-800"
                             : "bg-gray-100 text-gray-600 hover:bg-gray-200 hover:text-gray-800"
                     }`}
@@ -39,12 +39,12 @@ function DetailsPanel({
                 </button>
             </div>
 
-            {activeTab === 'Bot Info' && (
-                <BotPanel activeBot={activeBot}/>
+            {currentTab === 'Bot Info' && (
+                <BotPanel selectedBot={selectedBot}/>
             )}
 
-            {activeTab === 'Mission Info' && (
-                <MissionPanel activeBot={activeBot}
+            {currentTab === 'Mission Info' && (
+                <MissionPanel selectedBot={selectedBot}
                     activeMission={activeMission}/>
             )}
 

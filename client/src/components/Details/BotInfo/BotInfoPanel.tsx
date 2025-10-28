@@ -7,11 +7,11 @@ import TemperatureChart from "@/components/TemperatureChart";
 
 
 function BotInfoPanel({
-                          activeBot,
+                          selectedBot,
                       }: {
-    activeBot: RobotType;
+    selectedBot: RobotType;
 }) {
-    const [activeTab, setActiveTab] = useState<"Overview" | "Orientation" | "Position" | "Temperature" >("Orientation");
+    const [currentTab, setCurrentTab] = useState<"Overview" | "Orientation" | "Position" | "Temperature" >("Orientation");
 
     const [overviewData, setOverviewData] = useState([
         { title: "Battery", value: "" },
@@ -35,12 +35,12 @@ function BotInfoPanel({
     ]);
 
     useEffect(() => {
-        if (!activeBot) return; // Safeguard against undefined
+        if (!selectedBot) return; // Safeguard against undefined
 
         setOverviewData([
             { title: "Battery", value: `75.1%` },
-            { title: "Temperature", value: `${Math.round(activeBot.temperature * 100) / 100}°C` },
-            { title: "Speed", value: `${ Math.sqrt(activeBot.gz ** 2 + activeBot.gy ** 2 + activeBot.gx ** 2)  ?? "N/A"} m/s` },
+            { title: "Temperature", value: `${Math.round(selectedBot.temperature * 100) / 100}°C` },
+            { title: "Speed", value: `${ Math.sqrt(selectedBot.gz ** 2 + selectedBot.gy ** 2 + selectedBot.gx ** 2)  ?? "N/A"} m/s` },
             { title: "Altitude", value: `0 m` },
         ]);
 
@@ -48,16 +48,16 @@ function BotInfoPanel({
             { title: "Yaw", value: `N/A°` },
             { title: "Roll", value: `N/A°` },
             { title: "Pitch", value: `N/A°` },
-            { title: "Ground Speed", value: `${ Math.sqrt(activeBot.gz ** 2 + activeBot.gy ** 2 + activeBot.gx ** 2)  ?? "N/A"} m/s` },
+            { title: "Ground Speed", value: `${ Math.sqrt(selectedBot.gz ** 2 + selectedBot.gy ** 2 + selectedBot.gx ** 2)  ?? "N/A"} m/s` },
         ]);
 
         setPositionData([
-            { title: "Latitude", value: `${activeBot.lat ?? "N/A"}` },
-            { title: "Longitude", value: `${activeBot.lng ?? "N/A"}` },
+            { title: "Latitude", value: `${selectedBot.lat ?? "N/A"}` },
+            { title: "Longitude", value: `${selectedBot.lng ?? "N/A"}` },
             { title: "Altitude", value: `0 m` },
-            { title: "Speed", value: `${ Math.sqrt(activeBot.gz ** 2 + activeBot.gy ** 2 + activeBot.gx ** 2)  ?? "N/A"} m/s` },
+            { title: "Speed", value: `${ Math.sqrt(selectedBot.gz ** 2 + selectedBot.gy ** 2 + selectedBot.gx ** 2)  ?? "N/A"} m/s` },
         ]);
-    }, [activeBot]);
+    }, [selectedBot]);
 
 
     return (
@@ -65,9 +65,9 @@ function BotInfoPanel({
             {/* Tab Menu */}
             <div className="flex w-full overflow-hidden shadow border-b border-t border-black">
                 <button
-                    onClick={() => setActiveTab("Overview")}
+                    onClick={() => setCurrentTab("Overview")}
                     className={`w-1/2 py-3 text-center text-sm font-semibold transition-colors duration-200 ${
-                        activeTab === "Overview"
+                        currentTab === "Overview"
                             ? "bg-blue-100 text-blue-800"
                             : "bg-gray-100 text-gray-600 hover:bg-gray-200 hover:text-gray-800"
                     }`}
@@ -75,9 +75,9 @@ function BotInfoPanel({
                     Overview
                 </button>
                 <button
-                    onClick={() => setActiveTab("Orientation")}
+                    onClick={() => setCurrentTab("Orientation")}
                     className={`w-1/2 py-3 text-center text-sm font-semibold transition-colors duration-200 ${
-                        activeTab === "Orientation"
+                        currentTab === "Orientation"
                             ? "bg-blue-100 text-blue-800"
                             : "bg-gray-100 text-gray-600 hover:bg-gray-200 hover:text-gray-800"
                     }`}
@@ -85,9 +85,9 @@ function BotInfoPanel({
                     Orientation
                 </button>
                 <button
-                    onClick={() => setActiveTab("Position")}
+                    onClick={() => setCurrentTab("Position")}
                     className={`w-1/2 py-3 text-center text-sm font-semibold transition-colors duration-200 ${
-                        activeTab === "Position"
+                        currentTab === "Position"
                             ? "bg-blue-100 text-blue-800"
                             : "bg-gray-100 text-gray-600 hover:bg-gray-200 hover:text-gray-800"
                     }`}
@@ -96,9 +96,9 @@ function BotInfoPanel({
                 </button>
                 
                 <button
-                    onClick={() => setActiveTab("Temperature")}
+                    onClick={() => setCurrentTab("Temperature")}
                     className={`w-1/2 py-3 text-center text-sm font-semibold transition-colors duration-200 ${
-                        activeTab === "Temperature"
+                        currentTab === "Temperature"
                             ? "bg-blue-100 text-blue-800"
                             : "bg-gray-100 text-gray-600 hover:bg-gray-200 hover:text-gray-800"
                     }`}
@@ -108,19 +108,19 @@ function BotInfoPanel({
 
             </div>
 
-            {activeTab === "Overview" && (
+            {currentTab === "Overview" && (
                 <InfoGrid data={overviewData}/>
             )}
 
-            {activeTab === "Orientation" && (
+            {currentTab === "Orientation" && (
                 <InfoGrid data={orientationData}/>
             )}
 
-            {activeTab === "Position" && (
+            {currentTab === "Position" && (
                 <InfoGrid data={positionData}/>
             )}
 
-            {activeTab === "Temperature" && (
+            {currentTab === "Temperature" && (
                 <TemperatureChart></TemperatureChart>
             )}
 

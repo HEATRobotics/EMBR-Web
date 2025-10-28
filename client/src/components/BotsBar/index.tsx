@@ -8,16 +8,16 @@ TODO: on hover over the "Edit", "Create" and "Delete" buttons, show a tooltip th
 
 function BotsBar({ 
     bots, 
-    activeBot, 
+    selectedBot, 
     disabled, 
-    setActiveBot,
+    setSelectedBot,
     createMissionCallback,
     deleteMissionCallback,
 }: { 
     bots: RobotType[]; 
-    activeBot: RobotType | null; 
+    selectedBot: RobotType | null; 
     disabled: boolean; 
-    setActiveBot: React.Dispatch<React.SetStateAction<RobotType | null>>;
+    setSelectedBot: React.Dispatch<React.SetStateAction<RobotType | null>>;
     createMissionCallback: () => void;
     deleteMissionCallback: () => void;
 }) {
@@ -33,8 +33,8 @@ function BotsBar({
                             <Item
                                 bot={bot}
                                 disabled={disabled}
-                                activeBot={activeBot}
-                                setActiveBot={setActiveBot}
+                                selectedBot={selectedBot}
+                                setSelectedBot={setSelectedBot}
                             />
                         </div>
                     ))

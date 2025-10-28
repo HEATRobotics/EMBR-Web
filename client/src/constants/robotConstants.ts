@@ -1,45 +1,46 @@
-// These are required for the robot state badge colors and texts
+// Robot operational status badge colors and texts
+// These represent the real-time operational state based on sensor data
 
-const RobotStateBadgeColors = {
-  active: "#93FF9E",
+const RobotOperationalStatusBadgeColors = {
+  operational: "#93FF9E",
   chargingRequired: "#FFFB93",
   attentionRequired: "#FF9393",
   systemFailed: "#FE5555",
 };
 
-const RobotStateColors = {
-  active: "#40FF53",
+const RobotOperationalStatusColors = {
+  operational: "#40FF53",
   chargingRequired: "#FFF967",
   attentionRequired: "#F51515",
   systemFailed: "#F51515",
 };
 
-const RobotStateTexts = {
-  active: "Active",
+const RobotOperationalStatusTexts = {
+  operational: "Operational",
   chargingRequired: "Charging Required",
   attentionRequired: "Attention Required",
   systemFailed: "System Failed",
 };
 
-export const RobotStateType = {
-  active: {
-    color: RobotStateColors["active"],
-    bgColor: RobotStateBadgeColors["active"],
-    text: RobotStateTexts["active"],
+export const RobotOperationalStatusType = {
+  operational: {
+    color: RobotOperationalStatusColors["operational"],
+    bgColor: RobotOperationalStatusBadgeColors["operational"],
+    text: RobotOperationalStatusTexts["operational"],
   },
   chargingRequired: {
-    color: RobotStateColors["chargingRequired"],
-    bgColor: RobotStateBadgeColors["chargingRequired"],
-    text: RobotStateTexts["chargingRequired"],
+    color: RobotOperationalStatusColors["chargingRequired"],
+    bgColor: RobotOperationalStatusBadgeColors["chargingRequired"],
+    text: RobotOperationalStatusTexts["chargingRequired"],
   },
   attentionRequired: {
-    color: RobotStateColors["attentionRequired"],
-    bgColor: RobotStateBadgeColors["attentionRequired"],
-    text: RobotStateTexts["attentionRequired"],
+    color: RobotOperationalStatusColors["attentionRequired"],
+    bgColor: RobotOperationalStatusBadgeColors["attentionRequired"],
+    text: RobotOperationalStatusTexts["attentionRequired"],
   },
   systemFailed: {
-    color: RobotStateColors["systemFailed"],
-    bgColor: RobotStateBadgeColors["systemFailed"],
-    text: RobotStateTexts["systemFailed"],
+    color: RobotOperationalStatusColors["systemFailed"],
+    bgColor: RobotOperationalStatusBadgeColors["systemFailed"],
+    text: RobotOperationalStatusTexts["systemFailed"],
   },
 };

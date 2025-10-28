@@ -33,23 +33,14 @@ export function useBotData() {
                     alt: Number(bot.altitude),
                 };
 
-                let state: RobotType["state"];
-                if (bot.battery < 20) {
-                    state = "chargingRequired";
-                } else if (bot.temperature > 80) {
-                    state = "attentionRequired";
-                } else if (bot.battery === 0) {
-                    state = "systemFailed";
-                } else {
-                    state = "active";
-                }
-
-                // Can probably also use the other fields in bot table like status (active, inactive, decommissioned etc) 
+                // Calculate operational status from live sensor data (not stored in DB)
+                const operationalStatus = determineOperationalStatus(bot.battery, bot.temperature);
 
                 return {
                     id: bot.botID.toString(),
                     name: `Bot ${bot.botID}`,
-                    state,
+                    assignmentStatus: bot.assignmentStatus || "ready", // From DB: ready, assigned, inactive
+                    operationalStatus, // Calculated from sensors
                     coordinates,
                     lastMove: bot.positionTime,
                     gx: Number(bot.groundXSpeed),
@@ -71,4 +62,33 @@ export function useBotData() {
     };
 
     return { bots, botsLoading, botError };
+}
+
+/**
+ * Determines the operational status of a robot based on sensor readings
+ * @param battery - Battery percentage (0-100)
+ * @param temperature - Temperature reading in Celsius
+ * @returns The operational status of the robot
+ */
+function determineOperationalStatus(
+    battery: number, 
+    temperature: number
+): RobotType["operationalStatus"] {
+    // Critical failure: battery completely depleted
+    if (battery === 0) {
+        return "systemFailed";
+    }
+    
+    // Warning: battery low
+    if (battery < 20) {
+        return "chargingRequired";
+    }
+    
+    // Warning: temperature too high
+    if (temperature > 80) {
+        return "attentionRequired";
+    }
+    
+    // All systems normal
+    return "operational";
 }

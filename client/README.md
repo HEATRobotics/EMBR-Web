@@ -98,13 +98,19 @@ This directory contains static assets like images, icons, and other files that a
 - **Props**:
 
   - **`bots`**: An array of bot objects (`RobotType[]`) to be displayed in the sidebar.
-  - **`activeBot`**: The currently selected bot (`RobotType | null`).
+  - **`selectedBot`**: The currently selected/clicked bot in the UI (`RobotType | null`).
   - **`disabled`**: A boolean indicating whether interactions with the bots or buttons are disabled.
-  - **`setActiveBot`**: A state setter function (`React.Dispatch<React.SetStateAction<RobotType | null>>`) to update the active bot.
+  - **`setSelectedBot`**: A state setter function (`React.Dispatch<React.SetStateAction<RobotType | null>>`) to update the selected bot.
 
 - **What it does**:
   - Displays a list of bots using the `Item` subcomponent.
-  - Includes disabled action buttons (`Edit`, `Create`, `Delete`) for potential future functionality.
+  - Each bot shows its operational status via color coding (operational/green, charging required/yellow, attention required/orange, system failed/red).
+  - Allows users to click on a bot to select it and view detailed information.
+  - Includes action buttons for creating and deleting missions (delete currently disabled).
   - Shows a message ("No bots available") if the `bots` array is empty. The `bots` array is fetched from the database using the `useBotData` hook.
+
+- **Terminology**:
+  - **`selectedBot`**: The bot that is currently clicked/selected in the UI (for viewing details)
+  - **`operationalStatus`**: The real-time operational state based on sensor data (operational, chargingRequired, attentionRequired, systemFailed)
 
 ---

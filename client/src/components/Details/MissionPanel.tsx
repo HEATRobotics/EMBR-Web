@@ -5,7 +5,7 @@ import {MissionType} from "@/types/mission.type";
 import {useMemo} from "react";
 
 
-function MissionPanel({ activeBot, activeMission }: { activeBot: RobotType, activeMission: MissionType | undefined }) {
+function MissionPanel({ selectedBot, activeMission }: { selectedBot: RobotType, activeMission: MissionType | undefined }) {
     const {
         centerData,
         upCornerData,
