@@ -49,16 +49,16 @@ function Stats({ missions, bots }: Readonly<{ missions: MissionType[], bots?: Ro
               <div className="rounded-[22px] bg-white border-2 border-black max-w-[293px] h-[30px] w-full relative">
                 <div
                   className="bg-[#FF5001] rounded-[22px] absolute left-0 top-0 h-full"
-                  style={{ width: `${mission.process}%` }}
+                  style={{ width: `${mission.process ?? 0}%` }}
                 ></div>
               </div>
               <span className="text-[15px] leading-[18px] text-[#FF5001]">
-                {mission.process}%
+                {mission.process ?? 0}%
               </span>
             </div>
             <StatLine
               name="# of smokes"
-              value={`${mission.smokesDetected} smokes detected`}
+              value={`${mission.smokesDetected ?? 0} smokes detected`}
             />
             <StatLine
               name="Average Temp of the area"

@@ -1,10 +1,11 @@
 // MissionCreate.tsx
-import React, { useEffect, useState, useCallback } from 'react';
+import React, { useEffect, useState, useCallback, useMemo } from 'react';
 import { MissionType } from '@/types/mission.type';
 import { RobotType } from '@/types/robot.type';
 import { Input, Select } from 'antd';
 import MissionCreateRectangle from '@/components/MapTools/MissionCreateRectangle'; 
 import { CoordinatesType } from '@/types/coordinate.type';
+import { calculateRectangleArea, formatArea } from '@/utils/calculateArea';
 
 function MissionCreate({
     cancelCreate,
@@ -21,34 +22,50 @@ function MissionCreate({
     bots: RobotType[];
     map: google.maps.Map | null;
 }) {
-    const [currentStep, setCurrentStep] = useState(0);
     const [inputValue, setInputValue] = useState('');
-    const [isDrawing, setIsDrawing] = useState(false); 
 
     // Filter to show only bots that are ready (not assigned or inactive)
     const availableBots = bots.filter(bot => bot.assignmentStatus === "ready");
     
     const botOptions = availableBots.map((bot) => ({ 
-        value: bot.id, 
+        value: Number(bot.id), 
         label: `${bot.name} (${bot.operationalStatus})` 
     }));
 
-
-    useEffect(() => {
-        if (newMission) {
-            if (newMission.areaCoordinates) {
-                setCurrentStep(1);
-            }
-            if (newMission.botID) {
-                setCurrentStep(2);
-            }
+    // Calculate area and format coordinates for display
+    const areaInfo = useMemo(() => {
+        if (!newMission.areaCoordinates || newMission.areaCoordinates.length !== 2) {
+            return null;
         }
-    }, [newMission]);
+        
+        const bounds = {
+            north: newMission.areaCoordinates[0].lat,
+            west: newMission.areaCoordinates[0].lng,
+            south: newMission.areaCoordinates[1].lat,
+            east: newMission.areaCoordinates[1].lng,
+        };
+        
+        const areaKm2 = calculateRectangleArea(bounds);
+        
+        return {
+            north: bounds.north.toFixed(6),
+            south: bounds.south.toFixed(6),
+            east: bounds.east.toFixed(6),
+            west: bounds.west.toFixed(6),
+            area: formatArea(areaKm2),
+        };
+    }, [newMission.areaCoordinates]);
 
-    const handleSelect = (value: number, label: string) => {
-        setCurrentStep(2);
-        console.log("Set current step to 2");
-        setNewMission((prev) => ({ ...prev, botID: value }));
+    // Determine if all fields are completed for enabling Save
+    const isFormComplete = Boolean(
+        inputValue.trim() &&
+        newMission?.botID &&
+        newMission?.areaCoordinates &&
+        newMission.areaCoordinates.length === 2
+    );
+
+    const handleSelect = (value: number) => {
+        setNewMission((prev) => ({ ...prev, botID: Number(value) }));
     };
 
     const handleNameInput = (value: string) => {
@@ -71,12 +88,6 @@ function MissionCreate({
       saveCreate(updatedMission);  // Pass the updated mission object to save
   };
 
-    const handleAreaSelectClick = () => {
-        setIsDrawing(true); 
-        setCurrentStep(0); 
-        setNewMission((prev) => ({ ...prev, areaCoordinates: undefined })); // Clear previous area
-    };
-
     const handleBoundsChanged = useCallback((bounds: google.maps.LatLngBoundsLiteral | undefined) => {
         if (bounds) {
             const coordinates: CoordinatesType[] = [
@@ -85,10 +96,21 @@ function MissionCreate({
             ];
 
             setNewMission((prev) => ({ ...prev, areaCoordinates: coordinates }));
-            setCurrentStep(1); // Move to the next step after area is selected
-            setIsDrawing(false); // Turn off drawing mode after rectangle is drawn
         }
     }, [setNewMission]);
+
+    // Convert newMission coordinates to bounds format for the rectangle
+    const initialBounds = useMemo(() => {
+        if (newMission.areaCoordinates && newMission.areaCoordinates.length === 2) {
+            return {
+                north: newMission.areaCoordinates[0].lat,
+                west: newMission.areaCoordinates[0].lng,
+                south: newMission.areaCoordinates[1].lat,
+                east: newMission.areaCoordinates[1].lng,
+            };
+        }
+        return undefined;
+    }, [newMission.areaCoordinates]);
 
     return (
         <div className="max-w-[310px] justify-self-end self-end flex flex-col items-end gap-y-3">
@@ -97,52 +119,63 @@ function MissionCreate({
             </button>
             <div className="flex flex-col py-5 px-[27px] gap-y-5 rounded-[22px] bg-white">
                 <p className="text-[20px] leading-6">Create a new mission</p>
-                <div className="flex flex-col gap-y-2.5">
-                    <div className="text-[15px] leading-[18px]" style={{ color: currentStep === 0 ? 'black' : '#B1B1B1' }}>
-                        <p>Select an area</p>
-                        {currentStep <= 0 && (
-                            <button
-                                onClick={handleAreaSelectClick}
-                                className="left-[35px] px-3.5 py-1 rounded-[22px] text-[15px] leading-[18px] border border-black hover:!bg-lightgray disabled:!bg-transparent"
-                            >
-                                Draw Area
-                            </button>
-                        )}
-                         {newMission.areaCoordinates && currentStep >= 1 && (
-                            <p className="text-green-500">Area Selected</p>
+                <div className="flex flex-col gap-y-4">
+                    {/* Area selection */}
+                    <div className="text-[15px] leading-[18px] flex flex-col gap-y-2">
+                        <p className="font-medium">Mission Area</p>
+                        {areaInfo ? (
+                            <div className="text-[13px] text-gray-700 space-y-1">
+                                <div className="grid grid-cols-2 gap-x-4 gap-y-1">
+                                    <div><span className="font-medium">North:</span> {areaInfo.north}°</div>
+                                    <div><span className="font-medium">South:</span> {areaInfo.south}°</div>
+                                    <div><span className="font-medium">East:</span> {areaInfo.east}°</div>
+                                    <div><span className="font-medium">West:</span> {areaInfo.west}°</div>
+                                </div>
+                                <div className="pt-1 font-medium text-green-600">
+                                    Total Area: {areaInfo.area}
+                                </div>
+                            </div>
+                        ) : (
+                            <p className="text-gray-500 text-[13px]">Adjust the rectangle on the map</p>
                         )}
                     </div>
 
-                    <div className="text-[15px] leading-[18px] flex flex-col gap-y-2.5" style={{ color: currentStep === 1 ? 'black' : '#B1B1B1' }}>
+                    {/* Bot selection */}
+                    <div className="text-[15px] leading-[18px] flex flex-col gap-y-2.5">
                         <p>Select a bot</p>
-                        {currentStep >= 1 && (
-                            <Select
-                                disabled={currentStep !== 1}
-                                onSelect={(value, { label }) => handleSelect(value, label)}
-                                showSearch
-                                value={newMission.botID || undefined}
-                                placeholder="Select a bot"
-                                optionFilterProp="children"
-                                className="[&_div.ant-select-selector]:!bg-transparent [&.ant-select-disabled_*]:!cursor-default"
-                                filterOption={(input, option) => (option?.label ?? '').includes(input)}
-                                filterSort={(optionA, optionB) => (optionA?.label ?? '').toLowerCase().localeCompare((optionB?.label ?? '').toLowerCase())}
-                                options={botOptions}
-                            />
-                        )}
+                        <Select
+                            onSelect={(value) => handleSelect(value as number)}
+                            showSearch
+                            value={newMission.botID || undefined}
+                            placeholder="Select a bot"
+                            optionFilterProp="children"
+                            className="[&_div.ant-select-selector]:!bg-transparent"
+                            filterOption={(input, option) => (option?.label as string ?? '').toLowerCase().includes(input.toLowerCase())}
+                            filterSort={(optionA, optionB) => (String(optionA?.label ?? '')).toLowerCase().localeCompare((String(optionB?.label ?? '')).toLowerCase())}
+                            options={botOptions}
+                        />
                     </div>
-                    <div className="text-[15px] leading-[18px] flex flex-col gap-y-2.5" style={{ color: currentStep === 2 ? 'black' : '#B1B1B1' }}>
+
+                    {/* Mission name */}
+                    <div className="text-[15px] leading-[18px] flex flex-col gap-y-2.5">
                         <p>Name the mission</p>
-                        {currentStep >= 2 && <Input placeholder="Enter the name of the mission..." value={inputValue} onChange={(e) => handleNameInput(e.target.value)} />}
+                        <Input placeholder="Enter the name of the mission..." value={inputValue} onChange={(e) => handleNameInput(e.target.value)} />
                     </div>
                 </div>
             </div>
-            {inputValue && currentStep >= 2 && ( // Only show save button when name is inputted and at step 2 or later
-                <button className="left-[35px] px-3.5 py-1 w-fit rounded-[22px] text-[15px] leading-[18px] bg-orange" onClick={handleSave}>
-                    save
-                </button>
-            )}
+            <button
+                className={`left-[35px] px-3.5 py-1 w-fit rounded-[22px] text-[15px] leading-[18px] ${isFormComplete ? 'bg-orange' : 'bg-gray-300 cursor-not-allowed'}`}
+                onClick={handleSave}
+                disabled={!isFormComplete}
+            >
+                save
+            </button>
              {/* Render MissionCreateRectangle only when creating mission and after map is loaded */}
-            <MissionCreateRectangle onBoundsChanged={handleBoundsChanged} map={map} />
+            <MissionCreateRectangle 
+                onBoundsChanged={handleBoundsChanged} 
+                map={map}
+                initialBounds={initialBounds}
+            />
         </div>
     );
 }
