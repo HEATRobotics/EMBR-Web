@@ -67,7 +67,7 @@ CREATE TABLE mission (
 
 
 
-INSERT INTO bot (botID) VALUES (1), (2), (3);       -- create 3 sample bots
+INSERT INTO bot (botID, assignmentStatus) VALUES (1, 'assigned'), (2, 'ready'), (3, 'ready');       -- create 3 sample bots
 
 INSERT INTO mission (botID, missionName, areaCoordinates, progress, avgTemp, timePassed, timeEstimated) 
 VALUES (1, 'Mission K-lona', '{

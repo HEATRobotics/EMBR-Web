@@ -266,6 +266,7 @@ export async function getLatestBotData() {
         const query = `
             SELECT DISTINCT 
                 b.botID,
+                b.assignmentStatus,
                 p.clockTime AS positionTime,
                 p.latitude,
                 p.longitude,
@@ -394,17 +395,28 @@ export async function createMission(missionData) {
 
     try {
         conn = await pool.getConnection();
-        const query = `
+        await conn.beginTransaction();
+
+        // 1) Create the mission
+        const insertMissionQuery = `
             INSERT INTO mission (missionName, botID, areaCoordinates, progress, avgTemp, timePassed, timeEstimated)
             VALUES (?, ?, ?, ?, ?, ?, ?)
         `;
         const areaCoordinatesJSON = JSON.stringify(areaCoordinates); // Important: stringify areaCoordinates for database storage
-        const [result] = await conn.execute(query, [name, botID, areaCoordinatesJSON, process, averageTemperature, timePassed, timeEstimated]);
+        const [result] = await conn.execute(insertMissionQuery, [name, botID, areaCoordinatesJSON, process, averageTemperature, timePassed, timeEstimated]);
 
+        // 2) Mark the bot as assigned
+        const updateBotQuery = `UPDATE bot SET assignmentStatus = 'assigned' WHERE botID = ?`;
+        await conn.execute(updateBotQuery, [botID]);
+
+        await conn.commit();
         return { success: true, missionID: result.insertId };
 
     } catch (error) {
         console.error('Error creating mission:', error);
+        if (conn) {
+            try { await conn.rollback(); } catch (_) {}
+        }
         throw error; // Re-throw the error to be handled by the endpoint
     } finally {
         if (conn) {
