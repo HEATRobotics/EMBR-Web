@@ -64,13 +64,12 @@ export default class MapDrawUtils {
       fillOpacity: 0.35,
     });
 
-    // Add mission name on top right of rectangle
+    // Add mission name on top mid of rectangle
     const labelPosition = {
       lat: bounds.north - 0.0005,
       lng: (bounds.west + bounds.east)/2,
     };
 
-    //Text for the label
     const labelMarker = new google.maps.Marker({
       position: labelPosition,
       map: map,
