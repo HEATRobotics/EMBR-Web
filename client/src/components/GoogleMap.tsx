@@ -293,7 +293,7 @@ const CustomGoogleMap: React.FC = () => {
         {/* Map Container */}
         <div className="h-full" style={{ width: `${selectedBot !== null ? mapWidth : '100'}%` }}>
           {activeMissionCreate && (
-              <div className="z-[10] absolute right-0 top-0">
+              <div className="z-[10] absolute right-0 top-0 mt-16">
                 <MissionCreate
                     cancelCreate={cancelCreate}
                     saveCreate={saveCreate}

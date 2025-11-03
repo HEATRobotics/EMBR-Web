@@ -1,0 +1,133 @@
+"use client";
+
+import Navigation from "@/components/Navigation";
+import { useMissions } from "@/hooks/useMissions";
+import { useBotData } from "@/hooks/useBotData";
+import Link from "next/link";
+import { useState } from "react";
+
+export default function Missions() {
+  const { missionsData, missionsLoading } = useMissions();
+  const { bots } = useBotData();
+  const [filter, setFilter] = useState<"all" | "active" | "completed">("all");
+
+  return (
+    <div className="min-h-screen bg-gray-100">
+      <Navigation />
+      
+      <main className="container mx-auto px-4 py-8">
+        <div className="flex justify-between items-center mb-6">
+          <h1 className="text-3xl font-bold">Missions</h1>
+          <Link href="/missions/create">
+            <button className="px-6 py-3 bg-orange-600 text-white rounded-md hover:bg-orange-700">
+              + Create New Mission
+            </button>
+          </Link>
+        </div>
+
+        {/* Filter Tabs */}
+        <div className="bg-white rounded-lg shadow mb-6">
+          <div className="flex border-b">
+            <button
+              onClick={() => setFilter("all")}
+              className={`px-6 py-3 ${
+                filter === "all"
+                  ? "border-b-2 border-orange-600 font-semibold"
+                  : "text-gray-600 hover:text-gray-900"
+              }`}
+            >
+              All
+            </button>
+            <button
+              onClick={() => setFilter("active")}
+              className={`px-6 py-3 ${
+                filter === "active"
+                  ? "border-b-2 border-orange-600 font-semibold"
+                  : "text-gray-600 hover:text-gray-900"
+              }`}
+            >
+              Active
+            </button>
+            <button
+              onClick={() => setFilter("completed")}
+              className={`px-6 py-3 ${
+                filter === "completed"
+                  ? "border-b-2 border-orange-600 font-semibold"
+                  : "text-gray-600 hover:text-gray-900"
+              }`}
+            >
+              Completed
+            </button>
+          </div>
+        </div>
+
+        {/* Mission List */}
+        <div className="bg-white rounded-lg shadow">
+          <div className="p-6">
+            <h2 className="text-xl font-semibold mb-4">Mission List</h2>
+            {missionsLoading ? (
+              <div className="text-gray-500">Loading missions...</div>
+            ) : !missionsData || missionsData.length === 0 ? (
+              <div className="text-gray-500">
+                <p>No missions found. Create your first mission to get started.</p>
+              </div>
+            ) : (
+              <div className="space-y-4">
+                {missionsData.map((mission, idx) => {
+                  const assignedBot = bots.find((b) => Number(b.id) === mission.botID);
+                  
+                  return (
+                    <div
+                      key={idx}
+                      className="border rounded-lg p-4 hover:shadow-lg transition-shadow"
+                    >
+                      <div className="flex justify-between items-start">
+                        <div className="flex-1">
+                          <h3 className="text-lg font-semibold mb-2">{mission.missionName}</h3>
+                          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+                            <div>
+                              <p className="text-gray-600">Bot</p>
+                              <p className="font-medium">{assignedBot?.name || `Bot ${mission.botID}`}</p>
+                            </div>
+                            <div>
+                              <p className="text-gray-600">Progress</p>
+                              <p className="font-medium">{mission.progress}%</p>
+                            </div>
+                            <div>
+                              <p className="text-gray-600">Time Passed</p>
+                              <p className="font-medium">{mission.timePassed} min</p>
+                            </div>
+                            <div>
+                              <p className="text-gray-600">Hotspots Found</p>
+                              <p className="font-medium">{mission.hotspots?.length || 0}</p>
+                            </div>
+                          </div>
+                          
+                          {/* Progress Bar */}
+                          <div className="w-full bg-gray-200 rounded-full h-2 mt-3">
+                            <div
+                              className="bg-orange-600 h-2 rounded-full"
+                              style={{ width: `${mission.progress}%` }}
+                            ></div>
+                          </div>
+                        </div>
+                        
+                        <div className="ml-4">
+                          <Link href={`/missions/${idx + 1}`}>
+                            <button className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 text-sm">
+                              View Details
+                            </button>
+                          </Link>
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+        </div>
+      </main>
+    </div>
+  );
+}

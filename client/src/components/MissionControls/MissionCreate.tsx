@@ -114,9 +114,6 @@ function MissionCreate({
 
     return (
         <div className="max-w-[310px] justify-self-end self-end flex flex-col items-end gap-y-3">
-            <button className="left-[35px] px-3.5 py-1 w-fit rounded-[22px] text-[15px] leading-[18px] bg-orange" onClick={cancelCreate}>
-                cancel
-            </button>
             <div className="flex flex-col py-5 px-[27px] gap-y-5 rounded-[22px] bg-white">
                 <p className="text-[20px] leading-6">Create a new mission</p>
                 <div className="flex flex-col gap-y-4">
@@ -162,14 +159,20 @@ function MissionCreate({
                         <Input placeholder="Enter the name of the mission..." value={inputValue} onChange={(e) => handleNameInput(e.target.value)} />
                     </div>
                 </div>
+                <div className="flex gap-3">
+                    <button
+                        className={`px-4 py-2 rounded-[22px] text-[15px] leading-[18px] font-medium transition-colors ${isFormComplete ? 'bg-orange-600 text-white hover:bg-orange-700' : 'bg-gray-300 text-gray-500 cursor-not-allowed'}`}
+                        onClick={handleSave}
+                        disabled={!isFormComplete}
+                    >
+                        Save Mission
+                    </button>
+                    <button className="px-4 py-2 rounded-[22px] text-[15px] leading-[18px] font-medium bg-gray-200 text-gray-700 hover:bg-gray-300 transition-colors" onClick={cancelCreate}>
+                        Cancel
+                    </button>
+                </div>
             </div>
-            <button
-                className={`left-[35px] px-3.5 py-1 w-fit rounded-[22px] text-[15px] leading-[18px] ${isFormComplete ? 'bg-orange' : 'bg-gray-300 cursor-not-allowed'}`}
-                onClick={handleSave}
-                disabled={!isFormComplete}
-            >
-                save
-            </button>
+            
              {/* Render MissionCreateRectangle only when creating mission and after map is loaded */}
             <MissionCreateRectangle 
                 onBoundsChanged={handleBoundsChanged} 

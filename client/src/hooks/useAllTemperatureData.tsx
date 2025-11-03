@@ -21,7 +21,7 @@ export function useAllTemperatureData() {
             const tempList: Number[] = [];
             setTemperature(() => {
                 for(let i = 0; i < d.length; i++){
-                    if(d[i].botID == 2){ //NOTE: since there is only one EMBR robot this is hard coded.
+                    if(d[i].botID == 1){ //NOTE: since there is only one EMBR robot this is hard coded.
                         tempList.push(d[i].temperature);
                     }
                 }
@@ -31,7 +31,7 @@ export function useAllTemperatureData() {
             const timeList: Date[] = [];
             setClockTime(() => {
                 for(let i = 0; i < d.length; i++){
-                    if(d[i].botID == 2){ //NOTE: since there is only one EMBR robot this is hard coded.
+                    if(d[i].botID == 1){ //NOTE: since there is only one EMBR robot this is hard coded.
                         timeList.push(d[i].clockTime);
                     }
                 }

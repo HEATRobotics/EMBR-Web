@@ -19,6 +19,9 @@ services:
     devices:
       - "/dev/ttyUSB0:/dev/ttyUSB0"
     privileged: true
+    volumes:
+      - ./server:/server
+      - /server/node_modules  # Prevent overwriting node_modules
 
   frontend:
     build:
@@ -31,9 +34,14 @@ services:
       - server
     networks:
       - embr-network
+    volumes:
+      - ./client:/client
+      - /client/node_modules  # Prevent overwriting node_modules
+      - /client/.next  # Prevent overwriting Next.js build cache
 
   db:
     image: mysql:8.3.0
+    user: mysql
     container_name: embr-db
     environment:
       MYSQL_DATABASE: 'embr'
