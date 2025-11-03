@@ -3,6 +3,7 @@ import type { Metadata } from 'next';
 import './globals.css';
 import StoreProvider from './StoreProvider';
 import Navigation from '@/components/Navigation';
+import { WebSocketProvider } from '@/context/WebSocketContext';
 
 // const inter = Inter({ subsets: ['latin'] });
 
@@ -20,8 +21,10 @@ export default function RootLayout({
         <html lang="en">
             <body className="bg-gray-950 text-gray-100 h-screen overflow-hidden">
                 <StoreProvider>
-                    <Navigation />
-                    <div className="mt-16 h-nav-content overflow-auto">{children}</div>
+                    <WebSocketProvider>
+                        <Navigation />
+                        <div className="mt-16 h-nav-content overflow-auto">{children}</div>
+                    </WebSocketProvider>
                 </StoreProvider>
             </body>
         </html>

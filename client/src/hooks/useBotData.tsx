@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useWebSocket } from '@/context/WebSocketContext';
 import axios from 'axios';
 
 import { RobotType } from '@/types/robot.type';
@@ -10,23 +11,45 @@ export function useBotData() {
     const [bots, setBots] = useState<RobotType[]>([]);
     const [botsLoading, setBotsLoading] = useState<boolean>(true);
     const [botError, setBotError] = useState<string | null>(null);
+    const { socket, isConnected } = useWebSocket();
 
+    // Fetch initial data immediately via HTTP (faster than waiting for WebSocket)
     useEffect(() => {
-        // Fetch fleet data every 5 seconds
-        const interval = setInterval(fetchBotData, 5000);
-        
-        fetchBotData();
+        const fetchInitialBotData = async () => {
+            try {
+                const response = await axios.get(`${API_BASE_URL}/bots/latest`);
+                console.log('Initial bot information fetched via HTTP!', response.data);
+                processBotData(response.data);
+            } catch (err) {
+                setBotError('Failed to fetch bot data.');
+                setBotsLoading(false);
+            }
+        };
 
-        // Stop on component unmount
-        return () => clearInterval(interval);
+        fetchInitialBotData();
     }, []);
 
-    const fetchBotData = async () => {
-        try {
-            const response = await axios.get(`${API_BASE_URL}/bots/latest`);
-            console.log(`Bot information fetched!`, response.data);
+    // Listen for real-time updates via WebSocket
+    useEffect(() => {
+        if (!socket) return;
 
-            const botList: RobotType[] = response.data.map((bot: any) => {
+        // Listen for bot data updates
+        const handleBotUpdate = (data: any[]) => {
+            console.log('Bot information updated via WebSocket!', data);
+            processBotData(data);
+        };
+
+        socket.on('bots:update', handleBotUpdate);
+
+        // Cleanup listeners on unmount
+        return () => {
+            socket.off('bots:update', handleBotUpdate);
+        };
+    }, [socket]);
+
+    const processBotData = (data: any[]) => {
+        try {
+            const botList: RobotType[] = data.map((bot: any) => {
                 const coordinates: CoordinatesType = {
                     lat: Number(bot.latitude),
                     lng: Number(bot.longitude),
@@ -53,15 +76,15 @@ export function useBotData() {
                 };
             });
             setBots(botList);
-            console.log(botList);
+            setBotError(null);
+            setBotsLoading(false);
         } catch (err) {
-            setBotError('Failed to fetch bot data.');
-        } finally {
+            setBotError('Failed to process bot data.');
             setBotsLoading(false);
         }
     };
 
-    return { bots, botsLoading, botError };
+    return { bots, botsLoading, botError, isConnected };
 }
 
 /**

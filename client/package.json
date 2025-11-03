@@ -26,6 +26,7 @@
     "react-dom": "^18",
     "react-google-autocomplete": "^2.7.3",
     "react-redux": "^9.1.1",
+    "socket.io-client": "^4.7.2",
     "webrtc-adapter": "^9.0.1"
   },
   "devDependencies": {
