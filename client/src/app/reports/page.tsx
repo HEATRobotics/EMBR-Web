@@ -4,7 +4,7 @@ import Navigation from "@/components/Navigation";
 
 export default function Reports() {
   return (
-    <div className="min-h-screen bg-gray-100">
+  <div className="bg-gray-100 min-h-full">
       <Navigation />
       
       <main className="container mx-auto px-4 py-8">
@@ -21,7 +21,7 @@ export default function Reports() {
               <label className="block text-sm font-medium mb-2">End Date</label>
               <input type="date" className="w-full px-4 py-2 border rounded-md" />
             </div>
-            <button className="px-6 py-2 bg-orange-600 text-white rounded-md hover:bg-orange-700">
+            <button className="px-6 py-2 bg-brand-orange text-white rounded-md hover:bg-brand-orange/90">
               Generate Report
             </button>
           </div>

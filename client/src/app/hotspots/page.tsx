@@ -22,7 +22,7 @@ export default function Hotspots() {
   const totalHotspots = allHotspots.length;
 
   return (
-    <div className="min-h-screen bg-gray-100">
+  <div className="bg-gray-100 min-h-full">
       <Navigation />
       
       <main className="container mx-auto px-4 py-8">
@@ -34,15 +34,15 @@ export default function Hotspots() {
             <h3 className="text-gray-600 text-sm">Total Hotspots</h3>
             <p className="text-3xl font-bold mt-2">{totalHotspots}</p>
           </div>
-          <div className="bg-white p-6 rounded-lg shadow border-l-4 border-red-500">
+          <div className="bg-white p-6 rounded-lg shadow border-l-4">
             <h3 className="text-gray-600 text-sm">Critical</h3>
             <p className="text-3xl font-bold mt-2 text-red-600">0</p>
           </div>
-          <div className="bg-white p-6 rounded-lg shadow border-l-4 border-orange-500">
+          <div className="bg-white p-6 rounded-lg shadow border-l-4">
             <h3 className="text-gray-600 text-sm">High</h3>
-            <p className="text-3xl font-bold mt-2 text-orange-600">{totalHotspots}</p>
+            <p className="text-3xl font-bold mt-2">0</p>
           </div>
-          <div className="bg-white p-6 rounded-lg shadow border-l-4 border-green-500">
+          <div className="bg-white p-6 rounded-lg shadow border-l-4">
             <h3 className="text-gray-600 text-sm">Resolved</h3>
             <p className="text-3xl font-bold mt-2 text-green-600">0</p>
           </div>
@@ -55,7 +55,7 @@ export default function Hotspots() {
               onClick={() => setViewMode("list")}
               className={`px-4 py-2 rounded-md ${
                 viewMode === "list"
-                  ? "bg-orange-600 text-white"
+                  ? "bg-brand-orange text-brand-white"
                   : "border hover:bg-gray-100"
               }`}
             >
@@ -65,7 +65,7 @@ export default function Hotspots() {
               onClick={() => setViewMode("map")}
               className={`px-4 py-2 rounded-md ${
                 viewMode === "map"
-                  ? "bg-orange-600 text-white"
+                  ? "bg-brand-orange text-brand-white"
                   : "border hover:bg-gray-100"
               }`}
             >

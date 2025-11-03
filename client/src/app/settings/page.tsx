@@ -4,7 +4,7 @@ import Navigation from "@/components/Navigation";
 
 export default function Settings() {
   return (
-    <div className="min-h-screen bg-gray-100">
+  <div className="bg-gray-100 min-h-full">
       <Navigation />
       
       <main className="container mx-auto px-4 py-8">
@@ -180,7 +180,7 @@ export default function Settings() {
               <button className="px-6 py-2 border rounded-md hover:bg-gray-100">
                 Reset to Defaults
               </button>
-              <button className="px-6 py-2 bg-orange-600 text-white rounded-md hover:bg-orange-700">
+              <button className="px-6 py-2 bg-brand-orange text-white rounded-md hover:bg-brand-orange/90">
                 Save Changes
               </button>
             </div>

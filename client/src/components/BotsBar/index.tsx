@@ -28,7 +28,7 @@ function BotsBar({
                     bots.map((bot) => (
                         <div
                             key={bot.id}
-                            className="bg-white border border-gray-300 rounded-md shadow-sm hover:bg-gray-50 transition-colors"
+                            className="border border-gray-300 rounded-md shadow-sm"
                         >
                             <Item
                                 bot={bot}

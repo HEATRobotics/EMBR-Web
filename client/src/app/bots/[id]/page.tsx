@@ -21,7 +21,7 @@ export default function BotDetail() {
 
   if (!selectedBot) {
     return (
-      <div className="min-h-screen bg-gray-100">
+  <div className="bg-gray-100 min-h-full">
         <Navigation />
         <main className="container mx-auto px-4 py-8">
           <p>Bot not found</p>
@@ -31,7 +31,7 @@ export default function BotDetail() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-100">
+  <div className="bg-gray-100 min-h-full">
       <Navigation />
       
       <main className="container mx-auto px-4 py-8">
@@ -49,8 +49,8 @@ export default function BotDetail() {
             <button className="px-4 py-2 border rounded-md hover:bg-gray-100">
               Edit Configuration
             </button>
-            <button className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700">
-              Assign to Mission
+            <button className="px-4 py-2 border rounded-md hover:bg-gray-100">
+              Delete Bot
             </button>
           </div>
         </div>
@@ -61,22 +61,6 @@ export default function BotDetail() {
             {/* Bot Panel with Camera Views */}
             <div className="bg-white rounded-lg shadow overflow-hidden">
               <BotPanel selectedBot={selectedBot} />
-            </div>
-
-            {/* Live Telemetry Charts */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div className="bg-white rounded-lg shadow p-4">
-                <TemperatureChart
-                  lineColor="#FF0000"
-                  title="Temperature Probe"
-                />
-              </div>
-              <div className="bg-white rounded-lg shadow p-4">
-                <BatteryChart
-                  lineColor="#008080"
-                  title="Battery"
-                />
-              </div>
             </div>
 
             {/* Mission History */}

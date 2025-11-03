@@ -12,14 +12,14 @@ export default function Missions() {
   const [filter, setFilter] = useState<"all" | "active" | "completed">("all");
 
   return (
-    <div className="min-h-screen bg-gray-100">
+  <div className="bg-gray-100 min-h-full">
       <Navigation />
       
       <main className="container mx-auto px-4 py-8">
         <div className="flex justify-between items-center mb-6">
           <h1 className="text-3xl font-bold">Missions</h1>
           <Link href="/missions/create">
-            <button className="px-6 py-3 bg-orange-600 text-white rounded-md hover:bg-orange-700">
+            <button className="px-6 py-3 bg-brand-orange text-white rounded-md hover:bg-brand-orange/90">
               + Create New Mission
             </button>
           </Link>
@@ -32,7 +32,7 @@ export default function Missions() {
               onClick={() => setFilter("all")}
               className={`px-6 py-3 ${
                 filter === "all"
-                  ? "border-b-2 border-orange-600 font-semibold"
+                  ? "border-b-2 border-brand-orange font-semibold"
                   : "text-gray-600 hover:text-gray-900"
               }`}
             >
@@ -106,7 +106,7 @@ export default function Missions() {
                           {/* Progress Bar */}
                           <div className="w-full bg-gray-200 rounded-full h-2 mt-3">
                             <div
-                              className="bg-orange-600 h-2 rounded-full"
+                              className="bg-brand-orange h-2 rounded-full"
                               style={{ width: `${mission.progress}%` }}
                             ></div>
                           </div>
@@ -114,7 +114,7 @@ export default function Missions() {
                         
                         <div className="ml-4">
                           <Link href={`/missions/${idx + 1}`}>
-                            <button className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 text-sm">
+                            <button className="px-4 py-2 bg-brand-blue text-white rounded-md hover:bg-blue-700 text-sm">
                               View Details
                             </button>
                           </Link>

@@ -161,7 +161,7 @@ function MissionCreate({
                 </div>
                 <div className="flex gap-3">
                     <button
-                        className={`px-4 py-2 rounded-[22px] text-[15px] leading-[18px] font-medium transition-colors ${isFormComplete ? 'bg-orange-600 text-white hover:bg-orange-700' : 'bg-gray-300 text-gray-500 cursor-not-allowed'}`}
+                        className={`px-4 py-2 rounded-[22px] text-[15px] leading-[18px] font-medium transition-colors ${isFormComplete ? 'bg-brand-orange text-brand-white hover:opacity-90' : 'bg-gray-300 text-gray-500 cursor-not-allowed'}`}
                         onClick={handleSave}
                         disabled={!isFormComplete}
                     >

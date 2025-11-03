@@ -85,7 +85,7 @@ export default function MissionDetail() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-100">
+  <div className="bg-gray-100 min-h-full">
       <Navigation />
       
       <main className="h-[calc(100vh-64px)]">

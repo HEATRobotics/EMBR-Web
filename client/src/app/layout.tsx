@@ -18,10 +18,10 @@ export default function RootLayout({
 }>) {
     return (
         <html lang="en">
-            <body className="bg-gray-950 text-gray-100">
+            <body className="bg-gray-950 text-gray-100 h-screen overflow-hidden">
                 <StoreProvider>
                     <Navigation />
-                    <div className="pt-16">{children}</div>
+                    <div className="mt-16 h-nav-content overflow-auto">{children}</div>
                 </StoreProvider>
             </body>
         </html>

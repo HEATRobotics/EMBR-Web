@@ -43,28 +43,35 @@ function Item({
 
     return (
         <div
-            className="text-gray-800 font-medium text-center py-2 px-4 first:rounded-l-md last:rounded-r-md hover:bg-gray-100 opacity-75"
-            style={{ backgroundColor: RobotOperationalStatusType[bot.operationalStatus].bgColor }}
+            className="text-brand-black font-medium text-center py-2 px-4 cursor-pointer select-none"
+            style={{
+            backgroundColor: RobotOperationalStatusType[bot.operationalStatus].bgColor,
+            transition: 'filter 120ms ease',
+            }}
             onClick={!disabled ? handleBotClick : () => {}}
+            onMouseEnter={(e) => {
+            (e.currentTarget as HTMLDivElement).style.filter = 'brightness(0.9)';
+            }}
+            onMouseLeave={(e) => {
+            (e.currentTarget as HTMLDivElement).style.filter = 'brightness(1)';
+            }}
         >
             <Tooltip
-                placement="rightTop"
-                title={getTooltipContent()}
-                color="#ffffff"
-                overlayInnerStyle={{
-                    color: '#000000',
-                    borderRadius: '0px',
-                    padding: '0px 5px',
-                    minHeight: 'fit-content',
-                    border: `1px solid ${RobotOperationalStatusType[bot.operationalStatus].color}`,
-                }}
-                arrow={undefined}
+            placement="rightTop"
+            title={getTooltipContent()}
+            color="#ffffff"
+            overlayInnerStyle={{
+                color: '#000000',
+                borderRadius: '0px',
+                padding: '0px 5px',
+                minHeight: 'fit-content',
+                border: `1px solid ${RobotOperationalStatusType[bot.operationalStatus].color}`,
+            }}
+            arrow={undefined}
             >
-                <span
-
-                >
-                    {bot.name}
-                </span>
+            <span>
+                {bot.name}
+            </span>
             </Tooltip>
         </div>
     );   

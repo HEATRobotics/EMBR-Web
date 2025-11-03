@@ -16,7 +16,6 @@ import { useBotData } from "@/hooks/useBotData";
 import { useMissions } from "@/hooks/useMissions";
 import MapDrawUtils from "@/utils/MapDrawUtils";
 import MapTools from "@/components/MapTools";
-import EmbrDetails from "@/app/embr-details/page";
 import { RobotType } from "@/types/robot.type";
 import { addMissionToDB } from "@/api/missions.api";
 import DetailsPanel from "@/components/Details/DetailsPanel";
@@ -289,7 +288,7 @@ const CustomGoogleMap: React.FC = () => {
         onSatelliteViewChange={setSatelliteView}
       />
 
-      <div className="flex h-screen max-w-screen max-h-screen overflow-hidden">
+      <div className="flex h-nav-content max-w-screen max-h-screen overflow-hidden">
         {/* Map Container */}
         <div className="h-full" style={{ width: `${selectedBot !== null ? mapWidth : '100'}%` }}>
           {activeMissionCreate && (
@@ -305,7 +304,7 @@ const CustomGoogleMap: React.FC = () => {
           )}
           <GoogleMap
             options={mapOptions}
-            mapContainerClassName="h-screen w-full"
+            mapContainerClassName="h-full w-full"
             center={UBCO_COORDS}
             zoom={DEFAULT_ZOOM}
             onLoad={onLoad}
@@ -329,7 +328,7 @@ const CustomGoogleMap: React.FC = () => {
 
         {/* Split Screen Details Panel */}
         {selectedBot !== null && missionsData ? (
-          <div className="h-full max-h-lvh bg-gray-100 overflow-y-auto" style={{ width: `${100 - mapWidth}%` }}>
+          <div className="h-full bg-gray-100 overflow-y-auto" style={{ width: `${100 - mapWidth}%` }}>
             <DetailsPanel
               selectedBot={selectedBot}
               activeMission={missionsData.filter((mission) => mission.botID === Number(selectedBot.id))[0]}

@@ -18,7 +18,7 @@ export default function Dashboard() {
   }, 0) || 0;
 
   return (
-    <div className="min-h-screen bg-gray-100">
+  <div className="bg-gray-100 min-h-full">
       <Navigation />
       
       <main className="container mx-auto px-4 py-8">
@@ -49,17 +49,17 @@ export default function Dashboard() {
           <h2 className="text-xl font-semibold mb-4">Quick Actions</h2>
           <div className="flex gap-4">
             <Link href="/">
-              <button className="px-6 py-3 text-white rounded-md hover:bg-blue-700">
+              <button className="px-6 py-3 text-white rounded-md hover:bg-brand-orange">
                 Go to Map View
               </button>
             </Link>
             <Link href="/bots">
-              <button className="px-6 py-3 text-white rounded-md hover:bg-blue-700">
+              <button className="px-6 py-3 text-white rounded-md hover:bg-brand-orange">
                 View All Bots
               </button>
             </Link>
             <Link href="/hotspots">
-              <button className="px-6 py-3 text-white rounded-md hover:bg-blue-700">
+              <button className="px-6 py-3 text-white rounded-md hover:bg-brand-orange">
                 View Hotspots
               </button>
             </Link>
@@ -108,7 +108,7 @@ export default function Dashboard() {
                     <p className="text-sm text-gray-600">Bot ID: {mission.botID}</p>
                     <div className="w-full bg-gray-200 rounded-full h-2 mt-1">
                       <div
-                        className="bg-blue-600 h-2 rounded-full"
+                        className="bg-brand-orange h-2 rounded-full"
                         style={{ width: `${mission.progress}%` }}
                       ></div>
                     </div>

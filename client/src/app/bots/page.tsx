@@ -4,6 +4,8 @@ import Navigation from "@/components/Navigation";
 import { useBotData } from "@/hooks/useBotData";
 import { useMissions } from "@/hooks/useMissions";
 import Link from "next/link";
+import { RobotOperationalStatusType } from "@/constants/robotConstants";
+import Operation from "antd/es/transfer/operation";
 
 export default function Bots() {
   const { bots, botsLoading } = useBotData();
@@ -14,13 +16,13 @@ export default function Bots() {
   const onMission = bots.filter((b) => b.assignmentStatus === "assigned").length;
 
   return (
-    <div className="min-h-screen bg-gray-100">
+  <div className="bg-gray-100 min-h-full">
       <Navigation />
       
       <main className="container mx-auto px-4 py-8">
         <div className="flex justify-between items-center mb-6">
           <h1 className="text-3xl font-bold">Bot Management</h1>
-          <button className="px-6 py-3 bg-blue-600 text-white rounded-md hover:bg-blue-700">
+          <button className="px-6 py-3 bg-brand-blue text-white rounded-md hover:bg-brand-blue/90">
             + Add New Bot
           </button>
         </div>
@@ -37,7 +39,7 @@ export default function Bots() {
           </div>
           <div className="bg-white p-6 rounded-lg shadow">
             <h3 className="text-gray-600 text-sm">On Mission</h3>
-            <p className="text-3xl font-bold mt-2 text-blue-600">{onMission}</p>
+            <p className="text-3xl font-bold mt-2">{onMission}</p>
           </div>
         </div>
 
@@ -76,7 +78,7 @@ export default function Bots() {
                             ? "bg-yellow-100 text-yellow-800"
                             : "bg-red-100 text-red-800"
                         }`}>
-                          {bot.operationalStatus}
+                          {RobotOperationalStatusType[bot.operationalStatus].text}
                         </span>
                       </div>
                       <div className="space-y-1 text-sm">
@@ -85,7 +87,7 @@ export default function Bots() {
                         <p><span className="text-gray-600">Mission:</span> {botMission?.missionName || "None"}</p>
                       </div>
                       <Link href={`/bots/${bot.id}`}>
-                        <button className="mt-3 w-full px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 text-sm">
+                        <button className="mt-3 w-full px-4 py-2 bg-brand-blue text-white rounded-md hover:bg-brand-blue/90 text-sm">
                           View Details
                         </button>
                       </Link>

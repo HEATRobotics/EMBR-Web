@@ -4,7 +4,7 @@ import Navigation from "@/components/Navigation";
 
 export default function MissionCreate() {
   return (
-    <div className="min-h-screen bg-gray-100">
+  <div className="bg-gray-100 min-h-full">
       <Navigation />
       
       <main className="container mx-auto px-4 py-8">
@@ -14,7 +14,7 @@ export default function MissionCreate() {
         <div className="bg-white rounded-lg shadow mb-6 p-6">
           <div className="flex items-center justify-between">
             <div className="flex items-center">
-              <div className="w-10 h-10 bg-orange-600 text-white rounded-full flex items-center justify-center font-bold">
+              <div className="w-10 h-10 bg-brand-orange text-white rounded-full flex items-center justify-center font-bold">
                 1
               </div>
               <span className="ml-3 font-semibold">Basic Info</span>
@@ -92,7 +92,7 @@ export default function MissionCreate() {
             <button className="px-6 py-2 border rounded-md hover:bg-gray-100">
               Cancel
             </button>
-            <button className="px-6 py-2 bg-orange-600 text-white rounded-md hover:bg-orange-700">
+            <button className="px-6 py-2 bg-brand-orange text-white rounded-md hover:bg-brand-orange/90">
               Next Step
             </button>
           </div>

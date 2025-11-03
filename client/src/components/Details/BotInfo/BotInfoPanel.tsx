@@ -2,6 +2,7 @@ import {RobotType} from "@/types/robot.type";
 import {useEffect, useState} from "react";
 import InfoGrid from "@/components/Details/BotInfo/InfoGrid";
 import TemperatureChart from "@/components/TemperatureChart";
+import BatteryChart from "@/components/BatteryChart";
 
 
 
@@ -11,7 +12,7 @@ function BotInfoPanel({
                       }: {
     selectedBot: RobotType;
 }) {
-    const [currentTab, setCurrentTab] = useState<"Overview" | "Orientation" | "Position" | "Temperature" >("Orientation");
+    const [currentTab, setCurrentTab] = useState<"Overview" | "Orientation" | "Position" >("Orientation");
 
     const [overviewData, setOverviewData] = useState([
         { title: "Battery", value: "" },
@@ -95,16 +96,6 @@ function BotInfoPanel({
                     Position
                 </button>
                 
-                <button
-                    onClick={() => setCurrentTab("Temperature")}
-                    className={`w-1/2 py-3 text-center text-sm font-semibold transition-colors duration-200 ${
-                        currentTab === "Temperature"
-                            ? "bg-blue-100 text-blue-800"
-                            : "bg-gray-100 text-gray-600 hover:bg-gray-200 hover:text-gray-800"
-                    }`}
-                >
-                    Temperature
-                </button>
 
             </div>
 
@@ -118,10 +109,6 @@ function BotInfoPanel({
 
             {currentTab === "Position" && (
                 <InfoGrid data={positionData}/>
-            )}
-
-            {currentTab === "Temperature" && (
-                <TemperatureChart></TemperatureChart>
             )}
 
         </>

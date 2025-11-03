@@ -8,7 +8,7 @@ export default function HotspotDetail() {
   const hotspotId = params.id;
 
   return (
-    <div className="min-h-screen bg-gray-100">
+  <div className="bg-gray-100 min-h-full">
       <Navigation />
       
       <main className="container mx-auto px-4 py-8">
