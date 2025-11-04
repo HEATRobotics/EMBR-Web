@@ -1,57 +1,54 @@
 import { useState, useEffect } from 'react';
-import axios from 'axios';
-
-
-const API_BASE_URL = 'http://localhost:3100/api';
+import { useWebSocket } from '@/context/WebSocketContext';
 
 export function useLatestTemperatureData() {
-    // const [id, setId] = useState<Number[]>(null);
     const [temperature, setTemperature] = useState<Number[]>([]);
     const [clockTime, setClockTime] = useState<Date[]>([]);
     const [loading, setLoading] = useState<boolean>(true);
     const [error, setError] = useState<string | null>(null);
+    const { socket, isConnected } = useWebSocket();
 
-    const fetchLatestTemperatureData = async () => {
+    useEffect(() => {
+        if (!socket) return;
+
+        // Listen for temperature data updates
+        const handleTemperatureUpdate = (data: any[]) => {
+            console.log('Latest temperature information received!', data);
+            processLatestTemperatureData(data);
+        };
+
+        socket.on('temperature:initial', handleTemperatureUpdate);
+        socket.on('temperature:update', handleTemperatureUpdate);
+
+        // Cleanup listeners on unmount
+        return () => {
+            socket.off('temperature:initial', handleTemperatureUpdate);
+            socket.off('temperature:update', handleTemperatureUpdate);
+        };
+    }, [socket]);
+
+    const processLatestTemperatureData = (data: any[]) => {
         try {
-            const response = await axios.get(`${API_BASE_URL}/temperature/latest`);
-            console.log('All temperature information fetched!', response.data);
-
-            const d = response.data;
-
             const tempList: Number[] = [];
-            setTemperature(() => {
-                for(let i = 0; i < d.length; i++){
-                    if(d[i].botID == 2){ //NOTE: since there is only one EMBR robot this is hard coded.
-                        tempList.push(d[i].temperature);
-                    }
-                }
-                return tempList;
-            });
-
             const timeList: Date[] = [];
-            setClockTime(() => {
-                for(let i = 0; i < d.length; i++){
-                    if(d[i].botID == 2){ //NOTE: since there is only one EMBR robot this is hard coded.
-                        timeList.push(d[i].clockTime);
-                    }
+
+            for (let i = 0; i < data.length; i++) {
+                if (data[i].botID == 2) { //NOTE: since there is only one EMBR robot this is hard coded.
+                    tempList.push(data[i].temperature);
+                    timeList.push(data[i].clockTime);
                 }
-                return timeList;
-            });
+            }
+
+            setTemperature(tempList);
+            setClockTime(timeList);
             setError(null);
+            setLoading(false);
         } catch (err: any) {
-            setError('Failed to fetch latest temperature data.');
+            setError('Failed to process latest temperature data.');
             console.error(err);
-        } finally {
             setLoading(false);
         }
     };
 
-    useEffect(() => {
-        // Fetch data every 5 seconds (adjust as needed)
-        const interval = setInterval(fetchLatestTemperatureData, 5000);
-
-        return () => clearInterval(interval);
-    },[]);
-
-    return {temperature, clockTime, loading, error };
+    return { temperature, clockTime, loading, error, isConnected };
 }

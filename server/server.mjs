@@ -1,6 +1,8 @@
 import express from 'express'
 import cors from 'cors';
 import assert from 'assert';
+import { createServer } from 'http';
+import { Server } from 'socket.io';
 
 import missionRoutes from './routes/mission.routes.js';
 
@@ -11,9 +13,16 @@ import {
     insertBatteryData
 } from './database.mjs';
 import { getAllBatteryData, getLatestBatteryData, getAllTemperatureData, getLatestTemperatureData, getLatestBotData } from './database.mjs';
-import router from "./routes/mission.routes.js";
 
 const app = express();
+const httpServer = createServer(app);
+const io = new Server(httpServer, {
+    cors: {
+        origin: 'http://localhost:3000',
+        methods: ['GET', 'POST'],
+        credentials: true
+    }
+});
 const port = 3100; 
 
 app.use(cors({
@@ -36,7 +45,7 @@ let latestMavlinkData = {
     Setup handler to receive realtime MAVLink data
 */
 // handleMavlinkData();      // for real data, untouched from last year's competition
-// simulateMavlinkData();  // for simulated data, copying the format of real data
+simulateMavlinkData();  // for simulated data, copying the format of real data
 
 
 
@@ -52,12 +61,19 @@ async function storeMavlinkData(data) {
 
     if (data.type === 'global_position') {
         await insertPositionData(data);
+        // Emit position update to all connected clients
+        const latestBotData = await getLatestBotData();
+        io.emit('bots:update', latestBotData);
     } else if (data.type === 'temp_data') {
         await insertTemperatureData(data);
-        // console.log(await getAllTemperatureData());
+        // Emit temperature update to all connected clients
+        const allTemperatureData = await getAllTemperatureData();
+        io.emit('temperature:update', allTemperatureData);
     }  else {
         await insertBatteryData(data);
-        // console.log(await getAllBatteryData());
+        // Emit battery update to all connected clients
+        const allBatteryData = await getAllBatteryData();
+        io.emit('battery:update', allBatteryData);
     }
 
     // Update the latestMavlinkData array with the newest data point
@@ -152,9 +168,19 @@ app.get('/api/bots/latest', async (req, res) => {
 
 
 
-// Start server
-app.listen(port, () => {
-    console.log(`Server running on port ${port}`);
+// WebSocket connection handling
+io.on('connection', (socket) => {
+    console.log('Client connected:', socket.id);
+
+    socket.on('disconnect', () => {
+        console.log('Client disconnected:', socket.id);
+    });
 });
 
-export { storeMavlinkData };
+// Start server
+httpServer.listen(port, () => {
+    console.log(`Server running on port ${port}`);
+    console.log(`WebSocket server ready`);
+});
+
+export { storeMavlinkData, io };

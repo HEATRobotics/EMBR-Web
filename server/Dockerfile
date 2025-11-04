@@ -16,5 +16,5 @@ COPY . .
 # Expose the port
 EXPOSE 3100
 
-# Start the server
-CMD ["npm", "start"]
+# Start the server with nodemon for hot reload
+CMD ["npm", "run", "dev"]

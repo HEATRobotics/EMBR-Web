@@ -1,57 +1,72 @@
 import { useState, useEffect } from 'react';
+import { useWebSocket } from '@/context/WebSocketContext';
 import axios from 'axios';
-
 
 const API_BASE_URL = 'http://localhost:3100/api';
 
 export function useAllTemperatureData() {
-    // const [id, setId] = useState<Number[]>(null);
     const [temperature, setTemperature] = useState<Number[]>([]);
     const [clockTime, setClockTime] = useState<Date[]>([]);
     const [loading, setLoading] = useState<boolean>(true);
     const [error, setError] = useState<string | null>(null);
+    const { socket, isConnected } = useWebSocket();
 
-    const fetchAllTemperatureData = async () => {
+    // Fetch initial data immediately via HTTP
+    useEffect(() => {
+        const fetchInitialTemperatureData = async () => {
+            try {
+                const response = await axios.get(`${API_BASE_URL}/temperature/all`);
+                console.log('Initial temperature information fetched via HTTP!', response.data);
+                processTemperatureData(response.data);
+            } catch (err: any) {
+                setError('Failed to fetch temperature data.');
+                setLoading(false);
+            }
+        };
+
+        fetchInitialTemperatureData();
+    }, []);
+
+    // Listen for real-time updates via WebSocket
+    useEffect(() => {
+        if (!socket) return;
+
+        // Listen for temperature data updates
+        const handleTemperatureUpdate = (data: any[]) => {
+            console.log('Temperature information updated via WebSocket!', data);
+            processTemperatureData(data);
+        };
+
+        socket.on('temperature:update', handleTemperatureUpdate);
+
+        // Cleanup listeners on unmount
+        return () => {
+            socket.off('temperature:update', handleTemperatureUpdate);
+        };
+    }, [socket]);
+
+    const processTemperatureData = (data: any[]) => {
         try {
-            const response = await axios.get(`${API_BASE_URL}/temperature/all`);
-            console.log('All temperature information fetched!', response.data);
-
-            const d = response.data;
-
             const tempList: Number[] = [];
-            setTemperature(() => {
-                for(let i = 0; i < d.length; i++){
-                    if(d[i].botID == 2){ //NOTE: since there is only one EMBR robot this is hard coded.
-                        tempList.push(d[i].temperature);
-                    }
-                }
-                return tempList;
-            });
-
             const timeList: Date[] = [];
-            setClockTime(() => {
-                for(let i = 0; i < d.length; i++){
-                    if(d[i].botID == 2){ //NOTE: since there is only one EMBR robot this is hard coded.
-                        timeList.push(d[i].clockTime);
-                    }
+
+            for (let i = 0; i < data.length; i++) {
+                if (data[i].botID == 1) { //NOTE: since there is only one EMBR robot this is hard coded.
+                    tempList.push(data[i].temperature);
+                    timeList.push(data[i].clockTime);
                 }
-                return timeList;
-            });
+            }
+
+            setTemperature(tempList);
+            setClockTime(timeList);
             setError(null);
+            setLoading(false);
         } catch (err: any) {
-            setError('Failed to fetch all temperature data.');
+            setError('Failed to process temperature data.');
             console.error(err);
-        } finally {
             setLoading(false);
         }
     };
 
-    useEffect(() => {
-        // Fetch all data every 5 seconds (adjust as needed)
-        const interval = setInterval(fetchAllTemperatureData, 5000);
-
-        return () => clearInterval(interval);
-    },[]);
-
-    return {temperature, clockTime, loading, error };
+    return { temperature, clockTime, loading, error, isConnected };
 }
