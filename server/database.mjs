@@ -425,4 +425,31 @@ export async function createMission(missionData) {
     }
 }
 
+// this is to delete a mission by id
+export async function deleteMission(missionId) {//export to make this func available to other files, async is when we need to wait for database operations (await)
+    let conn;//declare variable conn to connect the server and database
+    try {
+        conn = await pool.getConnection();
+
+        //delete the mission
+        const deleteQuery = `DELETE FROM mission WHERE missionID = ?`;
+        const [result] = await conn.execute(deleteQuery, [missionId]);
+
+        // unassign the bot that was assigned to this mission
+        if (result.affectedRows > 0) {
+            const updateBotQuery = `UPDATE bot SET assignmentStatus = 'unassigned' WHERE botID NOT IN (SELECT botID FROM mission)`;
+            await conn.execute(updateBotQuery);
+        }
+
+        return { success: result.affectedRows > 0 };
+    } catch (error) {
+        console.error('Error deleting mission:', error);//if mission not found
+        return { success: false };
+    } finally {
+        if (conn) {
+            await conn.release();
+        }
+    }
+}
+
 

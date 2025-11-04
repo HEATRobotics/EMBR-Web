@@ -3,7 +3,8 @@ import {
     getMissionByBotID,
     getAllMissions,
     updateMission,
-    createMission
+    createMission,
+    deleteMission
 } from '../database.mjs';
 
 const router = express.Router();
@@ -64,6 +65,21 @@ router.post('/create', async (req, res) => {
         res.status(500).json({ message: 'Failed to create mission', error: error.message }); // Respond with 500 and error message
     }
 });
+
+router.delete('/delete/: id', async (req, res)) => { //define delete api endpoint
+    try { // this is to handle errors safely, if anything goes wrong then will show 500
+        const result = await deleteMission(req.params.id); //
+
+        if (result.success) {
+            res.json({message: 'Mission deleted successfully'});
+        }else{
+            res.status(404).json({message: 'Mission not found'}); //this is when no data of the mission is found
+        }
+
+        } catch (error){
+            res.status(500).json({message: 'Failed to delete mission', error: error.message});
+        }
+    };
 
 
 export default router;

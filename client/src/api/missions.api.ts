@@ -53,3 +53,14 @@ export const addMissionToDB = async (mission: MissionType): Promise<{ message: s
     });
     return response.data as { message: string; missionID: string };
 };
+
+export const deleteMission = async (missionID: string): Promise<{ message: string }> => {//export func to make it available to other files
+  try {
+    const response = await axios.delete(`${API_BASE_URL}/missions/delete/${missionID}`);
+    return response.data; 
+  } catch (error: any) {
+    console.error('Error deleting mission:', error);
+    throw new Error(error.response?.data?.message || 'Failed to delete mission');
+  }
+};
+
