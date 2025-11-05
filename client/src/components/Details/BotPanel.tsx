@@ -14,7 +14,12 @@ function BotPanel({ selectedBot }: { selectedBot: RobotType }) {
             <div className="flex w-full overflow-hidden shadow border-b border-black">
                 <button
                     onClick={() => setCurrentTab("Flir")}
-                    className={`w-1/2 py-3 text-center text-sm font-semibold transition-colors duration-200 ${
+                    style={{
+                     backgroundColor: currentTab === "Flir" ? "#a5592aff" : "#FFFFFF",
+                     color: currentTab === "Flir" ? "#d9d7d7ff" : "#333333", 
+                     transition: "background-color 0.2s, color 0.2s",
+                    }}
+                    className={`w-1/2 py-3 text-center text-sm font-semibold transition-colors duration-200 rounded-md ${
                         currentTab === "Flir"
                             ? "bg-blue-100 text-blue-800"
                             : "bg-gray-100 text-gray-600 hover:bg-gray-200 hover:text-gray-800"
@@ -24,7 +29,12 @@ function BotPanel({ selectedBot }: { selectedBot: RobotType }) {
                 </button>
                 <button
                     onClick={() => setCurrentTab("FPV")}
-                    className={`w-1/2 py-3 text-center text-sm font-semibold transition-colors duration-200 ${
+                    style={{
+                     backgroundColor: currentTab === "FPV" ? "#a5592aff" : "#FFFFFF",
+                     color: currentTab === "FPV" ? "#d9d7d7ff" : "#333333", 
+                    transition: "background-color 0.2s, color 0.2s",
+                    }}
+                    className={`w-1/2 py-3 text-center text-sm font-semibold transition-colors duration-200 rounded-md ${
                         currentTab === "FPV"
                             ? "bg-blue-100 text-blue-800"
                             : "bg-gray-100 text-gray-600 hover:bg-gray-200 hover:text-gray-800"

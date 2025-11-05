@@ -19,7 +19,12 @@ function DetailsPanel({
             <div className="flex w-full overflow-hidden shadow border-b border-black">
                 <button
                     onClick={() => setCurrentTab("Bot Info")}
-                    className={`w-1/2 py-3 text-center text-sm font-semibold transition-colors duration-200 ${
+                    style={{
+                     backgroundColor: currentTab === "Bot Info" ? "#8c351bff" : "#FFFFFF",
+                     color: currentTab === "Bot Info" ? "#d9d7d7ff" : "#333333", 
+                    transition: "background-color 0.2s, color 0.2s",
+                    }}
+                    className={`w-1/2 py-3 text-center text-sm font-semibold transition-colors duration-200 rounded-md ${
                         currentTab === "Bot Info"
                             ? "bg-blue-100 text-blue-800"
                             : "bg-gray-100 text-gray-600 hover:bg-gray-200 hover:text-gray-800"
@@ -29,7 +34,13 @@ function DetailsPanel({
                 </button>
                 <button
                     onClick={() => setCurrentTab("Mission Info")}
-                    className={`w-1/2 py-3 text-center text-sm font-semibold transition-colors duration-200 ${
+                    style={{
+                     backgroundColor: currentTab === "Mission Info" ? "#8c351bff" : "#FFFFFF",
+                     color: currentTab === "Mission Info" ? "#d9d7d7ff" : "#333333", 
+                     fontfamily: "Epilogue, sans-serif",
+                    transition: "background-color 0.2s, color 0.2s",
+                    }}
+                    className={`w-1/2 py-3 text-center text-sm font-semibold transition-colors duration-200 rounded-md ${
                         currentTab === "Mission Info"
                             ? "bg-blue-100 text-blue-800"
                             : "bg-gray-100 text-gray-600 hover:bg-gray-200 hover:text-gray-800"
