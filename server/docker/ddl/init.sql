@@ -16,7 +16,7 @@ SET foreign_key_checks = 1;
 
 CREATE TABLE bot (
     botID INT PRIMARY KEY,
-    assignmentStatus ENUM('ready', 'assigned', 'inactive') NOT NULL DEFAULT 'ready',
+    assignmentStatus ENUM('ready', 'active', 'inactive') NOT NULL DEFAULT 'ready',
     lastOnline DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB;
 
