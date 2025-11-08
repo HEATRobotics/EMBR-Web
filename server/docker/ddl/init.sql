@@ -59,10 +59,13 @@ CREATE TABLE mission (
     progress DECIMAL(5,2), 
     avgTemp DECIMAL(5,2),
     timePassed INT, 
-    timeEstimated INT, 
+    timeEstimated INT,
+    timeStart TIMESTAMP NULL DEFAULT NULL, -- will be updated to record current time when the user start a mission
+    timeEnd TIMESTAMP NULL DEFAULT NULL, -- will be updated to record current time when the mission is completed
     timeCreated TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     lastUpdated TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP, -- when this table is updated, set lastUpdated to current time
     FOREIGN KEY (botID) REFERENCES bot(botID) ON DELETE CASCADE     -- if bot is deleted, also delete its records in this table
+
 ) ENGINE=InnoDB;
 
 
