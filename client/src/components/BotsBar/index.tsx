@@ -61,6 +61,13 @@ function BotsBar({
                     Delete Mission
                 </button>
             </div>
+            {/* 🔹 New Start/End Mission button */}
+            <button
+                className="w-full bg-white text-gray-800 font-medium py-2 px-4 border border-gray-300 rounded-md shadow-sm hover:bg-gray-100 disabled:opacity-75 disabled:cursor-not-allowed"
+                onClick={() => console.log('Start/End Mission clicked')}
+            >
+                Start / End Mission
+            </button>
 
         </div>
 
