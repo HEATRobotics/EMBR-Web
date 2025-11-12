@@ -221,7 +221,7 @@ const CustomGoogleMap: React.FC = () => {
       map.setCenter(botPosition);
       map.setZoom(BOT_FOCUS_ZOOM);
     }
-  }, [selectedBot, map, bots]);
+  }, [selectedBot, map]); // Removed 'bots' from dependencies to prevent re-centering on every update
 
   // Update bot markers on map
   useEffect(() => {
