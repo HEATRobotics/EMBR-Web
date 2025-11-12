@@ -116,6 +116,7 @@ const CustomGoogleMap: React.FC = () => {
   const [selectedBot, setSelectedBot] = useState<RobotType | null>(null);
   const [activeMissionCreate, setActiveMissionCreate] = useState<boolean>(false);
   const [newMission, setNewMission] = useState<MissionType>(NEW_MISSION_TEMPLATE);
+  const [showMissionTable, setShowMissionTable] = useState<boolean>(false);
 
   // Data Hooks
   const { bots, botsLoading, botError } = useBotData();
@@ -177,6 +178,10 @@ const CustomGoogleMap: React.FC = () => {
   const createMission = () => {
     setActiveMissionCreate(true);
     if (map) disableMapInteraction(map);
+  };
+
+  const toggleMissionTable = () => {
+    setShowMissionTable((s) => !s);
   };
 
   const deleteMission = () => {
