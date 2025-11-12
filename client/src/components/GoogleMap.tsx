@@ -296,9 +296,16 @@ const CustomGoogleMap: React.FC = () => {
           <div className="p-4 font-semibold border-b border-gray-100">
             Missions (placeholder)
           </div>
-          <div className="p-4 text-sm text-gray-600">
-            This is a placeholder square panel. Later we'll populate it with a table.
-          </div>
+          {/* Simple mission list */}
+          <ul className="p-4 space-y-2">
+            {missionsData?.map((mission) => (
+              <li key={mission.botID} className="border-b border-gray-200 pb-2">
+                <div className="font-medium text-gray-800">{mission.missionName}</div>
+                <div className="text-sm text-gray-500">Bot ID: {mission.botID}</div>
+              </li>
+            ))}
+          </ul>
+          
         </div>
       )}
 
