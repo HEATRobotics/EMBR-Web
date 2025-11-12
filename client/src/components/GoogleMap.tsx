@@ -285,7 +285,22 @@ const CustomGoogleMap: React.FC = () => {
         disabled={activeMissionCreate}
         createMissionCallback={createMission}
         deleteMissionCallback={deleteMission}
+        startEndMissionCallback={toggleMissionTable}
       />
+      {/* Panel that appears when Start/End Mission is toggled */}
+      {showMissionTable && (
+        <div
+          className="z-[20] absolute right-4 top-20 w-[300px] h-[300px] bg-white border border-gray-300 rounded-md shadow-lg overflow-auto"
+          style={{ pointerEvents: 'auto' }}
+        >
+          <div className="p-4 font-semibold border-b border-gray-100">
+            Missions (placeholder)
+          </div>
+          <div className="p-4 text-sm text-gray-600">
+            This is a placeholder square panel. Later we'll populate it with a table.
+          </div>
+        </div>
+      )}
 
       {/* Map tools */}
       <MapTools
