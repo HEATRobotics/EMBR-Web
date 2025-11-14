@@ -12,6 +12,7 @@ const {
   ardupilotmega,
 } = mavlink;
 
+
 //create a registry of mappings between msg id and data
 const REGISTRY = {
   ...minimal.REGISTRY,
@@ -180,6 +181,7 @@ function processGlobalPositionMessage(data) {
     groundZSpeed: data.vz,
     vehicleHeading: data.hdg / 100.0,
   };
+
 
   storeMavlinkData(globalPositionData);
 }

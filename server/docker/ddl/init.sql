@@ -35,13 +35,25 @@ CREATE TABLE position (
     FOREIGN KEY (botID) REFERENCES bot(botID) ON DELETE CASCADE
 ) ENGINE=InnoDB;
 
+CREATE TABLE hotspot (
+    hotspotID INT AUTO_INCREMENT PRIMARY KEY, 
+    botID INT NOT NULL, 
+    latitude FLOAT NOT NULL, 
+    longitude FLOAT NOT NULL,
+    FOREIGH KEY(botID) REFERENCES bot(botID) ON DELETE CASCADE
+
+) ENGINE=InnoDB;
+
 CREATE TABLE temperature (
     id INT AUTO_INCREMENT PRIMARY KEY,
-    botID INT NOT NULL,
+    hotspotID INT NOT NULL,
     clockTime DATETIME NOT NULL,
     temperature FLOAT NOT NULL,
-    FOREIGN KEY (botID) REFERENCES bot(botID) ON DELETE CASCADE     -- if bot is deleted, also delete its records in this table
+    FOREIGN KEY (hotspotID) REFERENCES hotspot(hotspotID) ON DELETE CASCADE     -- if bot is deleted, also delete its records in this table
 ) ENGINE=InnoDB;
+
+
+
 
 CREATE TABLE battery (
     id INT AUTO_INCREMENT PRIMARY KEY,
