@@ -10,6 +10,7 @@ import {
 } from "@react-google-maps/api";
 import BotsBar from "./BotsBar";
 import MissionCreate from "./MissionControls/MissionCreate";
+import MissionStartEnd from "./MissionControls/MissionStartEnd";
 import { useAppDispatch, useAppSelector } from "@/redux/hooks";
 import { MissionType } from "@/types/mission.type";
 import { useBotData } from "@/hooks/useBotData";
@@ -116,7 +117,7 @@ const CustomGoogleMap: React.FC = () => {
   const [selectedBot, setSelectedBot] = useState<RobotType | null>(null);
   const [activeMissionCreate, setActiveMissionCreate] = useState<boolean>(false);
   const [newMission, setNewMission] = useState<MissionType>(NEW_MISSION_TEMPLATE);
-  const [showMissionTable, setShowMissionTable] = useState<boolean>(false);
+  const [activeMissionStartEnd, setActiveMissionStartEnd] = useState<boolean>(false); 
 
   // Data Hooks
   const { bots, botsLoading, botError } = useBotData();
@@ -181,7 +182,7 @@ const CustomGoogleMap: React.FC = () => {
   };
 
   const toggleMissionTable = () => {
-    setShowMissionTable((s) => !s);
+    setActiveMissionStartEnd((s) => !s);
   };
 
   const deleteMission = () => {
@@ -288,46 +289,8 @@ const CustomGoogleMap: React.FC = () => {
         startEndMissionCallback={toggleMissionTable}
       />
       {/* Panel that appears when Start/End Mission is toggled */}
-      {showMissionTable && (
-        <div
-          className="z-[20] absolute right-4 top-20 w-[300px] h-[300px] bg-white border border-gray-300 rounded-md shadow-lg overflow-auto"
-          style={{ pointerEvents: 'auto' }}
-        >
-          <div className="p-4 font-semibold border-b border-gray-100">
-            Missions (placeholder)
-          </div>
-          {/* Mission Table */}
-          <div className="p-4">
-            <table className="min-w-full border border-gray-200 text-sm text-left">
-              <thead className="bg-gray-100 text-gray-700">
-                <tr>
-                  <th className="px-4 py-2 border-b">Mission Name</th>
-                  <th className="px-4 py-2 border-b">Bot ID</th>
-                  <th className="px-4 py-2 border-b">Start Time</th>
-                  <th className="px-4 py-2 border-b">End Time</th>
-                  <th className="px-4 py-2 border-b">Action</th>
-                </tr>
-              </thead>
-              <tbody>
-                {missionsData?.map((mission) => (
-                  <tr key={mission.botID} className="hover:bg-gray-50 transition">
-                    <td className="px-4 py-2 border-b font-medium text-gray-800">{mission.missionName}</td>
-                    <td className="px-4 py-2 border-b text-gray-600">{mission.botID}</td>
-                    <td className="px-4 py-2 border-b text-gray-600">{mission.timeStart || "—"}</td>
-                    <td className="px-4 py-2 border-b text-gray-600">{mission.timeEnd || "—"}</td>
-                    <td className="px-4 py-2 border-b">
-                      <button
-                        className="px-3 py-1 rounded-md bg-blue-500 text-white hover:bg-blue-600 transition-colors"
-                      >
-                        Start/End Mission
-                      </button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div> 
-        </div>
+      {activeMissionStartEnd && (
+        <MissionStartEnd missionsData={missionsData} />
       )}
 
       {/* Map tools */}
