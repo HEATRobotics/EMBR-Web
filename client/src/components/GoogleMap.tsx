@@ -296,16 +296,37 @@ const CustomGoogleMap: React.FC = () => {
           <div className="p-4 font-semibold border-b border-gray-100">
             Missions (placeholder)
           </div>
-          {/* Simple mission list */}
-          <ul className="p-4 space-y-2">
-            {missionsData?.map((mission) => (
-              <li key={mission.botID} className="border-b border-gray-200 pb-2">
-                <div className="font-medium text-gray-800">{mission.missionName}</div>
-                <div className="text-sm text-gray-500">Bot ID: {mission.botID}</div>
-              </li>
-            ))}
-          </ul>
-          
+          {/* Mission Table */}
+          <div className="p-4">
+            <table className="min-w-full border border-gray-200 text-sm text-left">
+              <thead className="bg-gray-100 text-gray-700">
+                <tr>
+                  <th className="px-4 py-2 border-b">Mission Name</th>
+                  <th className="px-4 py-2 border-b">Bot ID</th>
+                  <th className="px-4 py-2 border-b">Start Time</th>
+                  <th className="px-4 py-2 border-b">End Time</th>
+                  <th className="px-4 py-2 border-b">Action</th>
+                </tr>
+              </thead>
+              <tbody>
+                {missionsData?.map((mission) => (
+                  <tr key={mission.botID} className="hover:bg-gray-50 transition">
+                    <td className="px-4 py-2 border-b font-medium text-gray-800">{mission.missionName}</td>
+                    <td className="px-4 py-2 border-b text-gray-600">{mission.botID}</td>
+                    <td className="px-4 py-2 border-b text-gray-600">{mission.timeStart || "—"}</td>
+                    <td className="px-4 py-2 border-b text-gray-600">{mission.timeEnd || "—"}</td>
+                    <td className="px-4 py-2 border-b">
+                      <button
+                        className="px-3 py-1 rounded-md bg-blue-500 text-white hover:bg-blue-600 transition-colors"
+                      >
+                        Start/End Mission
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div> 
         </div>
       )}
 
