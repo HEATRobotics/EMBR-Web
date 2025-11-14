@@ -120,6 +120,56 @@ export async function insertTemperatureData(data) {
     }
 }
 
+export async function insertHotspotData(data){
+    let conn; 
+    try{
+        const requiredFields = [
+            'botID',
+            'clockTimeMin',
+            'clockTimeMax',
+            'latitude', 
+            'longitude'
+        ];
+        requiredFields.forEach(field => {
+            assert(data[field] !== undefined, `${field} is required`);
+        });
+        conn = await pool.getConnection();
+
+        const positionQuery = 
+        'SELECT id FROM position WHERE botID = ? AND clockTime BETWEEN ? AND ? ORDER BY clockTime ASC LIMIT 1';
+
+        const[positionResults] = await conn.execute(positionQuery, [data.botID, data.clockTimeMin, data.clockTimeMax]);
+
+        if(positionResults.length === 0){
+            console.error("No position data found for this hotspot."); 
+            return false;
+        }
+        const hotspotQuery = 
+        'INSERT INTO hotspot(botID, latitude, longitude) VALUES (?,?,?)';
+
+        const params = [
+            data.botID, 
+            data.latitude, 
+            data.longitude
+        ]; 
+
+        const[hotspotResults] = await conn.execute(hotspotQuery, params);
+
+        return hotspotResults.affectedRows ===1;
+
+
+    }catch(error){
+        console.error("Error inserting hotspot data into the database:", error);
+        console.log(data);
+        return false;
+    }finally {
+        if(conn){
+            await conn.release();
+        }
+    }
+
+}
+
 
 
 export async function insertBatteryData(data) {
