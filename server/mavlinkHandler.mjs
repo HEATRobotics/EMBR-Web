@@ -11,6 +11,8 @@ const {
   common,
   ardupilotmega,
 } = mavlink;
+const latestGPS = {};
+const tempVals = {};
 
 
 //create a registry of mappings between msg id and data
@@ -181,12 +183,16 @@ function processGlobalPositionMessage(data) {
     groundZSpeed: data.vz,
     vehicleHeading: data.hdg / 100.0,
   };
+  latestGPS[globalPositionData.botID] = {latitude: globalPositionData.latitude, 
+    longitude: globalPositionData.longitude, clockTime: globalPositionData.clockTime};
+
 
 
   storeMavlinkData(globalPositionData);
 }
 
 function processTemperatureMessage(data) {
+  const botID = data.id;
   
   const temperatureData = {
     type: "temp_data",
@@ -196,6 +202,35 @@ function processTemperatureMessage(data) {
   };
 
   storeMavlinkData(temperatureData);
+
+  if(!tempVals[botID]) tempVals[botID] = [];
+  tempVals[botID].push(temperatureData);
+
+  if(tempVals[botID].length >10){// want to keep the most recent 10 temperature values so use .shift() method
+    tempVals[botID].shift();
+  }
+  if(tempVals[botID].length === 10 && latestGPS[botID]){
+    const readings = tempVals[botID];
+    const clockTimeMin = readings[0].clockTime; 
+    const clockTimeMax = readings[9].clockTime; 
+
+    
+
+    const hotspotData = {
+      type : "hotspot_data",
+      botID, 
+      clockTimeMax, 
+      clockTimeMin, 
+      latitude : latestGPS[botID].latitude, 
+      longitude : latestGPS[botID].longitude, 
+      temperatureVals: readings.map(r=>r.temperature)
+
+
+    };
+    storeMavlinkData(hotspotData);
+
+  }
+
 }
 
 function processBatteryMessage(data) {
