@@ -49,7 +49,8 @@ CREATE TABLE temperature (
     hotspotID INT NOT NULL,
     clockTime DATETIME NOT NULL,
     temperature FLOAT NOT NULL,
-    FOREIGN KEY (hotspotID) REFERENCES hotspot(hotspotID) ON DELETE CASCADE     -- if bot is deleted, also delete its records in this table
+    FOREIGN KEY (hotspotID) REFERENCES hotspot(hotspotID) ON DELETE CASCADE,
+    FOREIGN KEY (botID) REFERENCES bot(botID) ON DELETE CASCADE     -- if bot is deleted, also delete its records in this table
 ) ENGINE=InnoDB;
 
 
