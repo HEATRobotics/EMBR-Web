@@ -3,9 +3,21 @@ import { MissionType } from "@/types/mission.type";
 
 type MissionStartEndProps = {
   missionsData: MissionType[];
+  saveUpdate: (updatedMission: MissionType) => Promise<void>;
 };
 
-export default function MissionStartEnd({ missionsData }: MissionStartEndProps) {
+export default function MissionStartEnd({ missionsData, saveUpdate }: MissionStartEndProps) {
+  const handleStartEndMission = (mission) => {
+    const now = new Date().toISOString().slice(0, 19).replace('T', ' ');
+    console.log("Start/End button pressed for mission:", mission.missionName);
+    console.log("Timestamp:", now);
+
+    //Update mission logic goes here
+    const updatedMission: MissionType = { ...mission, timeStart: now };
+    saveUpdate(updatedMission);
+
+  };
+
   return (
     <div
       className="z-[20] absolute right-4 top-20 w-auto max-h-[350px] overflow-y-auto bg-white border border-gray-300 rounded-md shadow-lg overflow-auto"
@@ -28,7 +40,7 @@ export default function MissionStartEnd({ missionsData }: MissionStartEndProps) 
           </thead>
           <tbody>
             {missionsData?.map((mission) => (
-              <tr key={mission.botID} className="hover:bg-gray-50 transition">
+              <tr key={mission.missionID} className="hover:bg-gray-50 transition">
                 <td className="px-4 py-2 border-b font-medium text-gray-800">
                   {mission.missionName}
                 </td>
@@ -42,6 +54,7 @@ export default function MissionStartEnd({ missionsData }: MissionStartEndProps) 
                 <td className="px-4 py-2 border-b">
                   <button
                     className="px-3 py-1 rounded-md bg-blue-500 text-white hover:bg-blue-600 transition-colors"
+                    onClick={() => handleStartEndMission(mission)}
                   >
                     Start/End
                   </button>

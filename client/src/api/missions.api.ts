@@ -53,3 +53,36 @@ export const addMissionToDB = async (mission: MissionType): Promise<{ message: s
     });
     return response.data as { message: string; missionID: string };
 };
+
+// Mission API update
+export const updateMissionInDB = async (mission: MissionType): Promise<{ message: string }> => {
+
+    // Transform coordinates back to backend format
+    const missionForDB = {
+      id: mission.missionID, // assuming the backend identifies the mission with missionID
+      missionName: mission.missionName,
+      botID: mission.botID,
+      areaCoordinates: {
+        north: mission.areaCoordinates![0].lat,
+        west: mission.areaCoordinates![0].lng,
+        south: mission.areaCoordinates![1].lat,
+        east: mission.areaCoordinates![1].lng,
+      },
+      progress: mission.progress,
+      averageTemperature: mission.avgTemp || 0,
+      timeStart: mission.timeStart,
+      timeEnd: mission.timeEnd,
+      timePassed: mission.timePassed,
+      timeEstimated: mission.timeEstimated,
+    };
+
+    console.log("Calling /update endpoint with:", missionForDB);
+
+    const response = await axios.put(
+      `${API_BASE_URL}/missions/update/${mission.missionID}`, // <- include ID
+      missionForDB,
+      { headers: { "Content-Type": "application/json" } }
+    );
+
+    return response.data as { message: string };
+};

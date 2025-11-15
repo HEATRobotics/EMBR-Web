@@ -34,6 +34,9 @@ router.get('/get-all', async (req, res) => {
 
 // Update a mission
 router.put('/update/:id', async (req, res) => {
+    console.log("=== UPDATE ROUTE HIT ===");
+    console.log("ID:", req.params.id);
+    console.log("Body:", req.body);
     try {
         await updateMission(req.params.id, req.body);
         res.json({ message: 'Mission updated successfully' });

@@ -18,7 +18,7 @@ import { useMissions } from "@/hooks/useMissions";
 import MapDrawUtils from "@/utils/MapDrawUtils";
 import MapTools from "@/components/MapTools";
 import { RobotType } from "@/types/robot.type";
-import { addMissionToDB } from "@/api/missions.api";
+import { addMissionToDB, updateMissionInDB } from "@/api/missions.api";
 import DetailsPanel from "@/components/Details/DetailsPanel";
 
 // ========== CONSTANTS ==========
@@ -171,6 +171,24 @@ const CustomGoogleMap: React.FC = () => {
     if (map) enableMapInteraction(map);
   };
 
+  const saveUpdate = async (updatedMission: MissionType) => {
+    console.log("Updating mission:", updatedMission);
+
+    // Update missions in React state. Checks for matching missionID to replace the updated mission.
+    const newMissionList = (missionsData ?? []).map(m => 
+      m.missionID === updatedMission.missionID ? updatedMission : m
+    );
+
+    setMissions(newMissionList);
+
+    // Push update to the database
+    const response = await updateMissionInDB(updatedMission);
+    console.log("Mission updated:", response);
+
+    if (map) enableMapInteraction(map);
+  };
+
+
   const cancelCreate = () => {
     setActiveMissionCreate(false);
     if (map) enableMapInteraction(map);
@@ -290,7 +308,9 @@ const CustomGoogleMap: React.FC = () => {
       />
       {/* Panel that appears when Start/End Mission is toggled */}
       {activeMissionStartEnd && (
-        <MissionStartEnd missionsData={missionsData} />
+        <MissionStartEnd 
+          missionsData={missionsData} 
+          saveUpdate={saveUpdate}/>
       )}
 
       {/* Map tools */}

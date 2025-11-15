@@ -367,12 +367,12 @@ export async function getAllMissions() {
 
 
 export async function updateMission(missionId, missionData) {
-    const { name, areaCoordinates, process, averageTemperature, timePassed, timeEstimated } = missionData;
+    const { missionName, areaCoordinates, progress, averageTemperature, timePassed, timeEstimated, timeStart, timeEnd } = missionData;
     try {
         const connection = await pool.getConnection();
         await connection.execute(
-            'UPDATE mission SET name = ?, area_coordinates = ?, progress = ?, avgTemp = ?, timePassed = ?, timeEstimated = ? WHERE missionID = ?',
-            [name, JSON.stringify(areaCoordinates), process, averageTemperature, timePassed, timeEstimated, missionId]
+            'UPDATE mission SET missionName = ?, areaCoordinates = ?, progress = ?, avgTemp = ?, timePassed = ?, timeEstimated = ?, timeStart = ?, timeEnd = ? WHERE missionID = ?',
+            [missionName, JSON.stringify(areaCoordinates), progress, averageTemperature, timePassed, timeEstimated, timeStart, timeEnd, missionId]
         );
         connection.release();
         return { success: true }; 
