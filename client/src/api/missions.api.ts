@@ -68,13 +68,14 @@ export const updateMissionInDB = async (mission: MissionType): Promise<{ message
         south: mission.areaCoordinates![1].lat,
         east: mission.areaCoordinates![1].lng,
       },
-      progress: mission.progress,
+      progress: mission.progress || 0,
       averageTemperature: mission.avgTemp || 0,
-      timeStart: mission.timeStart,
-      timeEnd: mission.timeEnd,
-      timePassed: mission.timePassed,
-      timeEstimated: mission.timeEstimated,
+      timeStart: mission.timeStart || null,
+      timeEnd: mission.timeEnd || null,
+      timePassed: mission.timePassed || 0,
+      timeEstimated: mission.timeEstimated || 0 ,
     };
+    console.log("Check mission passed with:", mission);
 
     console.log("Calling /update endpoint with:", missionForDB);
 

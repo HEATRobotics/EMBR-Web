@@ -163,13 +163,24 @@ const CustomGoogleMap: React.FC = () => {
     setActiveMissionCreate(false);
     console.log("Saving mission:", mission);
 
-    const updatedMissions = [...(missionsData ?? []), mission];
-    setMissions(updatedMissions);
 
     const response = await addMissionToDB(mission);
     console.log("Mission created with ID:", response.missionID);
+
+    // merge the ID returned by the backend into the mission object
+    const missionWithID: MissionType = {
+        ...mission,
+        missionID: response.missionID,
+        timeStart: null,
+        timeEnd: null,
+    };
+
+    const updatedMissions = [...(missionsData ?? []), missionWithID];
+    setMissions(updatedMissions);
+
     if (map) enableMapInteraction(map);
-  };
+
+    }
 
   const saveUpdate = async (updatedMission: MissionType) => {
     console.log("Updating mission:", updatedMission);
