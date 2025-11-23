@@ -5,11 +5,29 @@ import { useMissions } from "@/hooks/useMissions";
 import { useBotData } from "@/hooks/useBotData";
 import Link from "next/link";
 import { useState } from "react";
+import { startAndEndMissionButton } from "@/components/MissionControls/MissionStartEnd";
+import { updateMissionInDB } from "@/api/missions.api";
+
 
 export default function Missions() {
-  const { missionsData, missionsLoading } = useMissions();
+  const { missionsData, missionsLoading, missionsError, setMissions } = useMissions();
   const { bots } = useBotData();
   const [filter, setFilter] = useState<"all" | "active" | "completed">("all");
+  const saveUpdate = async (updatedMission: MissionType) => {
+    console.log("Updating mission:", updatedMission);
+
+    // Update missions in React state. Checks for matching missionID to replace the updated mission.
+    const newMissionList = (missionsData ?? []).map(m => 
+      m.missionID === updatedMission.missionID ? updatedMission : m
+    );
+
+    setMissions(newMissionList);
+
+    // Push update to the database
+    const response = await updateMissionInDB(updatedMission);
+    console.log("Mission updated:", response);
+
+  };
 
   return (
   <div className="bg-gray-100 min-h-full">
@@ -111,14 +129,26 @@ export default function Missions() {
                             ></div>
                           </div>
                         </div>
-                        
-                        <div className="ml-4">
-                          <Link href={`/missions/${idx + 1}`}>
-                            <button className="px-4 py-2 bg-brand-blue text-white rounded-md hover:bg-blue-700 text-sm">
-                              View Details
-                            </button>
-                          </Link>
-                        </div>
+                        <td className="px-4 py-2"> 
+                          <div className="ml-4">
+                            <Link href={`/missions/${idx + 1}`}>
+                              <button className="px-4 py-2 bg-brand-blue text-white rounded-md hover:bg-blue-700 text-sm">
+                                View Details
+                              </button>
+                            </Link>
+
+                          </div>
+                          {/* Start/End Mission button placed underneath */}
+                          <div className="ml-4">
+                            {startAndEndMissionButton(
+                              mission,
+                              undefined,
+                              saveUpdate,
+                              bots,
+                              "w-full px-4 py-2 bg-brand-blue text-white rounded-md hover:bg-blue-700 text-sm"
+                            )}
+                          </div>
+                        </td>
                       </div>
                     </div>
                   );

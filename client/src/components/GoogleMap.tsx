@@ -321,7 +321,8 @@ const CustomGoogleMap: React.FC = () => {
       {activeMissionStartEnd && (
         <MissionStartEnd 
           missionsData={missionsData} 
-          saveUpdate={saveUpdate}/>
+          saveUpdate={saveUpdate}
+          bots={bots}/>
       )}
 
       {/* Map tools */}

@@ -1,6 +1,7 @@
 import axios from 'axios';
 import { MissionType } from '@/types/mission.type';
 const API_BASE_URL = 'http://localhost:3100/api';
+import { normalizeTimeField } from '@/utils/DateTimeConversion';
 
 /**
  * Fetches missions from the API and transforms the areaCoordinates
@@ -56,6 +57,9 @@ export const addMissionToDB = async (mission: MissionType): Promise<{ message: s
 
 // Mission API update
 export const updateMissionInDB = async (mission: MissionType): Promise<{ message: string }> => {
+    // Normalize all time fields so backend always gets "YYYY-MM-DD HH:mm:ss"
+    const normalizedTimeStart = normalizeTimeField(mission.timeStart);
+    const normalizedTimeEnd = normalizeTimeField(mission.timeEnd);
 
     // Transform coordinates back to backend format
     const missionForDB = {
@@ -70,8 +74,8 @@ export const updateMissionInDB = async (mission: MissionType): Promise<{ message
       },
       progress: mission.progress || 0,
       averageTemperature: mission.avgTemp || 0,
-      timeStart: mission.timeStart || null,
-      timeEnd: mission.timeEnd || null,
+      timeStart: normalizedTimeStart || null,
+      timeEnd: normalizedTimeEnd || null,
       timePassed: mission.timePassed || 0,
       timeEstimated: mission.timeEstimated || 0 ,
     };

@@ -1,15 +1,17 @@
 import React from "react";
 import { MissionType } from "@/types/mission.type";
 import { useMissions } from "@/hooks/useMissions";
+import { useBotData } from "@/hooks/useBotData";
+import { RobotType } from "@/types/robot.type";
 
 type MissionStartEndProps = {
   missionsData: MissionType[];
   saveUpdate: (updatedMission: MissionType) => Promise<void>;
 };
 
-export default function MissionStartEnd({ missionsData, saveUpdate }: MissionStartEndProps) {
-  
-  
+export default function MissionStartEnd({ missionsData, saveUpdate, bots }: MissionStartEndProps) {
+  //const { bots, botsLoading, botError } = useBotData();
+  console.log("Bots is from MissionStartEnd:", bots);
   return (
     <div
       className="z-[20] absolute right-4 top-20 w-auto max-h-[350px] overflow-y-auto bg-white border border-gray-300 rounded-md shadow-lg overflow-auto"
@@ -33,12 +35,7 @@ export default function MissionStartEnd({ missionsData, saveUpdate }: MissionSta
           <tbody>
             {missionsData?.map((mission) => {
               const missionStatus = getMissionStatus(mission.timeStart, mission.timeEnd);
-              const buttonLabel =
-                missionStatus === "not started"
-                  ? "Start"
-                  : missionStatus === "in progress"
-                  ? "End"
-                  : "Completed"; //This is just for reference, button will always show "Start or End"
+              
 
               return (
                 <tr key={mission.missionID} className="hover:bg-gray-50 transition">
@@ -59,15 +56,12 @@ export default function MissionStartEnd({ missionsData, saveUpdate }: MissionSta
                   </td>
 
                   <td className="px-4 py-2 border-b">
-                    {missionStatus !== "completed" && (
-                    <button
-                      className="px-3 py-1 rounded-md bg-blue-500 text-white hover:bg-blue-600 transition-colors"
-                      onClick={() =>
-                        handleStartEndMission(mission, saveUpdate, missionStatus)
-                      }
-                    >
-                      {buttonLabel}
-                    </button>)}
+                    {startAndEndMissionButton(
+                      mission,
+                      missionStatus,
+                      saveUpdate,
+                      bots
+                      )}
                   </td>
                 </tr>
               );
@@ -83,9 +77,12 @@ export default function MissionStartEnd({ missionsData, saveUpdate }: MissionSta
 function handleStartEndMission(
   mission: MissionType,
   saveUpdate: (m: MissionType) => Promise<void>,
-  missionStatus?: 'not started' | 'in progress' | 'completed'
+  missionStatus?: 'not started' | 'in progress' | 'completed',
 ) {
-  console.log("Handling Start/End for Mission:", mission);
+  {/* In case missionStatus is not provided */}
+  if (!missionStatus) {
+    console.log("Mission status not provided, computing manually");
+    missionStatus = getMissionStatus(mission.timeStart, mission.timeEnd);}
 
   const now = new Date().toISOString().slice(0, 19).replace('T', ' ');
 
@@ -114,4 +111,57 @@ function getMissionStatus(start_time:string, end_time:string): 'not started' | '
   if (!start_time) return 'not started';
   if (start_time && !end_time) return 'in progress';
   return 'completed'; 
+}
+
+// Render action button based on mission status
+export function startAndEndMissionButton(
+  mission: MissionType,
+  missionStatus?: 'not started' | 'in progress' | 'completed',
+  saveUpdate: (m: MissionType) => Promise<void>,
+  bots: RobotType[],
+  className?: string
+) {
+  {/* In case missionStatus is not provided */}
+  if (!missionStatus) {
+    console.log("Mission status not provided, computing manually");
+    missionStatus = getMissionStatus(mission.timeStart, mission.timeEnd);}
+  {/* in case class name is not provided */}
+  if (!className) {
+    className = "px-3 py-1 rounded-md bg-blue-500 text-white hover:bg-blue-600 transition-colors";
+  }
+
+
+  const bot = bots.find(b => Number(b.id) === mission.botID); //Why the hell must bot ID be returned as a string???
+  let showButton = false;
+  if (bot) {
+    if (missionStatus === 'not started' && bot.assignmentStatus === 'assigned') {
+    showButton = true;
+    }
+    if (missionStatus === 'in progress' && bot.assignmentStatus === 'active') {
+      showButton = true;
+    }
+  }
+  
+  if (showButton) {
+    const buttonLabel =
+      missionStatus === "not started"
+        ? "Start"
+        : missionStatus === "in progress"
+        ? "End"
+        : "Completed"; //This is just for reference, button will always show "Start or End"
+    return (
+    <button
+      className={className}
+      onClick={() => handleStartEndMission(mission, saveUpdate, missionStatus)}
+    >
+      {buttonLabel}
+
+    </button>
+  );  } else {
+    return (
+      null
+    );
+  }
+
+  
 }
