@@ -24,8 +24,8 @@ function MissionCreate({
 }) {
     const [inputValue, setInputValue] = useState('');
 
-    // Filter to show only bots that are ready or assigned (bots that are "active"and "inactive" should not be available)
-    const availableBots = bots.filter(bot => bot.assignmentStatus === "ready"|| bot.assignmentStatus === "assigned");
+    // Filter to show only bots that are ready or assigned (bots that are "inactive" should not be available)
+    const availableBots = bots.filter(bot => bot.assignmentStatus === "ready"|| bot.assignmentStatus === "assigned"|| bot.assignmentStatus === "active");
     
     const botOptions = availableBots.map((bot) => ({ 
         value: Number(bot.id), 

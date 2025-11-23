@@ -118,9 +118,10 @@ export function startAndEndMissionButton(
   mission: MissionType,
   missionStatus?: 'not started' | 'in progress' | 'completed',
   saveUpdate: (m: MissionType) => Promise<void>,
-  bots: RobotType[],
+  bots: RobotType[] | RobotType, //You can pass either a single bot or all bots
   className?: string
 ) {
+  console.log("Missions in startAndEndMissionButton:", mission);
   {/* In case missionStatus is not provided */}
   if (!missionStatus) {
     console.log("Mission status not provided, computing manually");
@@ -129,9 +130,14 @@ export function startAndEndMissionButton(
   if (!className) {
     className = "px-3 py-1 rounded-md bg-blue-500 text-white hover:bg-blue-600 transition-colors";
   }
+  let bot: RobotType | undefined;
+  if (!Array.isArray(bots)) {
+    bot = bots;
+  } else {
+    bot = bots.find(b => Number(b.id) === mission.botID); //Why the hell must bot ID be returned as a string???
+  }
 
 
-  const bot = bots.find(b => Number(b.id) === mission.botID); //Why the hell must bot ID be returned as a string???
   let showButton = false;
   if (bot) {
     if (missionStatus === 'not started' && bot.assignmentStatus === 'assigned') {
@@ -145,9 +151,9 @@ export function startAndEndMissionButton(
   if (showButton) {
     const buttonLabel =
       missionStatus === "not started"
-        ? "Start"
+        ? "Start Mission"
         : missionStatus === "in progress"
-        ? "End"
+        ? "End Mission"
         : "Completed"; //This is just for reference, button will always show "Start or End"
     return (
     <button

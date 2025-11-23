@@ -8,6 +8,11 @@ import { useMissions } from "@/hooks/useMissions";
 import { useBotData } from "@/hooks/useBotData";
 import MapDrawUtils from "@/utils/MapDrawUtils";
 import MissionPanel from "@/components/Details/MissionPanel";
+import { addMissionToDB, updateMissionInDB } from "@/api/missions.api";
+import MissionStartEnd from "./MissionControls/MissionStartEnd";
+import { MissionType } from "@/types/mission.type";
+import React from "react";
+import { startAndEndMissionButton } from "@/components/MissionControls/MissionStartEnd";
 
 const UBCO_COORDS = {
   lat: 49.939434,
@@ -38,7 +43,8 @@ export default function MissionDetail() {
   const { bots } = useBotData();
   
   // For now, use first mission as example since missionID doesn't exist in type
-  const mission = missionsData?.[0];
+  const mission = missionsData?.[4];
+  console.log("Mission Detail - missionsData:", );
   const assignedBot = bots.find((b) => Number(b.id) === mission?.botID);
 
   const { isLoaded } = useJsApiLoader({
@@ -68,6 +74,24 @@ export default function MissionDetail() {
   const onUnmount = useCallback(function callback() {
     setMap(null);
   }, []);
+
+  const saveUpdate = async (updatedMission: MissionType) => {
+    console.log("Updating mission:", updatedMission);
+
+    // Update missions in React state. Checks for matching missionID to replace the updated mission.
+    const newMissionList = (missionsData ?? []).map(m => 
+      m.missionID === updatedMission.missionID ? updatedMission : m
+    );
+
+    setMissions(newMissionList);
+
+    // Push update to the database
+    const response = await updateMissionInDB(updatedMission);
+    console.log("Mission updated:", response);
+
+    if (map) enableMapInteraction(map);
+  };
+
 
   // Draw bot and mission area on map
   useEffect(() => {
@@ -130,12 +154,20 @@ export default function MissionDetail() {
               </div>
             )}
             
-            {/* Export Button */}
-            <div className="p-4 border-t">
+            {/* Export Button, Export Mission Data */}
+            <div className="p-4 border-t space-y-4">
               <button className="w-full px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700">
                 Export Mission Data
               </button>
+              {startAndEndMissionButton(
+                mission,
+                undefined,
+                saveUpdate,
+                bots,
+                "w-full px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+              )}
             </div>
+            
           </div>
         </div>
       </main>

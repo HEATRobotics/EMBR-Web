@@ -129,7 +129,7 @@ export default function Missions() {
                             ></div>
                           </div>
                         </div>
-                        <td className="px-4 py-2"> 
+                        <td className="px-4 py-2 space-y-2"> 
                           <div className="ml-4">
                             <Link href={`/missions/${idx + 1}`}>
                               <button className="px-4 py-2 bg-brand-blue text-white rounded-md hover:bg-blue-700 text-sm">
