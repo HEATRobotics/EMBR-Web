@@ -4,6 +4,7 @@ import { useMissions } from "@/hooks/useMissions";
 import { useBotData } from "@/hooks/useBotData";
 import { RobotType } from "@/types/robot.type";
 
+
 type MissionStartEndProps = {
   missionsData: MissionType[];
   saveUpdate: (updatedMission: MissionType) => Promise<void>;
@@ -137,37 +138,61 @@ export function startAndEndMissionButton(
     bot = bots.find(b => Number(b.id) === mission.botID); //Why the hell must bot ID be returned as a string???
   }
 
+  let isDisabled = true;
 
-  let showButton = false;
   if (bot) {
     if (missionStatus === 'not started' && bot.assignmentStatus === 'assigned') {
-    showButton = true;
+    isDisabled = false;
     }
     if (missionStatus === 'in progress' && bot.assignmentStatus === 'active') {
-      showButton = true;
+      isDisabled = false;
     }
   }
-  
-  if (showButton) {
-    const buttonLabel =
-      missionStatus === "not started"
+  const buttonLabel =
+    isDisabled
+      ? "No Action"
+      : missionStatus === "not started"
         ? "Start Mission"
-        : missionStatus === "in progress"
+      : missionStatus === "in progress"
         ? "End Mission"
-        : "Completed"; //This is just for reference, button will always show "Start or End"
-    return (
-    <button
-      className={className}
-      onClick={() => handleStartEndMission(mission, saveUpdate, missionStatus)}
-    >
-      {buttonLabel}
+      : "No Action";
 
-    </button>
-  );  } else {
-    return (
-      null
-    );
-  }
 
+
+
+  return (
+    <div className="relative group">  
+      <button
+        className={`
+          ${className}
+          ${isDisabled ? "opacity-50 cursor-not-allowed" : ""}
+          relative
+        `}
+        onClick={() => !isDisabled && handleStartEndMission(mission, saveUpdate, missionStatus)}
+  
+        disabled={isDisabled}
+      >
+        {buttonLabel}
+      </button>
+      {isDisabled && (
+        <div
+          className="
+                absolute 
+                top-0 left-0 
+                -translate-x-full -translate-y-full
+                hidden
+                group-hover:block 
+                bg-black text-white text-xs 
+                p-2 rounded shadow-lg z-50
+              "
+        >
+          Cannot start mission: Bot is busy or misison already ended
+        </div>
+      )}
+    </div>
+
+  )
+
+  
   
 }
