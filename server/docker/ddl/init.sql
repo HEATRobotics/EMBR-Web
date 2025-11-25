@@ -11,6 +11,7 @@ DROP TABLE IF EXISTS mission;
 DROP TABLE IF EXISTS position;
 DROP TABLE IF EXISTS temperature;
 DROP TABLE IF EXISTS battery;
+DROP TABLE IF EXISTS organization_settings;
 
 SET foreign_key_checks = 1;
 
@@ -65,6 +66,27 @@ CREATE TABLE mission (
     FOREIGN KEY (botID) REFERENCES bot(botID) ON DELETE CASCADE     -- if bot is deleted, also delete its records in this table
 ) ENGINE=InnoDB;
 
+-- Organization-wide settings for the EMBR system
+CREATE TABLE IF NOT EXISTS organization_settings (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+
+  -- General
+  organization_name VARCHAR(255) NOT NULL,
+  time_zone         VARCHAR(64)  NOT NULL DEFAULT 'America/Vancouver',
+  unit_system       ENUM('metric', 'imperial') NOT NULL DEFAULT 'metric',
+
+  -- Temperature thresholds
+  normal_temp_min          FLOAT DEFAULT NULL,
+  normal_temp_max          FLOAT DEFAULT NULL,
+  moderate_temp_threshold  FLOAT DEFAULT NULL,
+  high_temp_threshold      FLOAT DEFAULT NULL,
+  critical_temp_threshold  FLOAT DEFAULT NULL,
+
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+             ON UPDATE CURRENT_TIMESTAMP
+) ENGINE=InnoDB;
+
 
 
 INSERT INTO bot (botID, assignmentStatus) VALUES (1, 'assigned'), (2, 'ready'), (3, 'ready');       -- create 3 sample bots
@@ -92,3 +114,22 @@ VALUES
     (1, '2025-04-26 01:00:00', 22.7),
     (1, '2025-04-26 02:00:00', 22.8);
 
+INSERT INTO organization_settings (
+  organization_name,
+  time_zone,
+  unit_system,
+  normal_temp_min,
+  normal_temp_max,
+  moderate_temp_threshold,
+  high_temp_threshold,
+  critical_temp_threshold
+) VALUES (
+  'My Fire Department',
+  'America/Vancouver',
+  'metric',
+  20,
+  40,
+  45,
+  60,
+  80
+);
