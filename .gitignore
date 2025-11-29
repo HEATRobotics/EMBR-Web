@@ -8,8 +8,3 @@
 /server/docker/mysql
 /server/package.json
 
-# Root level dependencies
-node_modules/
-package-lock.json
-package.json
-
