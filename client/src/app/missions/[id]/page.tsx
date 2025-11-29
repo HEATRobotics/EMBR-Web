@@ -43,7 +43,7 @@ export default function MissionDetail() {
   const { bots } = useBotData();
   
   // For now, use first mission as example since missionID doesn't exist in type
-  const mission = missionsData?.[4];
+  const mission = missionsData?.[0];
   console.log("Mission Detail - missionsData:", );
   const assignedBot = bots.find((b) => Number(b.id) === mission?.botID);
 
@@ -164,7 +164,8 @@ export default function MissionDetail() {
                 undefined,
                 saveUpdate,
                 bots,
-                "w-full px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+                "w-full px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700",
+                "absolute left-1/2 -translate-x-1/2 bottom-full mb-2 hidden group-hover:block bg-black text-white text-xs p-2 rounded shadow-lg z-50"
               )}
             </div>
             

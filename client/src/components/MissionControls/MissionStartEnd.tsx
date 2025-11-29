@@ -120,17 +120,15 @@ export function startAndEndMissionButton(
   missionStatus?: 'not started' | 'in progress' | 'completed',
   saveUpdate: (m: MissionType) => Promise<void>,
   bots: RobotType[] | RobotType, //You can pass either a single bot or all bots
-  className?: string
+  className: string = "px-3 py-1 rounded-md bg-blue-500 text-white hover:bg-blue-600 transition-colors",
+  warningPanelclassName: string = "absolute top-0 left-0 -translate-x-full -translate-y-full hidden group-hover:block bg-black text-white text-xs p-2 rounded shadow-lg z-50"
 ) {
   console.log("Missions in startAndEndMissionButton:", mission);
   {/* In case missionStatus is not provided */}
   if (!missionStatus) {
     console.log("Mission status not provided, computing manually");
     missionStatus = getMissionStatus(mission.timeStart, mission.timeEnd);}
-  {/* in case class name is not provided */}
-  if (!className) {
-    className = "px-3 py-1 rounded-md bg-blue-500 text-white hover:bg-blue-600 transition-colors";
-  }
+  
   let bot: RobotType | undefined;
   if (!Array.isArray(bots)) {
     bot = bots;
@@ -176,15 +174,7 @@ export function startAndEndMissionButton(
       </button>
       {isDisabled && (
         <div
-          className="
-                absolute 
-                top-0 left-0 
-                -translate-x-full -translate-y-full
-                hidden
-                group-hover:block 
-                bg-black text-white text-xs 
-                p-2 rounded shadow-lg z-50
-              "
+          className={warningPanelclassName}
         >
           Cannot start mission: Bot is busy or misison already ended
         </div>

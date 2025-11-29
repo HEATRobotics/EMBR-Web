@@ -318,7 +318,7 @@ const CustomGoogleMap: React.FC = () => {
         startEndMissionCallback={toggleMissionTable}
       />
       {/* Panel that appears when Start/End Mission is toggled */}
-      {activeMissionStartEnd && (
+      {activeMissionStartEnd && !activeMissionCreate && selectedBot === null &&(
         <MissionStartEnd 
           missionsData={missionsData} 
           saveUpdate={saveUpdate}
