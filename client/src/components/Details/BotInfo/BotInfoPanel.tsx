@@ -64,33 +64,48 @@ function BotInfoPanel({
     return (
         <>
             {/* Tab Menu */}
-            <div className="flex w-full overflow-hidden shadow border-b border-t border-black">
+            <div className="flex w-full overflow-hidden shadow border-b border-t border-black gap-2 justify-center bg-[#2c2c2c] ">
                 <button
                     onClick={() => setCurrentTab("Overview")}
-                    className={`w-1/2 py-3 text-center text-sm font-semibold transition-colors duration-200 ${
+                    style={{
+                     backgroundColor: currentTab === "Overview" ? "#ee2c24"  : "#2c2c2c",
+                     color: currentTab === "Overview" ? "#e1e0e0ff" : "#333333", 
+                     transition: "background-color 0.2s, color 0.2s",
+                    }}
+                    className={` py-3 px-7 mt-1 mb-1 text-center text-base font-semibold transition-colors duration-200 rounded-md ${
                         currentTab === "Overview"
                             ? "bg-blue-100 text-blue-800"
-                            : "bg-gray-100 text-gray-600 hover:bg-gray-200 hover:text-gray-800"
+                            : "bg-[#2c2c2c] text-gray-600 hover:bg-gray-200 hover:text-gray-800"
                     }`}
                 >
                     Overview
                 </button>
                 <button
                     onClick={() => setCurrentTab("Orientation")}
-                    className={`w-1/2 py-3 text-center text-sm font-semibold transition-colors duration-200 ${
+                    style={{
+                     backgroundColor: currentTab === "Orientation" ? "#ee2c24"  : "#2c2c2c",
+                     color: currentTab === "Orientation" ? "#e1e0e0ff" : "#333333", 
+                     transition: "background-color 0.2s, color 0.2s",
+                    }}
+                    className={` py-3 px-5 mt-1 mb-1 text-center text-base font-semibold transition-colors duration-200 rounded-md ${
                         currentTab === "Orientation"
                             ? "bg-blue-100 text-blue-800"
-                            : "bg-gray-100 text-gray-600 hover:bg-gray-200 hover:text-gray-800"
+                            : "bg-[#2c2c2c] text-gray-600 hover:bg-gray-200 hover:text-gray-800"
                     }`}
                 >
                     Orientation
                 </button>
                 <button
                     onClick={() => setCurrentTab("Position")}
-                    className={`w-1/2 py-3 text-center text-sm font-semibold transition-colors duration-200 ${
+                    style={{
+                     backgroundColor: currentTab === "Position" ? "#ee2c24"  : "#2c2c2c",
+                     color: currentTab === "Position" ? "#e1e0e0ff" : "#333333", 
+                     transition: "background-color 0.2s, color 0.2s",
+                    }}
+                    className={` py-3 px-9 mt-1 mb-1 text-center text-base font-semibold transition-colors duration-200 rounded-md ${
                         currentTab === "Position"
                             ? "bg-blue-100 text-blue-800"
-                            : "bg-gray-100 text-gray-600 hover:bg-gray-200 hover:text-gray-800"
+                            : "bg-[#2c2c2c] text-gray-600 hover:bg-gray-200 hover:text-gray-800"
                     }`}
                 >
                     Position

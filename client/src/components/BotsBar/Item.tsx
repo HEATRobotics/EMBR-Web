@@ -43,9 +43,9 @@ function Item({
 
     return (
         <div
-            className="text-brand-black font-medium text-center py-2 px-4 cursor-pointer select-none"
+            className=" text-brand-white font-medium text-center py-2 px-4 cursor-pointer select-none" //text-brand-white
             style={{
-            backgroundColor: RobotOperationalStatusType[bot.operationalStatus].bgColor,
+            backgroundColor: 'transparent',
             transition: 'filter 120ms ease',
             }}
             onClick={!disabled ? handleBotClick : () => {}}
@@ -61,7 +61,7 @@ function Item({
             title={getTooltipContent()}
             color="#ffffff"
             overlayInnerStyle={{
-                color: '#000000',
+                color: '#000000ff',
                 borderRadius: '0px',
                 padding: '0px 5px',
                 minHeight: 'fit-content',

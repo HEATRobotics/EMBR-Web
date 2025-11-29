@@ -14,10 +14,19 @@ function InfoGrid({ data }: InfoGridProps) {
             {data.map((item, index) => (
                 <div
                     key={index}
-                    className="flex flex-col items-center justify-center h-32 p-6 rounded-md shadow-sm m-2  group hover:shadow-lg hover:scale-105 transition transform duration-200"
-                    style={{ backgroundColor: "#1e1e1eff" }}
+                    className="flex flex-col items-center justify-center h-32 p-6 
+                               rounded-[29px] bg-[#383838] 
+                               transition-transform duration-300
+                               shadow-[1px_1px_13px_#343434,-1px_-1px_13px_#2b2b2bf2]
+                               hover:scale-105 hover:shadow-[0_0_25px_#ea7d39] m-2 group hover:shadow-lg hover:scale-105 transition transform duration-200" //rounded-md shadow-sm
+                    // shadow-[2px_2px_7px_#343434,-2px_-2px_7px_#3c3c3c]
+                               style = {{
+                        //backgroundColor: "rgba(55, 55, 55, 1)", 
+                        //border: "2px solid #ee2b24ce",
+                        //border: "2px solid #2b2b2bf2",
+                   }}
                 >
-          <span className="text-sm font-semibold text-800 text-center mb-2"
+          <span className="text-l font-semibold text-800 text-center mb-2"
                 style=
                 {{ color: "#ded5cfff" ,
                     fontfamily: "Epilogue, sans-serif"
@@ -25,14 +34,18 @@ function InfoGrid({ data }: InfoGridProps) {
                 >
             {item.title}
           </span>
-                    <span className="text-xl font-bold text-900 text-center group-hover:underline transition duration-200"
+                    <span className="text-xl font-bold text-900 text-center "
                     style=
                     {{ color: "#d2cfdeff" ,
                         fontfamily: "Rubik, sans-serif",
-                        textDecorationColor: "#ea7d395b"
                     }}
                 >
-            {item.value}
+            {item.title === "Speed" || item.title === "Ground Speed"
+              ? (isNaN(parseFloat(item.value))
+                 ? item.value
+                 : parseFloat(item.value).toFixed(2))
+              : item.value}
+           
           </span>
                 </div>
             ))}
@@ -41,3 +54,5 @@ function InfoGrid({ data }: InfoGridProps) {
 }
 
 export default InfoGrid;
+
+ //{item.value}

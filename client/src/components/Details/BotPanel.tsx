@@ -7,19 +7,20 @@ import BotInfoPanel from "@/components/Details/BotInfo/BotInfoPanel";
 function BotPanel({ selectedBot }: { selectedBot: RobotType }) {
     const [currentTab, setCurrentTab] = useState<"Flir" | "FPV">("Flir");
 
+    //border-b border-black
 
     return (
         <>
             {/* Tab Menu */}
-            <div className="flex w-full overflow-hidden shadow border-b border-black">
+            <div className="flex w-full overflow-hidden shadow gap-3 justify-center">      
                 <button
                     onClick={() => setCurrentTab("Flir")}
                     style={{
-                     backgroundColor: currentTab === "Flir" ? "#a5592aff" : "#FFFFFF",
-                     color: currentTab === "Flir" ? "#d9d7d7ff" : "#333333", 
+                     backgroundColor: currentTab === "Flir" ? "#262626"  : "#FFFFFF",
+                     color: currentTab === "Flir" ? "#ee2b2493" : "#333333", 
                      transition: "background-color 0.2s, color 0.2s",
                     }}
-                    className={`w-1/2 py-3 text-center text-sm font-semibold transition-colors duration-200 rounded-md ${
+                    className={` py-2 px-20 mt-1 mb-2 text-center text-xl font-afacad font-semibold transition-colors duration-200 rounded-md ${
                         currentTab === "Flir"
                             ? "bg-blue-100 text-blue-800"
                             : "bg-gray-100 text-gray-600 hover:bg-gray-200 hover:text-gray-800"
@@ -27,14 +28,15 @@ function BotPanel({ selectedBot }: { selectedBot: RobotType }) {
                 >
                     Flir
                 </button>
+
                 <button
                     onClick={() => setCurrentTab("FPV")}
                     style={{
-                     backgroundColor: currentTab === "FPV" ? "#a5592aff" : "#FFFFFF",
-                     color: currentTab === "FPV" ? "#d9d7d7ff" : "#333333", 
+                     backgroundColor: currentTab === "FPV" ? "#262626"  : "#FFFFFF",
+                     color: currentTab === "FPV" ? "#8c351bff" : "#333333", 
                     transition: "background-color 0.2s, color 0.2s",
                     }}
-                    className={`w-1/2 py-3 text-center text-sm font-semibold transition-colors duration-200 rounded-md ${
+                    className={`py-2 px-20 mt-1 mb-2 text-center text-xl font-afacad font-semibold transition-colors duration-200 rounded-md ${
                         currentTab === "FPV"
                             ? "bg-blue-100 text-blue-800"
                             : "bg-gray-100 text-gray-600 hover:bg-gray-200 hover:text-gray-800"

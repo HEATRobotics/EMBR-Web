@@ -81,36 +81,55 @@ function MissionPanel({ selectedBot, activeMission }: { selectedBot: RobotType, 
 
     return (
         <>
-            <div className="flex w-full overflow-hidden shadow border-b border-t border-black">
+            <div className="flex w-full overflow-hidden shadow border-t-2  border-t-[#1c1c1c]  " //border-b border-t border-black
+                 //style={{
+                  //      backgroundColor: "rgba(118, 21, 215, 1)",
+                   // }}
+
+                  // <div className="flex w-full overflow-hidden shadow border-b-2 border-t-2  border-t-[#1C1C1C] border-b-[#1C1C1C] "
+                    >
                 <span
-                    className={`w-full py-3 text-center text-sm font-semibold transition-colors duration-200 bg-gray-100 text-gray-600 hover:bg-gray-200 hover:text-gray-800"}`}
-                >
-                General Information for {activeMission.missionName}
+                    className={`w-full py-3 text-center text-sm font-semibold transition-colors duration-200  text-gray-600 "}`}    //hover:bg-gray-200 hover:text-gray-800 bg-gray-100  
+                    style={{
+                        backgroundColor: "rgba(62, 60, 56, 0.5)",
+                    }}
+                    >
+                        General Information for {activeMission.missionName}
                 </span>
             </div>
             <InfoGrid data={areaData}/>
 
-            <div className="flex w-full overflow-hidden shadow border-b border-t border-black">
+            <div className="flex w-full overflow-hidden ">  
                 <span
-                    className={`w-full py-3 text-center text-sm font-semibold transition-colors duration-200 bg-gray-100 text-gray-600 hover:bg-gray-200 hover:text-gray-800"}`}
+                    className={`w-full py-3 text-center  font-semibold transition-colors duration-200  text-gray-600 "}`}   //hover:bg-gray-200 hover:text-gray-800  bg-gray-100  text-sm 
+                    style={{
+                        backgroundColor: "rgba(62, 60, 56, 0.5)",
+                        //fontfamily: "abeezee, sans-serif"
+                    }}
                 >
                     Area Center
                 </span>
             </div>
             <InfoGrid data={centerData}/>
 
-            <div className="flex w-full overflow-hidden shadow border-b border-t border-black">
+            <div className="flex w-full overflow-hidden shadow ">
                 <span
-                    className={`w-full py-3 text-center text-sm font-semibold transition-colors duration-200 bg-gray-100 text-gray-600 hover:bg-gray-200 hover:text-gray-800"}`}
+                    className={`w-full py-3 text-center text-sm font-semibold transition-colors duration-200 text-gray-600 "}`}   //hover:bg-gray-200 hover:text-gray-800  bg-gray-100
+                    style={{
+                        backgroundColor: "rgba(62, 60, 56, 0.5)",
+                    }}
                 >
                     Top Left Corner
                 </span>
             </div>
             <InfoGrid data={upCornerData}/>
 
-            <div className="flex w-full overflow-hidden shadow border-b border-t border-black">
+            <div className="flex w-full overflow-hidden shadow">
                 <span
-                    className={`w-full py-3 text-center text-sm font-semibold transition-colors duration-200 bg-gray-100 text-gray-600 hover:bg-gray-200 hover:text-gray-800"}`}
+                    className={`w-full py-3 text-center text-sm font-semibold transition-colors duration-200  text-gray-600 "}`}   //hover:bg-gray-200 hover:text-gray-800 bg-gray-100
+                    style={{
+                        backgroundColor: "rgba(62, 60, 56, 0.5)",
+                    }} 
                 >
                     Bottom Right Corner
                 </span>
