@@ -327,22 +327,40 @@ export async function getLatestBotData() {
     Mission data includes fleetID, areaCoordinates, progress, avgTemp, etc
     Returns object containing mission data if successful, or false if an error occurs.
  */
-export async function getMissionByBotID(missionID) {
+export async function getMissionByBotID(botID) {
     let conn;
     try {
         conn = await pool.getConnection();
         const query = `SELECT * FROM mission WHERE botID = ?`;
-        const [rows] = await conn.execute(query, [missionID]);
-        return rows[0];
+        const [rows] = await conn.execute(query, [botID]);
+        return {success: true, data: rows[0]};
     } catch (error) {
         console.error('Error getting mission by Bot ID:', error);
-        return false;
+        return {success: false, error: error.message}
     } finally {
         if (conn) {
             await conn.release();
         }
     }
 }
+
+export async function getMissionByID(missionID) {
+    let conn;
+    try {
+        conn = await pool.getConnection();
+        const query = `SELECT * FROM mission WHERE missionID = ?`;
+        const [rows] = await conn.execute(query, [missionID]);
+        return {success: true, data: rows[0]};
+    } catch (error) {
+        console.error('Error getting mission by mission ID:', error);
+        return {success: false, error: error.message}
+    } finally {
+        if (conn) {
+            await conn.release();
+        }
+    }
+}
+
 /*
     Fetches all missions from the database.
     Returns an array of mission objects if successful, or false if an error occurs.

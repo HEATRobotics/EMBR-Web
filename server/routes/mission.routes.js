@@ -1,6 +1,6 @@
 import express from 'express';
 import {
-    getMissionByBotID,
+    getMissionByID,
     getAllMissions,
     updateMission,
     createMission,
@@ -11,15 +11,11 @@ const router = express.Router();
 
 // Get a mission by ID
 router.get('/get/:id', async (req, res) => {
-    try {
-        const mission = await getMissionByBotID(req.params.id);
-        if (mission) {
-            res.json(mission);
-        } else {
-            res.status(404).json({ message: 'Mission not found' });
-        }
-    } catch (error) {
-        res.status(500).json({ message: 'Failed to get mission', error: error.message });
+    const mission = await getMissionByID(req.params.id);
+    if (mission.success) {
+        res.json(mission.data);
+    } else {
+        res.status(500).json({message: 'Failed to get mission', error: mission.error || 'Unknown error'});
     }
 });
 
