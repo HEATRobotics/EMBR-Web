@@ -99,9 +99,9 @@ const assignedBot = bots.find((b) => Number(b.id) === mission?.botID);
     const response = await deleteMission(missionId.toString());
     alert(response.message);
     // Optionally, you can refresh the page or refetch missions after deletion
-    router.push("/mission"); // Next.js 13+ app router
+    router.push("/missions"); // Next.js 13+ app router
   } catch (error: any) {
-    alert(error.message || 'Fail   ed to delete mission.');
+    alert(error.message || 'Failed to delete mission.');
   }
 };
 
