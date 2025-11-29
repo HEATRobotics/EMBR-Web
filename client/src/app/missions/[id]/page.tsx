@@ -4,10 +4,15 @@ import Navigation from "@/components/Navigation";
 import { useParams } from "next/navigation";
 import { useJsApiLoader, GoogleMap } from "@react-google-maps/api";
 import { useState, useCallback, useEffect } from "react";
-import { useMissions } from "@/hooks/useMissions";
+import { useMission } from "@/hooks/useMissions";
 import { useBotData } from "@/hooks/useBotData";
 import MapDrawUtils from "@/utils/MapDrawUtils";
 import MissionPanel from "@/components/Details/MissionPanel";
+import { deleteMission } from "@/api/missions.api";
+import { useRouter } from "next/navigation";
+import { Trash2 } from "lucide-react";
+import { MissionType } from "@/types/mission.type"; // <-- ADD THIS IMPORT
+
 
 const UBCO_COORDS = {
   lat: 49.939434,
@@ -29,17 +34,23 @@ const exampleMapStyles: google.maps.MapTypeStyle[] = [
 
 export default function MissionDetail() {
   const params = useParams();
-  const missionId = params.id;
+  const router = useRouter();
+  const missionId = Number(params.id);
+  //const missionId = params.id as string | undefined;
+ // const missionId = params.id? Number(params.id) : undefined; // Ensure ID is a number
   
   const [map, setMap] = useState<google.maps.Map | null>(null);
   const [satelliteView, setSatelliteView] = useState<boolean>(false);
   
-  const { missionsData } = useMissions();
+  const { missionData } = useMission(missionId);
   const { bots } = useBotData();
   
-  // For now, use first mission as example since missionID doesn't exist in type
-  const mission = missionsData?.[0];
-  const assignedBot = bots.find((b) => Number(b.id) === mission?.botID);
+// Find the mission by the ID from the URL params
+//const mission: MissionType | undefined = missionsData?.find((m) => m.missionId === missionId);
+//const mission: MissionType | undefined = missionsData?.find((m) => String(m.missionId) === missionId);
+const mission = missionData;
+const assignedBot = bots.find((b) => Number(b.id) === mission?.botID);
+
 
   const { isLoaded } = useJsApiLoader({
     id: "google-map-script",
@@ -79,6 +90,21 @@ export default function MissionDetail() {
     if (!map || !mission) return;
     MapDrawUtils.drawMissionAreas([mission], map);
   }, [mission, map]);
+
+ const handleDelete = async (missionId: number, missionName: string) => {
+  const confirmed = window.confirm(`Are you sure you want to delete mission "${missionName}"?`);
+  if (!confirmed) return;
+
+  try {
+    const response = await deleteMission(missionId.toString());
+    alert(response.message);
+    // Optionally, you can refresh the page or refetch missions after deletion
+    router.push("/mission"); // Next.js 13+ app router
+  } catch (error: any) {
+    alert(error.message || 'Fail   ed to delete mission.');
+  }
+};
+
 
   if (!isLoaded) {
     return <div>Loading map...</div>;
@@ -122,23 +148,26 @@ export default function MissionDetail() {
 
           {/* Side Panel - Mission Details */}
           <div className="w-96 bg-white border-l overflow-y-auto">
-            {mission && assignedBot ? (
-              <MissionPanel selectedBot={assignedBot} activeMission={mission} />
-            ) : (
-              <div className="p-6">
-                <p className="text-gray-500">Loading mission details...</p>
-              </div>
-            )}
+            {/* The MissionPanel check handles the main display */}
+{mission && assignedBot ? (
+ <MissionPanel selectedBot={assignedBot} activeMission={mission} />
+) : (
+ <div className="p-6">
+<p className="text-gray-500">Loading mission details...</p>
+</div>
+ )}
             
-            {/* Export Button */}
-            <div className="p-4 border-t">
-              <button className="w-full px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700">
-                Export Mission Data
-              </button>
-            </div>
-          </div>
-        </div>
-      </main>
-    </div>
-  );
-}
+            {/* Delete Button: THIS MUST BE WRAPPED IN THE 'mission' CHECK */}
+{mission && ( // <-- **CRITICAL: Only render button if mission is defined**
+<button
+// Remove the non-null assertion operator (!) now that you have checked above
+ onClick={() => handleDelete(mission.missionID, mission.missionName)} 
+ className="w-full mt-3 px-6 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 flex items-center justify-center gap-2 shadow"
+>
+<Trash2 size={20} color="red" />
+<span>Delete Mission</span>
+</button>)}
+</div> {/* closes side panel div */}
+</div> {/* closes flex container */}
+</main> {/* closes main */}
+</div> );{/* closes bg-gray-100 div */}}

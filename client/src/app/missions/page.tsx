@@ -5,11 +5,31 @@ import { useMissions } from "@/hooks/useMissions";
 import { useBotData } from "@/hooks/useBotData";
 import Link from "next/link";
 import { useState } from "react";
+import MissionPanel from "@/components/Details/MissionPanel";
+import { Trash2 } from "lucide-react";
+import { deleteMission } from "@/api/missions.api";
+import { useRouter } from "next/navigation";
 
 export default function Missions() {
-  const { missionsData, missionsLoading } = useMissions();
+  const { missionsData, missionsLoading, setMissions } = useMissions();
   const { bots } = useBotData();
   const [filter, setFilter] = useState<"all" | "active" | "completed">("all");
+  const router = useRouter();
+
+const handleDelete = async (missionId: number, missionName: string) => {
+  const confirmed = window.confirm(`Are you sure you want to delete mission "${missionName}"?`);
+  if (!confirmed) return;
+
+    try {
+      const response = await deleteMission(missionId.toString());
+      alert(response.message);
+      // Update local state so UI rerenders immediately
+      setMissions((prev) => (prev ? prev.filter((m) => m.missionID !== missionId) : null));
+      
+  } catch (error: any) {
+    alert(error.message || 'Failed to delete mission.');
+  }
+};
 
   return (
   <div className="bg-gray-100 min-h-full">
@@ -73,12 +93,12 @@ export default function Missions() {
               </div>
             ) : (
               <div className="space-y-4">
-                {missionsData.map((mission, idx) => {
+                {missionsData.map((mission) => {
                   const assignedBot = bots.find((b) => Number(b.id) === mission.botID);
                   
                   return (
                     <div
-                      key={idx}
+                      key={mission.missionID}
                       className="border rounded-lg p-4 hover:shadow-lg transition-shadow"
                     >
                       <div className="flex justify-between items-start">
@@ -113,11 +133,20 @@ export default function Missions() {
                         </div>
                         
                         <div className="ml-4">
-                          <Link href={`/missions/${idx + 1}`}>
+                          <Link href={`/missions/${mission.missionID}`}>
                             <button className="px-4 py-2 bg-brand-blue text-white rounded-md hover:bg-blue-700 text-sm">
                               View Details
                             </button>
                           </Link>
+
+                           {/*Delete button thats included in the loop*/}
+                          <button
+                            // Call the handler function, passing the ID and Name
+                           onClick={() => handleDelete(mission.missionID, mission.missionName)}
+                            className="w-full mt-3 px-6 py-2 bg-red-100 hover:bg-red-200 rounded-md flex items-center justify-center gap-2 shadow"
+>
+  <Trash2 size={20} color="red" />
+  </button>
                         </div>
                       </div>
                     </div>

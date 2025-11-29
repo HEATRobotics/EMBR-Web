@@ -19,7 +19,7 @@ const httpServer = createServer(app);
 const io = new Server(httpServer, {
     cors: {
         origin: 'http://localhost:3000',
-        methods: ['GET', 'POST'],
+        methods: ['GET', 'POST', 'DELETE', 'PUT'],
         credentials: true
     }
 });
@@ -27,7 +27,7 @@ const port = 3100;
 
 app.use(cors({
     origin: 'http://localhost:3000', // Allow requests only from this origin
-    methods: 'GET,POST', // Allow only specified HTTP methods
+    methods: 'GET,POST,DELETE,PUT', // Allow only specified HTTP methods
     credentials: true // Allow cookies to be sent cross-origin
 }));
 app.use(express.json()); 

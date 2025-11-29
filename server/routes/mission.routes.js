@@ -66,20 +66,17 @@ router.post('/create', async (req, res) => {
     }
 });
 
-router.delete('/delete/: id', async (req, res)) => { //define delete api endpoint
-    try { // this is to handle errors safely, if anything goes wrong then will show 500
-        const result = await deleteMission(req.params.id); //
+router.delete('/delete/:id', async (req, res) => { //define delete api endpoint
+    const result = await deleteMission(Number(req.params.id)); //
 
-        if (result.success) {
-            res.json({message: 'Mission deleted successfully'});
-        }else{
-            res.status(404).json({message: 'Mission not found'}); //this is when no data of the mission is found
-        }
-
-        } catch (error){
-            res.status(500).json({message: 'Failed to delete mission', error: error.message});
-        }
-    };
+    if (result.success) {
+        res.json({message: 'Mission deleted successfully'});
+    }
+    else {
+        res.status(500).json({message: 'Failed to delete mission', error: result.error || 'Unknown error'});
+    }
+        
+});
 
 
 export default router;

@@ -54,13 +54,37 @@ export const addMissionToDB = async (mission: MissionType): Promise<{ message: s
     return response.data as { message: string; missionID: string };
 };
 
-export const deleteMission = async (missionID: string): Promise<{ message: string }> => {//export func to make it available to other files
+export const deleteMission = async (missionId: string): Promise<{ message: string }> => {//export func to make it available to other files
   try {
-    const response = await axios.delete(`${API_BASE_URL}/missions/delete/${missionID}`);
+    const response = await axios.delete(`${API_BASE_URL}/missions/delete/${missionId}`);
     return response.data; 
   } catch (error: any) {
-    console.error('Error deleting mission:', error);
+    console.error('Error deleting mission:', error.response?.data);
     throw new Error(error.response?.data?.message || 'Failed to delete mission');
+  }
+};
+
+export const fetchMissionById = async (id: number): Promise<MissionType> => {
+  try {
+      const response = await axios.get(`${API_BASE_URL}/missions/get/${id}`);
+      const mission = response.data;
+
+      // Transform areaCoordinates to match CoordinatesType format
+      const transformedMission = {
+          ...mission,
+          areaCoordinates: [
+          { lat: mission.areaCoordinates.north, lng: mission.areaCoordinates.west }, // NW corner
+          { lat: mission.areaCoordinates.south, lng: mission.areaCoordinates.east }  // SE corner
+          ],
+      } as MissionType;
+
+      console.log('Fetched mission:', transformedMission);
+
+      return transformedMission;
+
+  } catch (error: any) {
+      console.error('Error fetching missions:', error);
+      throw new Error(error.response?.data?.message || 'Failed to fetch missions');
   }
 };
 

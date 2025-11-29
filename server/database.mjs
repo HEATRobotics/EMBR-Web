@@ -437,14 +437,14 @@ export async function deleteMission(missionId) {//export to make this func avail
 
         // unassign the bot that was assigned to this mission
         if (result.affectedRows > 0) {
-            const updateBotQuery = `UPDATE bot SET assignmentStatus = 'unassigned' WHERE botID NOT IN (SELECT botID FROM mission)`;
+            const updateBotQuery = `UPDATE bot SET assignmentStatus = 'ready' WHERE botID NOT IN (SELECT botID FROM mission)`;
             await conn.execute(updateBotQuery);
         }
 
         return { success: result.affectedRows > 0 };
     } catch (error) {
         console.error('Error deleting mission:', error);//if mission not found
-        return { success: false };
+        return { success: false, error: error.message };//return false if error occurs
     } finally {
         if (conn) {
             await conn.release();
