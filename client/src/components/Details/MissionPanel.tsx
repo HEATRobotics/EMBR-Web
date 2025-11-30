@@ -81,15 +81,10 @@ function MissionPanel({ selectedBot, activeMission }: { selectedBot: RobotType, 
 
     return (
         <>
-            <div className="flex w-full overflow-hidden shadow border-t-2  border-t-[#1c1c1c]  " //border-b border-t border-black
-                 //style={{
-                  //      backgroundColor: "rgba(118, 21, 215, 1)",
-                   // }}
-
-                  // <div className="flex w-full overflow-hidden shadow border-b-2 border-t-2  border-t-[#1C1C1C] border-b-[#1C1C1C] "
+            <div className="flex w-full overflow-hidden shadow border-t-2  border-t-[#1c1c1c]  " 
                     >
                 <span
-                    className={`w-full py-3 text-center text-sm font-semibold transition-colors duration-200  text-gray-600 "}`}    //hover:bg-gray-200 hover:text-gray-800 bg-gray-100  
+                    className={`w-full py-3 text-center text-sm font-semibold transition-colors duration-200  text-gray-600 "}`} 
                     style={{
                         backgroundColor: "rgba(62, 60, 56, 0.5)",
                     }}
@@ -104,7 +99,6 @@ function MissionPanel({ selectedBot, activeMission }: { selectedBot: RobotType, 
                     className={`w-full py-3 text-center  font-semibold transition-colors duration-200  text-gray-600 "}`}   //hover:bg-gray-200 hover:text-gray-800  bg-gray-100  text-sm 
                     style={{
                         backgroundColor: "rgba(62, 60, 56, 0.5)",
-                        //fontfamily: "abeezee, sans-serif"
                     }}
                 >
                     Area Center
@@ -114,7 +108,7 @@ function MissionPanel({ selectedBot, activeMission }: { selectedBot: RobotType, 
 
             <div className="flex w-full overflow-hidden shadow ">
                 <span
-                    className={`w-full py-3 text-center text-sm font-semibold transition-colors duration-200 text-gray-600 "}`}   //hover:bg-gray-200 hover:text-gray-800  bg-gray-100
+                    className={`w-full py-3 text-center text-sm font-semibold transition-colors duration-200 text-gray-600 "}`}   
                     style={{
                         backgroundColor: "rgba(62, 60, 56, 0.5)",
                     }}
@@ -126,7 +120,7 @@ function MissionPanel({ selectedBot, activeMission }: { selectedBot: RobotType, 
 
             <div className="flex w-full overflow-hidden shadow">
                 <span
-                    className={`w-full py-3 text-center text-sm font-semibold transition-colors duration-200  text-gray-600 "}`}   //hover:bg-gray-200 hover:text-gray-800 bg-gray-100
+                    className={`w-full py-3 text-center text-sm font-semibold transition-colors duration-200  text-gray-600 "}`}
                     style={{
                         backgroundColor: "rgba(62, 60, 56, 0.5)",
                     }} 

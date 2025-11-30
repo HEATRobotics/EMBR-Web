@@ -69,5 +69,3 @@ function DetailsPanel({
 
 export default DetailsPanel;
 
-
-//className={`w-1/2 py-3 text-center text-sm font-semibold transition-colors duration-200 ${
