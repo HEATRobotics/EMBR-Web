@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { fetchMissions } from '@/api/missions.api';
+import { fetchMissionById, fetchMissions } from '@/api/missions.api';
 import { MissionType } from '@/types/mission.type';
 
 export function useMissions() {
@@ -27,4 +27,28 @@ export function useMissions() {
     return { missionsData, missionsLoading, missionsError, setMissions };
 }
 
-export default useMissions;
+export function useMission(missionId: number) {
+    const [missionData, setMission] = useState<MissionType | null>(null);
+    const [missionLoading, setLoading] = useState<boolean>(true);
+    const [missionError, setError] = useState<string | null>(null);
+
+    useEffect(() => {
+        // Load mission data via API
+        const loadMission = async () => {
+            try {
+                const mission = await fetchMissionById(missionId);
+                setMission(mission);
+                console.log('Mission information fetched!', mission);
+                setLoading(false);
+            } catch (err) {
+                setError('Failed to fetch mission.');
+                setLoading(false);
+            }
+        };
+
+        loadMission();
+    }, []);
+
+    return { missionData, missionLoading, missionError, setMission };
+}
+
