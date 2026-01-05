@@ -79,6 +79,7 @@ function handleMavlinkData() {
   NOTE: data format for simulated battery data is arbitrary; i.e. the keys do not correspond to actual incoming data, because battery percentage is new and I do not yet know the format in which battery % will be sent by the bot. Once format is finalized, function processBatteryMessage() as well as the 'battery' table in DB must both be changed, and the battery simulation part of the function will break unless also changed accordingly.
 */
 function simulateMavlinkData() {
+  //make it so that one temperature value is stored every second for each bot
   console.log("Simulating MAVLink data...");
   const NUM_SIMULATED_BOTS = 3;
 
@@ -86,7 +87,9 @@ function simulateMavlinkData() {
   let botPositionData = [];
   let botTempData = [];
 
-  for (let i = 0; i < NUM_SIMULATED_BOTS; i++) {
+  let temperatureTick = true; //to alternate between sending temp and position data
+
+  for (let i = 0; i < NUM_SIMULATED_BOTS; i++) { //to initialize data for each bot
     
     // UBCO location:
     // Lat: 49.939434 -> 499394340
@@ -115,11 +118,26 @@ function simulateMavlinkData() {
     }
   }
 
-
+// simulate incoming position or temp data from all bots every second
   setInterval(() => {
+
     // Randomly select a bot and update it's postion or temperature value
-    const messageType = Math.random() > 0.5 ? "GLOBAL_POSITION_INT" : "NAMED_VALUE_FLOAT";
-    for (let botId = 0; botId < NUM_SIMULATED_BOTS; botId++) {
+    if(temperatureTick){
+      for(let botID = 0; botID <NUM_SIMULATED_BOTS; botID++){
+        let data = botTempData[botId]
+        
+        data.timeBootMs = new Date();
+        data.value += (Math.random() * 4);
+  
+        botTempData[botId] = data;
+        processTemperatureMessage(data);
+
+      }
+     
+
+
+    }else { 
+      for (let botId = 0; botId < NUM_SIMULATED_BOTS; botId++) {
       if (messageType === "GLOBAL_POSITION_INT") {
         let data = botPositionData[botId];
         // Randomly update data relative to previous value
@@ -135,20 +153,15 @@ function simulateMavlinkData() {
         
         botPositionData[botId] = data;
         processGlobalPositionMessage(data);
-  
-      } else if (messageType === "NAMED_VALUE_FLOAT") {
-        let data = botTempData[botId]
-        
-        data.timeBootMs = new Date();
-        data.value += (Math.random() * 4);
-  
-        botTempData[botId] = data;
-        processTemperatureMessage(data);
       }
+      
+      
+      
     }
-    
+    temperatureTick = !temperatureTick;
+  }
 
-  }, 5000); // 5 second timer
+  }, 1000); // every second
 
   // Simulate incoming battery data from all bots, every 15 seconds 
 
