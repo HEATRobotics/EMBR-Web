@@ -54,7 +54,7 @@ simulateMavlinkData();  // for simulated data, copying the format of real data
 */
 async function storeMavlinkData(data) {
 
-    assert(data.type === 'global_position' || data.type === 'temp_data' || data.type === 'battery_data'|| data.type === 'hotspot_data', "Invalid MAVLink data type");
+    assert(data.type === 'global_position' || data.type === 'temp_data' || data.type === 'battery_data', "Invalid MAVLink data type");
 
     // Change date/time to a format that works with the database
     data.clockTime = parseDateTime(data.clockTime);
@@ -70,12 +70,7 @@ async function storeMavlinkData(data) {
         const allTemperatureData = await getAllTemperatureData();
         io.emit('temperature:update', allTemperatureData);
 
-    }  else if(data.type === 'hotspot_data'){
-        await insertHotspotData(data);
-        const allHotspotData = await getAllHotspotData();
-        io.emit('hotspot:update', allHotspotData);
-
-    }else {
+    }  else {
         await insertBatteryData(data);
         // Emit battery update to all connected clients
         const allBatteryData = await getAllBatteryData();

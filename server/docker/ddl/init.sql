@@ -40,7 +40,9 @@ CREATE TABLE hotspot (
     botID INT NOT NULL, 
     latitude FLOAT NOT NULL, 
     longitude FLOAT NOT NULL,
-    FOREIGN KEY(botID) REFERENCES bot(botID) ON DELETE CASCADE
+    FOREIGN KEY(botID) REFERENCES bot(botID) ON DELETE CASCADE NOT NULL, 
+    FOREIGN KEY (positionID) REFERENCES position(positionID) ON DELETE CASCADE 
+
 
 ) ENGINE=InnoDB;
 
