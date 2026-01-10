@@ -12,7 +12,6 @@ type MissionStartEndProps = {
 
 export default function MissionStartEnd({ missionsData, saveUpdate, bots }: MissionStartEndProps) {
   //const { bots, botsLoading, botError } = useBotData();
-  console.log("Bots is from MissionStartEnd:", bots);
   return (
     <div
       className="z-[20] absolute right-4 top-20 w-auto max-h-[350px] overflow-y-auto bg-white border border-gray-300 rounded-md shadow-lg overflow-auto"
@@ -82,7 +81,6 @@ function handleStartEndMission(
 ) {
   {/* In case missionStatus is not provided */}
   if (!missionStatus) {
-    console.log("Mission status not provided, computing manually");
     missionStatus = getMissionStatus(mission.timeStart, mission.timeEnd);}
 
   const now = new Date().toISOString().slice(0, 19).replace('T', ' ');
@@ -94,17 +92,14 @@ function handleStartEndMission(
 
   if (status === 'not started') {
     const updatedMission: MissionType = { ...mission, timeStart: now };
-    console.log("timeStart Updated Mission:", updatedMission);
     return saveUpdate(updatedMission);
   }
 
   if (status === 'in progress') {
     const updatedMission: MissionType = { ...mission, timeEnd: now };
-    console.log("timeEnd Updated Mission:", updatedMission);
     return saveUpdate(updatedMission);
   }
 
-  console.log("Mission already completed. No action taken.");
 }
 
 // Determine mission status. These status are not presented in the database but are useful for frontend logic.
@@ -123,10 +118,8 @@ export function startAndEndMissionButton(
   className: string = "px-3 py-1 rounded-md bg-blue-500 text-white hover:bg-blue-600 transition-colors",
   warningPanelclassName: string = "absolute top-0 left-0 -translate-x-full -translate-y-full hidden group-hover:block bg-black text-white text-xs p-2 rounded shadow-lg z-50"
 ) {
-  console.log("Missions in startAndEndMissionButton:", mission);
   {/* In case missionStatus is not provided */}
   if (!missionStatus) {
-    console.log("Mission status not provided, computing manually");
     missionStatus = getMissionStatus(mission.timeStart, mission.timeEnd);}
   
   let bot: RobotType | undefined;
