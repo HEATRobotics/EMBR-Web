@@ -40,7 +40,7 @@ function DetailsPanel({
       </div>
 
       {/* Content container */}
-      <div className="flex flex-col h-[calc(100%-2.5rem)] overflow-hidden border border-t-0 border-black">
+      <div className="flex flex-col h-[calc(100%-2.5rem)] border border-t-0 border-black">
 
         {/* Tab Menu*/}
         <div className="flex w-full border-b border-black">
