@@ -36,7 +36,7 @@ This directory contains functions for interacting with the backend API. These fu
 
 This directory is specific to Next.js and contains application-level files, including layouts, pages, and global styles.
 
-- **`layout.tsx`**: Defines the root layout for the application, including global providers like `StoreProvider`.
+- **`layout.tsx`**: Defines the root layout for the application.
 - **`globals.css`**: Contains global CSS styles for the application.
 - **`embr-details/page.tsx`**: A page for displaying detailed information about a fleet, including charts and video streams.
 

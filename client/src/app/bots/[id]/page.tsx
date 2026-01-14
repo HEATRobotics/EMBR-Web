@@ -1,30 +1,31 @@
-"use client";
-
-// Navigation is rendered in RootLayout; remove local render
-import { useParams } from "next/navigation";
-import { useBotData } from "@/hooks/useBotData";
-import { useMissions } from "@/hooks/useMissions";
-import BotPanel from "@/components/features/bot/Details/BotPanel";
+import { notFound } from "next/navigation";
 import StatusOverviewComponent from "@/components/features/bot/FleetDetails/StatusOverview";
+import BotInfoPanel from "@/components/features/bot/Details/BotInfo/BotInfoPanel";
+import { fetchBots } from "@/api/bots.api";
+import { fetchMissions } from "@/api/missions.api";
+import { MissionType } from "@/types/mission.type";
+import { RobotType } from "@/types/robot.type";
 
-export default function BotDetail() {
-  const params = useParams();
-  const botId = params.id;
-  
-  const { bots } = useBotData();
-  const { missionsData } = useMissions();
-  
-  const selectedBot = bots.find((b) => b.id === botId);
-  const botMission = missionsData?.find((m) => m.botID === Number(botId));
+export const revalidate = 0;
+
+export default async function BotDetail({
+  params,
+}: {
+  params: { id: string };
+}) {
+  const [botsResult, missionsResult] = await Promise.allSettled([
+    fetchBots(),
+    fetchMissions(),
+  ]);
+
+  const bots = botsResult.status === "fulfilled" ? botsResult.value : [] as RobotType[];
+  const missionsData = missionsResult.status === "fulfilled" ? missionsResult.value : [] as MissionType[];
+
+  const selectedBot = bots.find((b) => b.id === params.id);
+  const botMission = missionsData?.find((m) => m.botID === Number(params.id));
 
   if (!selectedBot) {
-    return (
-    <div className="bg-gray-100 min-h-full">
-        <main className="mb-16 container mx-auto px-4 py-8">
-          <p>Bot not found</p>
-        </main>
-      </div>
-    );
+    return notFound();
   }
 
   return (
@@ -56,7 +57,7 @@ export default function BotDetail() {
           <div className="lg:col-span-2 space-y-6">
             {/* Bot Panel with Camera Views */}
             <div className="bg-white rounded-lg shadow overflow-hidden">
-              <BotPanel selectedBot={selectedBot} />
+              <BotInfoPanel selectedBot={selectedBot} />
             </div>
 
             {/* Mission History */}

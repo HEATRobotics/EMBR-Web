@@ -1,7 +1,6 @@
 import type { Metadata } from 'next';
 // import { Inter } from 'next/font/google';
 import './globals.css';
-import StoreProvider from './StoreProvider';
 import Navigation from '@/components/layout/Navigation';
 import { WebSocketProvider } from '@/context/WebSocketContext';
 
@@ -20,12 +19,10 @@ export default function RootLayout({
     return (
         <html lang="en">
             <body className="bg-gray-950 text-gray-100 h-screen overflow-hidden">
-                <StoreProvider>
-                    <WebSocketProvider>
-                        <Navigation />
-                        <div className="mt-16 h-full overflow-auto">{children}</div>
-                    </WebSocketProvider>
-                </StoreProvider>
+                <WebSocketProvider>
+                    <Navigation />
+                    <div className="mt-16 h-full overflow-auto">{children}</div>
+                </WebSocketProvider>
             </body>
         </html>
     );

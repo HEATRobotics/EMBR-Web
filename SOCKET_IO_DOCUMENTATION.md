@@ -294,7 +294,7 @@ export function useBotData() {
 
 ### 1. Wrap Application with Provider
 
-**Location**: `/client/src/app/StoreProvider.tsx` or `/client/src/app/layout.tsx`
+**Location**: `/client/src/app/layout.tsx`
 
 ```typescript
 import { WebSocketProvider } from '@/context/WebSocketContext';

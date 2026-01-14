@@ -1,14 +1,21 @@
-"use client";
-
-// Navigation is rendered in RootLayout; remove local render
-import { useBotData } from "@/hooks/useBotData";
-import { useMissions } from "@/hooks/useMissions";
 import Link from "next/link";
+import { fetchBots } from "@/api/bots.api";
+import { fetchMissions } from "@/api/missions.api";
 import { RobotOperationalStatusType } from "@/constants/robotConstants";
+import { MissionType } from "@/types/mission.type";
+import { RobotType } from "@/types/robot.type";
 
-export default function Bots() {
-  const { bots, botsLoading } = useBotData();
-  const { missionsData } = useMissions();
+export const revalidate = 0;
+
+export default async function Bots() {
+  const [botsResult, missionsResult] = await Promise.allSettled([
+    fetchBots(),
+    fetchMissions(),
+  ]);
+
+  const bots = botsResult.status === "fulfilled" ? botsResult.value : [] as RobotType[];
+  const missionsData = missionsResult.status === "fulfilled" ? missionsResult.value : [] as MissionType[];
+  const botsError = botsResult.status === "rejected" ? "Failed to load bots." : null;
 
   const totalBots = bots.length;
   const onlineBots = bots.filter((b) => b.operationalStatus === "operational").length;
@@ -56,8 +63,8 @@ export default function Bots() {
               </div>
             </div>
             
-            {botsLoading ? (
-              <div className="text-gray-500 text-center py-8">Loading bots...</div>
+            {botsError ? (
+              <div className="text-red-600 text-center py-8">{botsError}</div>
             ) : bots.length === 0 ? (
               <div className="text-gray-500 text-center py-8">No bots available</div>
             ) : (

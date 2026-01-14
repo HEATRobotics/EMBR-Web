@@ -1,3 +1,5 @@
+"use client";
+
 import {RobotType} from "@/types/robot.type";
 import {useEffect, useState} from "react";
 import InfoGrid from "@/components/features/bot/Details/BotInfo/InfoGrid";
