@@ -1,8 +1,8 @@
 import {RobotType} from "@/types/robot.type";
-import BotPanel from "@/components/features/bot/Details/BotPanel";
 import {useState} from "react";
 import MissionPanel from "@/components/features/bot/Details/MissionPanel";
 import {MissionType} from "@/types/mission.type";
+import BotInfoPanel from "@/components/features/bot/Details/BotInfo/BotInfoPanel";
 
 function DetailsPanel({
   selectedBot,
@@ -20,7 +20,7 @@ function DetailsPanel({
     <div className="relative h-full">
 
       {/* Top black tab with close button */}
-      <div className="bg-black h-10 flex items-center justify-center rounded-t-md relative">
+      <div className="h-10 flex items-center justify-center rounded-t-md relative">
 
         {/* Handle */}
         <div className="absolute left-1/2 -translate-x-1/2 top-1/2 -translate-y-1/2 
@@ -43,7 +43,7 @@ function DetailsPanel({
       <div className="flex flex-col h-[calc(100%-2.5rem)] border border-t-0 border-black">
 
         {/* Tab Menu*/}
-        <div className="flex w-full border-b border-black">
+        <div className="flex w-full border border-black">
           <button
             onClick={() => setCurrentTab("Bot Info")}
             className={`w-1/2 py-3 text-center text-sm font-semibold transition-colors duration-200 ${
@@ -70,7 +70,7 @@ function DetailsPanel({
         {/* Inner content – NO borders added */}
         <div className="flex-1 overflow-y-auto">
           {currentTab === "Bot Info" && (
-            <BotPanel selectedBot={selectedBot} onClose={onClose} />
+            <BotInfoPanel selectedBot={selectedBot} onClose={onClose} />
           )}
 
           {currentTab === "Mission Info" && (
