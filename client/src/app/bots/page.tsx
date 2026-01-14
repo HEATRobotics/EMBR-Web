@@ -1,11 +1,10 @@
 "use client";
 
-import Navigation from "@/components/Navigation";
+// Navigation is rendered in RootLayout; remove local render
 import { useBotData } from "@/hooks/useBotData";
 import { useMissions } from "@/hooks/useMissions";
 import Link from "next/link";
 import { RobotOperationalStatusType } from "@/constants/robotConstants";
-import Operation from "antd/es/transfer/operation";
 
 export default function Bots() {
   const { bots, botsLoading } = useBotData();
@@ -17,9 +16,8 @@ export default function Bots() {
 
   return (
   <div className="bg-gray-100 min-h-full">
-      <Navigation />
       
-      <main className="container mx-auto px-4 py-8">
+      <main className="mb-16 container mx-auto px-4 py-8">
         <div className="flex justify-between items-center mb-6">
           <h1 className="text-3xl font-bold">Bot Management</h1>
           <button className="px-6 py-3 bg-brand-blue text-white rounded-md hover:bg-brand-blue/90">

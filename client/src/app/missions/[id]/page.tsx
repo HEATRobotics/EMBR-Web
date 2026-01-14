@@ -1,13 +1,13 @@
 "use client";
 
-import Navigation from "@/components/Navigation";
+// Navigation is rendered in RootLayout; remove local render
 import { useParams } from "next/navigation";
 import { useJsApiLoader, GoogleMap } from "@react-google-maps/api";
 import { useState, useCallback, useEffect } from "react";
 import { useMission } from "@/hooks/useMissions";
 import { useBotData } from "@/hooks/useBotData";
 import MapDrawUtils from "@/utils/MapDrawUtils";
-import MissionPanel from "@/components/Details/MissionPanel";
+import MissionPanel from "@/components/features/bot/Details/MissionPanel";
 import { deleteMission } from "@/api/missions.api";
 import { useRouter } from "next/navigation";
 import { Trash2 } from "lucide-react";
@@ -112,9 +112,8 @@ const assignedBot = bots.find((b) => Number(b.id) === mission?.botID);
 
   return (
   <div className="bg-gray-100 min-h-full">
-      <Navigation />
       
-      <main className="h-[calc(100vh-64px)]">
+      <main className="mb-16 h-[calc(100vh-64px)]">
         <div className="flex h-full">
           {/* Map View - Main Content */}
           <div className="flex-1 relative">

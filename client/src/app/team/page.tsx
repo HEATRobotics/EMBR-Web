@@ -1,13 +1,12 @@
 "use client";
 
-import Navigation from "@/components/Navigation";
+// Navigation is rendered in RootLayout; remove local render
 
 export default function Team() {
   return (
   <div className="bg-gray-100 min-h-full">
-      <Navigation />
       
-      <main className="container mx-auto px-4 py-8">
+      <main className="mb-16 container mx-auto px-4 py-8">
         <div className="flex justify-between items-center mb-6">
           <h1 className="text-3xl font-bold">Team Management</h1>
           <button className="px-6 py-3 bg-blue-600 text-white rounded-md hover:bg-blue-700">

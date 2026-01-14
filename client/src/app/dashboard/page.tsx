@@ -1,6 +1,6 @@
 "use client";
 
-import Navigation from "@/components/Navigation";
+// Navigation is rendered in RootLayout; remove local render
 import { useBotData } from "@/hooks/useBotData";
 import { useMissions } from "@/hooks/useMissions";
 import Link from "next/link";
@@ -19,9 +19,8 @@ export default function Dashboard() {
 
   return (
   <div className="bg-gray-100 min-h-full">
-      <Navigation />
       
-      <main className="container mx-auto px-4 py-8">
+      <main className="mb-16 container mx-auto px-4 py-8">
         <h1 className="text-3xl font-bold mb-6">Dashboard</h1>
         
         {/* Quick Stats Section */}

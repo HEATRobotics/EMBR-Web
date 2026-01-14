@@ -1,11 +1,11 @@
 "use client";
 
-import Navigation from "@/components/Navigation";
+// Navigation is rendered in RootLayout; remove local render
 import { useMissions } from "@/hooks/useMissions";
 import { useBotData } from "@/hooks/useBotData";
 import Link from "next/link";
 import { useState } from "react";
-import MissionPanel from "@/components/Details/MissionPanel";
+import MissionPanel from "@/components/features/bot/Details/MissionPanel";
 import { Trash2 } from "lucide-react";
 import { deleteMission } from "@/api/missions.api";
 import { useRouter } from "next/navigation";
@@ -33,9 +33,8 @@ const handleDelete = async (missionId: number, missionName: string) => {
 
   return (
   <div className="bg-gray-100 min-h-full">
-      <Navigation />
       
-      <main className="container mx-auto px-4 py-8">
+      <main className="mb-16 container mx-auto px-4 py-8">
         <div className="flex justify-between items-center mb-6">
           <h1 className="text-3xl font-bold">Missions</h1>
           <Link href="/missions/create">

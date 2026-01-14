@@ -1,4 +1,4 @@
-import GoogleMap from '@/components/GoogleMap';
+import GoogleMap from '@/components/features/map/GoogleMap';
 
 export default function Home() {
     return (

@@ -1,13 +1,13 @@
 "use client";
 
-import Navigation from "@/components/Navigation";
+// Navigation is rendered in RootLayout; remove local render
 import { useParams } from "next/navigation";
 import { useBotData } from "@/hooks/useBotData";
 import { useMissions } from "@/hooks/useMissions";
-import BotPanel from "@/components/Details/BotPanel";
-import TemperatureChart from "@/components/TemperatureChart";
-import BatteryChart from "@/components/BatteryChart";
-import StatusOverviewComponent from "@/components/FleetDetails/StatusOverview";
+import BotPanel from "@/components/features/bot/Details/BotPanel";
+import TemperatureChart from "@/components/charts/TemperatureChart";
+import BatteryChart from "@/components/charts/BatteryChart";
+import StatusOverviewComponent from "@/components/features/bot/FleetDetails/StatusOverview";
 
 export default function BotDetail() {
   const params = useParams();
@@ -21,9 +21,8 @@ export default function BotDetail() {
 
   if (!selectedBot) {
     return (
-  <div className="bg-gray-100 min-h-full">
-        <Navigation />
-        <main className="container mx-auto px-4 py-8">
+    <div className="bg-gray-100 min-h-full">
+        <main className="mb-16 container mx-auto px-4 py-8">
           <p>Bot not found</p>
         </main>
       </div>
@@ -31,10 +30,9 @@ export default function BotDetail() {
   }
 
   return (
-  <div className="bg-gray-100 min-h-full">
-      <Navigation />
+    <div className="bg-gray-100 min-h-full">
       
-      <main className="container mx-auto px-4 py-8">
+      <main className="mb-16 container mx-auto px-4 py-8">
         <div className="flex justify-between items-center mb-6">
           <div>
             <h1 className="text-3xl font-bold">Bot #{selectedBot.id}</h1>

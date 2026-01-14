@@ -1,13 +1,12 @@
 "use client";
 
-import Navigation from "@/components/Navigation";
+// Navigation is rendered in RootLayout; remove local render
 
 export default function MissionCreate() {
   return (
   <div className="bg-gray-100 min-h-full">
-      <Navigation />
       
-      <main className="container mx-auto px-4 py-8">
+      <main className="mb-16 container mx-auto px-4 py-8">
         <h1 className="text-3xl font-bold mb-6">Create New Mission</h1>
 
         {/* Wizard Steps */}
