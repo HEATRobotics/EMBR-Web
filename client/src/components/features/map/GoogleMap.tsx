@@ -10,7 +10,6 @@ import {
 } from "@react-google-maps/api";
 import BotsBar from "../bot/BotsBar";
 import MissionCreate from "../mission/MissionControls/MissionCreate";
-import { useAppDispatch, useAppSelector } from "@/redux/hooks";
 import { MissionType } from "@/types/mission.type";
 import { useBotData } from "@/hooks/useBotData";
 import { useMissions } from "@/hooks/useMissions";
@@ -105,7 +104,6 @@ const items: MenuProps["items"] = [
 
 const CustomGoogleMap: React.FC = () => {
   const router = useRouter();
-  const dispatch = useAppDispatch();
   
   // Map State
   const [map, setMap] = useState<google.maps.Map | null>(null);

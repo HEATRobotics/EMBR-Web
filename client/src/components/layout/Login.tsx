@@ -2,14 +2,11 @@
 
 import React from 'react'
 import Image from "next/image";
-import { AppDispatch } from '@/redux/store';
-import { ActionCreatorWithPayload } from '@reduxjs/toolkit';
-import { useAppDispatch } from '@/redux/hooks';
-import { setIsLoggedIn } from '@/redux/logging/slice';
+import { useAppContext } from '@/context/AppContext';
 
 
 export default function Login(dispatchFunction: any) {
-  const dispatch = useAppDispatch();
+  const { setIsLoggedIn } = useAppContext();
 
   return (
     <div className="w-screen h-screen relative flex justify-center items-center size-full">
@@ -38,7 +35,7 @@ export default function Login(dispatchFunction: any) {
 
         {/* Button */}
         <button
-          onClick={() => dispatch(setIsLoggedIn(true))}
+          onClick={() => setIsLoggedIn(true)}
           className="rounded-[40px] bg-white flex gap-x-[26px] py-[18px] px-[30px] text-[35px] leading-[42px] items-center"
         >
           Login
