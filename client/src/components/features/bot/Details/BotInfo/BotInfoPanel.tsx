@@ -1,11 +1,6 @@
 import {RobotType} from "@/types/robot.type";
 import {useEffect, useState} from "react";
 import InfoGrid from "@/components/features/bot/Details/BotInfo/InfoGrid";
-import TemperatureChart from "@/components/charts/TemperatureChart";
-import BatteryChart from "@/components/charts/BatteryChart";
-
-
-
 
 function BotInfoPanel({
                           selectedBot,

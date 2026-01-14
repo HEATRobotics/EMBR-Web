@@ -5,8 +5,6 @@ import { useParams } from "next/navigation";
 import { useBotData } from "@/hooks/useBotData";
 import { useMissions } from "@/hooks/useMissions";
 import BotPanel from "@/components/features/bot/Details/BotPanel";
-import TemperatureChart from "@/components/charts/TemperatureChart";
-import BatteryChart from "@/components/charts/BatteryChart";
 import StatusOverviewComponent from "@/components/features/bot/FleetDetails/StatusOverview";
 
 export default function BotDetail() {
