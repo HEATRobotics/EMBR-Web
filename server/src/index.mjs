@@ -30,7 +30,7 @@ app.use(express.json());
 
 // Routes
 app.use('/api/missions', missionRoutes);
-app.use('/api', botRoutes);
+app.use('/api/bots', botRoutes);
 
 // Setup Socket.IO handlers
 setupSocketHandlers(io);

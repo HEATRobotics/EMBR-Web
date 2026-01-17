@@ -67,7 +67,7 @@ const mapBotDtoToRobot = (bot: BotDto): RobotType => {
 
 export const fetchBots = async (): Promise<RobotType[]> => {
   try {
-    const response = await axios.get(`${API_BASE_URL}/bots/latest`);
+    const response = await axios.get(`${API_BASE_URL}/bots`);
     const data = response.data;
 
     if (!Array.isArray(data)) {
@@ -77,6 +77,6 @@ export const fetchBots = async (): Promise<RobotType[]> => {
     return data.map(mapBotDtoToRobot);
   } catch (error: any) {
     console.error('Error fetching bots:', error);
-    throw new Error(error.response?.data?.message || 'Failed to fetch bots');
+    throw new Error(error.response?.data?.error || 'Failed to fetch bots');
   }
 };
