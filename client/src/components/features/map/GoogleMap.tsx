@@ -1,24 +1,25 @@
-"use client";
+'use client';
 
-import Image from "next/image";
-import { useRouter } from "next/navigation";
-import React, { useCallback, useEffect, useState } from "react";
-import { Dropdown, MenuProps } from "antd";
-import {
-  useJsApiLoader,
-  GoogleMap as GoogleMapReact, GoogleMap,
-} from "@react-google-maps/api";
-import BotsBar from "../bot/BotsBar";
-import MissionCreate from "../mission/MissionControls/MissionCreate";
-import MissionStartEnd, { getMissionStatus }  from "@/components/features/mission/MissionControls/MissionStartEnd";
-import { MissionType } from "@/types/mission.type";
-import { useBotData } from "@/hooks/useBotData";
-import { useMissions } from "@/hooks/useMissions";
-import MapDrawUtils from "@/utils/MapDrawUtils";
-import MapTools from "@/components/features/map/MapTools";
-import { RobotType } from "@/types/robot.type";
-import { addMissionToDB, updateMissionInDB } from "@/api/missions.api";
-import DetailsPanel from "@/components/features/bot/Details/DetailsPanel";
+import { useJsApiLoader, GoogleMap as GoogleMapReact, GoogleMap } from '@react-google-maps/api';
+import { Dropdown, MenuProps } from 'antd';
+import Image from 'next/image';
+import { useRouter } from 'next/navigation';
+import React, { useCallback, useEffect, useState } from 'react';
+
+import { createMission as createDBMission, updateMission } from '@/api/missions.api';
+import DetailsPanel from '@/components/features/bot/Details/DetailsPanel';
+import MapTools from '@/components/features/map/MapTools';
+import MissionStartEnd, {
+  getMissionStatus,
+} from '@/components/features/mission/MissionControls/MissionStartEnd';
+import { useBotData } from '@/hooks/useBotData';
+import { useMissions } from '@/hooks/useMissions';
+import { MissionType } from '@/types/mission.type';
+import { RobotType } from '@/types/robot.type';
+import MapDrawUtils from '@/utils/MapDrawUtils';
+
+import BotsBar from '../bot/BotsBar';
+import MissionCreate from '../mission/MissionControls/MissionCreate';
 
 // ========== CONSTANTS ==========
 
@@ -40,8 +41,7 @@ const UBCO_COORDS: google.maps.LatLngLiteral = {
 // Mission Template
 const NEW_MISSION_TEMPLATE: MissionType = {
   missionID: 0,
-  missionName: "",
-  botID: 0,
+  missionName: '',
   progress: 0,
   hotspots: [],
   averageTemperature: 0,
@@ -51,26 +51,29 @@ const NEW_MISSION_TEMPLATE: MissionType = {
     { lat: 49.94909, lng: -119.40673 },
     { lat: 49.92712, lng: -119.38269 },
   ],
+  assignedBots: [],
+  timeStart: null,
+  timeEnd: null,
 };
 
 // Map Styling
 const exampleMapStyles: google.maps.MapTypeStyle[] = [
   {
-    featureType: "poi",
-    elementType: "geometry",
-    stylers: [{ color: "#eeeeee" }],
+    featureType: 'poi',
+    elementType: 'geometry',
+    stylers: [{ color: '#eeeeee' }],
   },
   {
-    featureType: "water",
-    elementType: "labels.text.fill",
-    stylers: [{ color: "#9e9e9e" }],
+    featureType: 'water',
+    elementType: 'labels.text.fill',
+    stylers: [{ color: '#9e9e9e' }],
   },
 ];
 
 // Dropdown Menu Items (currently disabled)
-const items: MenuProps["items"] = [
+const items: MenuProps['items'] = [
   {
-    key: "edit",
+    key: 'edit',
     label: (
       <button
         disabled
@@ -81,7 +84,7 @@ const items: MenuProps["items"] = [
     ),
   },
   {
-    key: "create",
+    key: 'create',
     label: (
       <button className="left-[35px] px-3.5 py-1 rounded-[22px] text-[15px] leading-[18px] border border-black hover:!bg-lightgray disabled:!bg-transparent">
         Create
@@ -89,7 +92,7 @@ const items: MenuProps["items"] = [
     ),
   },
   {
-    key: "delete",
+    key: 'delete',
     label: (
       <button
         disabled
@@ -105,45 +108,45 @@ const items: MenuProps["items"] = [
 
 const CustomGoogleMap: React.FC = () => {
   const router = useRouter();
-  
+
   // Map State
   const [map, setMap] = useState<google.maps.Map | null>(null);
   const [satelliteView, setSatelliteView] = useState<boolean>(false);
   const [zoomLevel, setZoomLevel] = useState<number>(DEFAULT_ZOOM);
   const [mapWidth, setMapWidth] = useState(DEFAULT_MAP_WIDTH);
-  
+
   // Bot & Mission State
   const [selectedBot, setSelectedBot] = useState<RobotType | null>(null);
   const [activeMissionCreate, setActiveMissionCreate] = useState<boolean>(false);
   const [newMission, setNewMission] = useState<MissionType>(NEW_MISSION_TEMPLATE);
-  const [activeMissionStartEnd, setActiveMissionStartEnd] = useState<boolean>(false); 
+  const [activeMissionStartEnd, setActiveMissionStartEnd] = useState<boolean>(false);
 
   // Data Hooks
   const { bots, botsLoading, botError, setBots } = useBotData();
   const { missionsData, missionsLoading, missionsError, setMissions } = useMissions();
 
   const { isLoaded } = useJsApiLoader({
-    id: "google-map-script",
-    libraries: ["places"],
-    googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || "",
+    id: 'google-map-script',
+    libraries: ['places'],
+    googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || '',
   });
 
   const mapOptions = isLoaded
     ? {
-      styles: exampleMapStyles,
-      streetViewControl: false,
-      scaleControl: false,
-      fullscreenControl: false,
-      panControl: false,
-      zoomControl: false,
-      mapTypeControl: false,
-      rotateControl: false,
-      mapTypeControlOptions: {
-        position: google.maps.ControlPosition.RIGHT_BOTTOM,
-      },
-      mapTypeId: satelliteView ? "satellite" : "roadmap",
-      zoom: zoomLevel,
-    }
+        styles: exampleMapStyles,
+        streetViewControl: false,
+        scaleControl: false,
+        fullscreenControl: false,
+        panControl: false,
+        zoomControl: false,
+        mapTypeControl: false,
+        rotateControl: false,
+        mapTypeControlOptions: {
+          position: google.maps.ControlPosition.RIGHT_BOTTOM,
+        },
+        mapTypeId: satelliteView ? 'satellite' : 'roadmap',
+        zoom: zoomLevel,
+      }
     : {};
 
   // ========== MAP CALLBACKS ==========
@@ -160,68 +163,60 @@ const CustomGoogleMap: React.FC = () => {
 
   const saveCreate = async (mission: MissionType) => {
     setActiveMissionCreate(false);
-    console.log("Saving mission:", mission);
+    console.log('Saving mission:', mission);
 
-
-    const response = await addMissionToDB(mission);
-    console.log("Mission created with ID:", response.missionID);
+    const response = await createDBMission(mission);
+    console.log('Mission created with ID:', response.missionID);
 
     // merge the ID returned by the backend into the mission object
     const missionWithID: MissionType = {
-        ...mission,
-        missionID: response.missionID,
-        timeStart: null,
-        timeEnd: null,
+      ...mission,
+      missionID: response.missionID,
+      timeStart: null,
+      timeEnd: null,
     };
 
     const updatedMissions = [...(missionsData ?? []), missionWithID];
     setMissions(updatedMissions);
 
     if (map) enableMapInteraction(map);
-
-    }
+  };
 
   const saveUpdate = async (updatedMission: MissionType) => {
-    console.log("Updating mission:", updatedMission);
+    console.log('Updating mission:', updatedMission);
 
     // Update missions in React state. Checks for matching missionID to replace the updated mission.
-    const newMissionList = (missionsData ?? []).map(m => 
-      m.missionID === updatedMission.missionID ? updatedMission : m
+    const newMissionList = (missionsData ?? []).map((m) =>
+      m.missionID === updatedMission.missionID ? updatedMission : m,
     );
-    const updateMissionStatus=getMissionStatus(updatedMission.timeStart, updatedMission.timeEnd);
+    const updateMissionStatus = getMissionStatus(updatedMission.timeStart, updatedMission.timeEnd);
 
-    
-    if (updatedMission.botID != null) {
-      let newBotStatus: RobotType["assignmentStatus"] | null = null;
+    if (updatedMission.assignedBots && updatedMission.assignedBots.length > 0) {
+      let newBotStatus: RobotType['assignmentStatus'] | null = null;
 
-      if (
-        updateMissionStatus === "not started" ||
-        updateMissionStatus === "completed"
-      ) {
-        newBotStatus = "assigned";
-      } else if (updateMissionStatus === "in progress") {
-        newBotStatus = "active";
+      if (updateMissionStatus === 'not started' || updateMissionStatus === 'completed') {
+        newBotStatus = 'assigned';
+      } else if (updateMissionStatus === 'in progress') {
+        newBotStatus = 'active';
       }
 
       if (newBotStatus) {
-        setBots(prevBots =>
-          prevBots.map(bot =>
-            bot.id === String(updatedMission.botID)
-              ? { ...bot, assignmentStatus: newBotStatus }
-              : bot
-          )
+        const assignedSet = new Set(updatedMission.assignedBots);
+        setBots((prevBots) =>
+          prevBots.map((bot) =>
+            assignedSet.has(bot.id) ? { ...bot, assignmentStatus: newBotStatus } : bot,
+          ),
         );
       }
     }
     setMissions(newMissionList);
 
     // Push update to the database
-    const response = await updateMissionInDB(updatedMission);
-    console.log("Mission updated:", response);
+    const response = await updateMission(updatedMission);
+    console.log('Mission updated:', response);
 
     if (map) enableMapInteraction(map);
   };
-
 
   const cancelCreate = () => {
     setActiveMissionCreate(false);
@@ -296,30 +291,30 @@ const CustomGoogleMap: React.FC = () => {
   // ========== RESIZE HANDLER ==========
 
   const handleResizeStart = (e: React.MouseEvent | React.TouchEvent) => {
-    const startX = "touches" in e ? e.touches[0].clientX : e.clientX;
+    const startX = 'touches' in e ? e.touches[0].clientX : e.clientX;
     const startWidth = mapWidth;
 
     const onMove = (event: MouseEvent | TouchEvent) => {
-      const clientX = "touches" in event ? event.touches[0].clientX : event.clientX;
+      const clientX = 'touches' in event ? event.touches[0].clientX : event.clientX;
       const deltaX = clientX - startX;
       const newWidth = Math.min(
-        Math.max(startWidth + (deltaX / window.innerWidth) * 100, MIN_MAP_WIDTH), 
-        MAX_MAP_WIDTH
+        Math.max(startWidth + (deltaX / window.innerWidth) * 100, MIN_MAP_WIDTH),
+        MAX_MAP_WIDTH,
       );
       setMapWidth(newWidth);
     };
 
     const onEnd = () => {
-      window.removeEventListener("mousemove", onMove);
-      window.removeEventListener("mouseup", onEnd);
-      window.removeEventListener("touchmove", onMove);
-      window.removeEventListener("touchend", onEnd);
+      window.removeEventListener('mousemove', onMove);
+      window.removeEventListener('mouseup', onEnd);
+      window.removeEventListener('touchmove', onMove);
+      window.removeEventListener('touchend', onEnd);
     };
 
-    window.addEventListener("mousemove", onMove);
-    window.addEventListener("mouseup", onEnd);
-    window.addEventListener("touchmove", onMove);
-    window.addEventListener("touchend", onEnd);
+    window.addEventListener('mousemove', onMove);
+    window.addEventListener('mouseup', onEnd);
+    window.addEventListener('touchmove', onMove);
+    window.addEventListener('touchend', onEnd);
   };
 
   // ========== LOADING STATE ==========
@@ -333,7 +328,6 @@ const CustomGoogleMap: React.FC = () => {
     <>
       <BotsBar
         bots={bots}
-        selectedBot={selectedBot}
         setSelectedBot={setSelectedBot}
         disabled={activeMissionCreate}
         createMissionCallback={createMission}
@@ -341,32 +335,27 @@ const CustomGoogleMap: React.FC = () => {
         startEndMissionCallback={toggleMissionTable}
       />
       {/* Panel that appears when Start/End Mission is toggled */}
-      {activeMissionStartEnd && !activeMissionCreate && selectedBot === null &&(
-        <MissionStartEnd 
-          missionsData={missionsData} 
-          saveUpdate={saveUpdate}
-          bots={bots}/>
+      {activeMissionStartEnd && !activeMissionCreate && selectedBot === null && (
+        <MissionStartEnd missionsData={missionsData ?? []} saveUpdate={saveUpdate} bots={bots} />
       )}
 
       {/* Map tools */}
-      <MapTools
-        satelliteValue={satelliteView}
-        onSatelliteViewChange={setSatelliteView}
-      />
+      <MapTools satelliteValue={satelliteView} onSatelliteViewChange={setSatelliteView} />
 
       <div className="flex h-nav-content max-w-screen max-h-screen overflow-hidden">
         {/* Map Container */}
         <div className="h-full" style={{ width: `${selectedBot !== null ? mapWidth : '100'}%` }}>
           {activeMissionCreate && (
-              <div className="z-[10] absolute right-0 top-0 mt-16">
-                <MissionCreate
-                    cancelCreate={cancelCreate}
-                    saveCreate={saveCreate}
-                    newMission={newMission}
-                    setNewMission={setNewMission}
-                    bots={bots}
-                    map={map}/>
-              </div>
+            <div className="z-[10] absolute right-0 top-0 mt-16">
+              <MissionCreate
+                cancelCreate={cancelCreate}
+                saveCreate={saveCreate}
+                newMission={newMission}
+                setNewMission={setNewMission}
+                bots={bots}
+                map={map}
+              />
+            </div>
           )}
           <GoogleMap
             options={mapOptions}
@@ -394,13 +383,14 @@ const CustomGoogleMap: React.FC = () => {
 
         {/* Split Screen Details Panel */}
         {selectedBot !== null && missionsData ? (
-          <div className="h-full bg-gray-100 overflow-y-auto" style={{ width: `${100 - mapWidth}%` }}>
+          <div
+            className="h-full bg-gray-100 overflow-y-auto"
+            style={{ width: `${100 - mapWidth}%` }}
+          >
             <DetailsPanel
               selectedBot={selectedBot}
               activeMission={
-                missionsData.filter(
-                  (mission) => mission.botID === Number(selectedBot.id)
-                )[0]
+                missionsData.filter((mission) => mission.assignedBots?.includes(selectedBot.id))[0]
               }
               onClose={() => {
                 setSelectedBot(null);
@@ -410,7 +400,6 @@ const CustomGoogleMap: React.FC = () => {
         ) : (
           <></>
         )}
-
       </div>
     </>
   );

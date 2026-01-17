@@ -96,7 +96,6 @@ This directory contains static assets like images, icons, and other files that a
 
 - **Location**: `/components/BotsBar/index.tsx`
 - **Props**:
-
   - **`bots`**: An array of bot objects (`RobotType[]`) to be displayed in the sidebar.
   - **`selectedBot`**: The currently selected/clicked bot in the UI (`RobotType | null`).
   - **`disabled`**: A boolean indicating whether interactions with the bots or buttons are disabled.

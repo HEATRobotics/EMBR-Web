@@ -1,29 +1,31 @@
-"use client";
+'use client';
 
 // Navigation is rendered in RootLayout; remove local render
-import { useMissions } from "@/hooks/useMissions";
-import { useState } from "react";
-import Link from "next/link";
+import Link from 'next/link';
+import { useState } from 'react';
+
+import { useMissions } from '@/hooks/useMissions';
 
 export default function Hotspots() {
   const { missionsData } = useMissions();
-  const [viewMode, setViewMode] = useState<"list" | "map">("list");
-  
+  const [viewMode, setViewMode] = useState<'list' | 'map'>('list');
+
   // Collect all hotspots from all missions
-  const allHotspots = missionsData?.flatMap((mission, missionIdx) => 
-    mission.hotspots?.map((hotspot, hotspotIdx) => ({
-      ...hotspot,
-      missionName: mission.missionName,
-      missionIdx,
-      hotspotIdx,
-    })) || []
-  ) || [];
+  const allHotspots =
+    missionsData?.flatMap(
+      (mission, missionIdx) =>
+        mission.hotspots?.map((hotspot, hotspotIdx) => ({
+          ...hotspot,
+          missionName: mission.missionName,
+          missionIdx,
+          hotspotIdx,
+        })) || [],
+    ) || [];
 
   const totalHotspots = allHotspots.length;
 
   return (
-  <div className="bg-gray-100 min-h-full">
-      
+    <div className="bg-gray-100 min-h-full">
       <main className="mb-16 container mx-auto px-4 py-8">
         <h1 className="text-3xl font-bold mb-6">Hotspot Management</h1>
 
@@ -51,21 +53,19 @@ export default function Hotspots() {
         <div className="bg-white rounded-lg shadow mb-6 p-4">
           <div className="flex gap-2">
             <button
-              onClick={() => setViewMode("list")}
+              onClick={() => setViewMode('list')}
               className={`px-4 py-2 rounded-md ${
-                viewMode === "list"
-                  ? "bg-brand-orange text-brand-white"
-                  : "border hover:bg-gray-100"
+                viewMode === 'list'
+                  ? 'bg-brand-orange text-brand-white'
+                  : 'border hover:bg-gray-100'
               }`}
             >
               List View
             </button>
             <button
-              onClick={() => setViewMode("map")}
+              onClick={() => setViewMode('map')}
               className={`px-4 py-2 rounded-md ${
-                viewMode === "map"
-                  ? "bg-brand-orange text-brand-white"
-                  : "border hover:bg-gray-100"
+                viewMode === 'map' ? 'bg-brand-orange text-brand-white' : 'border hover:bg-gray-100'
               }`}
             >
               Map View
@@ -76,18 +76,10 @@ export default function Hotspots() {
         {/* Filters */}
         <div className="bg-white rounded-lg shadow mb-6">
           <div className="flex border-b">
-            <button className="px-6 py-3 border-b-2 border-orange-600 font-semibold">
-              All
-            </button>
-            <button className="px-6 py-3 text-gray-600 hover:text-gray-900">
-              New
-            </button>
-            <button className="px-6 py-3 text-gray-600 hover:text-gray-900">
-              Investigating
-            </button>
-            <button className="px-6 py-3 text-gray-600 hover:text-gray-900">
-              Resolved
-            </button>
+            <button className="px-6 py-3 border-b-2 border-orange-600 font-semibold">All</button>
+            <button className="px-6 py-3 text-gray-600 hover:text-gray-900">New</button>
+            <button className="px-6 py-3 text-gray-600 hover:text-gray-900">Investigating</button>
+            <button className="px-6 py-3 text-gray-600 hover:text-gray-900">Resolved</button>
           </div>
         </div>
 
@@ -95,10 +87,12 @@ export default function Hotspots() {
         <div className="bg-white rounded-lg shadow">
           <div className="p-6">
             <h2 className="text-xl font-semibold mb-4">Detected Hotspots</h2>
-            
-            {viewMode === "map" ? (
+
+            {viewMode === 'map' ? (
               <div className="bg-gray-100 h-96 rounded flex items-center justify-center">
-                <p className="text-gray-500">Map view showing all hotspots (integrate with GoogleMap component)</p>
+                <p className="text-gray-500">
+                  Map view showing all hotspots (integrate with GoogleMap component)
+                </p>
               </div>
             ) : (
               <div className="overflow-x-auto">
@@ -155,9 +149,7 @@ export default function Hotspots() {
 
         {/* Export Options */}
         <div className="mt-6 flex justify-end gap-2">
-          <button className="px-6 py-2 border rounded-md hover:bg-gray-100">
-            Export CSV
-          </button>
+          <button className="px-6 py-2 border rounded-md hover:bg-gray-100">Export CSV</button>
           <button className="px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700">
             Export Report
           </button>

@@ -1,8 +1,9 @@
-import React from 'react';
-import StatusIndicator from '../StatusIndicator';
-import Box from '../Box';
 import Image from 'next/image';
+import React from 'react';
+
 import robotImage from '../../../../public/robot.jpeg';
+import Box from '../Box';
+import StatusIndicator from '../StatusIndicator';
 
 const ModelDetails: React.FC = () => {
   return (

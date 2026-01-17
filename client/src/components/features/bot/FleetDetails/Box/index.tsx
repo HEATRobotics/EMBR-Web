@@ -1,5 +1,6 @@
-import React, { ReactNode } from "react";
-import Tag from "@/components/features/bot/FleetDetails/Tag";
+import React, { ReactNode } from 'react';
+
+import Tag from '@/components/features/bot/FleetDetails/Tag';
 
 type Props = {
   children?: ReactNode;
@@ -7,11 +8,7 @@ type Props = {
   button?: string;
 };
 
-const Box: React.FC<Props> = ({
-  children,
-  title = "Default Title",
-  button,
-}) => {
+const Box: React.FC<Props> = ({ children, title = 'Default Title', button }) => {
   return (
     <div className="w-full my-4 px-7 border-2 rounded-[20px] border-black p-[35px]">
       {button ? (

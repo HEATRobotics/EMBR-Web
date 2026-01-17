@@ -22,7 +22,7 @@ const MissionCreateRectangle: React.FC<MissionCreateRectangleProps> = ({
       north: 49.959099,
       south: 49.917121,
       east: -119.387693,
-      west: -119.402733
+      west: -119.402733,
     };
 
     // Create the rectangle with editable and draggable options.

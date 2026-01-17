@@ -1,28 +1,29 @@
-"use client";
+'use client';
 
 // Navigation is rendered in RootLayout; remove local render
-import { useBotData } from "@/hooks/useBotData";
-import { useMissions } from "@/hooks/useMissions";
-import Link from "next/link";
+import Link from 'next/link';
+
+import { useBotData } from '@/hooks/useBotData';
+import { useMissions } from '@/hooks/useMissions';
 
 export default function Dashboard() {
   const { bots } = useBotData();
   const { missionsData } = useMissions();
 
   const activeMissions = missionsData?.length || 0;
-  const onlineBots = bots.filter((b) => b.operationalStatus === "operational").length;
-  
+  const onlineBots = bots.filter((b) => b.operationalStatus === 'operational').length;
+
   // Count hotspots from all missions
-  const totalHotspots = missionsData?.reduce((acc, mission) => {
-    return acc + (mission.hotspots?.length || 0);
-  }, 0) || 0;
+  const totalHotspots =
+    missionsData?.reduce((acc, mission) => {
+      return acc + (mission.hotspots?.length || 0);
+    }, 0) || 0;
 
   return (
-  <div className="bg-gray-100 min-h-full">
-      
+    <div className="bg-gray-100 min-h-full">
       <main className="mb-16 container mx-auto px-4 py-8">
         <h1 className="text-3xl font-bold mb-6">Dashboard</h1>
-        
+
         {/* Quick Stats Section */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
           <div className="bg-white p-6 rounded-lg shadow">
@@ -79,11 +80,13 @@ export default function Dashboard() {
                       <p className="font-medium">{bot.name}</p>
                       <p className="text-sm text-gray-600">{bot.assignmentStatus}</p>
                     </div>
-                    <span className={`px-2 py-1 text-xs rounded ${
-                      bot.operationalStatus === "operational"
-                        ? "bg-green-100 text-green-800"
-                        : "bg-red-100 text-red-800"
-                    }`}>
+                    <span
+                      className={`px-2 py-1 text-xs rounded ${
+                        bot.operationalStatus === 'operational'
+                          ? 'bg-green-100 text-green-800'
+                          : 'bg-red-100 text-red-800'
+                      }`}
+                    >
                       {bot.operationalStatus}
                     </span>
                   </div>
@@ -91,7 +94,7 @@ export default function Dashboard() {
               )}
             </div>
           </div>
-          
+
           <div className="bg-white p-6 rounded-lg shadow">
             <h2 className="text-xl font-semibold mb-4">Active Missions</h2>
             <div className="space-y-3">
@@ -104,7 +107,9 @@ export default function Dashboard() {
                       <p className="font-medium">{mission.missionName}</p>
                       <span className="text-sm text-gray-600">{mission.progress}%</span>
                     </div>
-                    <p className="text-sm text-gray-600">Bot ID: {mission.botID}</p>
+                    <p className="text-sm text-gray-600">
+                      Bots: {mission.assignedBots?.join(', ') || 'None'}
+                    </p>
                     <div className="w-full bg-gray-200 rounded-full h-2 mt-1">
                       <div
                         className="bg-brand-orange h-2 rounded-full"

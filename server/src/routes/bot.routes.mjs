@@ -1,23 +1,17 @@
 import express from 'express';
 import {
-    getAllTemperature,
-    getLatestTemperature,
-    getAllBattery,
-    getLatestBattery,
-    getLatestBots
+	getLatestBots,
+	getAllBattery,
+	getLatestBattery
 } from '../controllers/bot.controller.mjs';
 
 const router = express.Router();
 
-// Temperature routes
-router.get('/temperature', getAllTemperature);
-router.get('/temperature/latest', getLatestTemperature);
+// Bot snapshots
+router.get('/', getLatestBots);
 
-// Battery routes
+// Battery endpoints
 router.get('/battery', getAllBattery);
 router.get('/battery/latest', getLatestBattery);
-
-// Bots routes
-router.get('/', getLatestBots);
 
 export default router;

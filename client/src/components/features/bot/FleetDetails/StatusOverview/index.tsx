@@ -1,9 +1,11 @@
-"use client";
+'use client';
 
 import React, { useMemo } from 'react';
-import Box from '../Box';
+
 import { useLatestBatteryData } from '@/hooks/useLatestBatteryData';
 import { useLatestTemperatureData } from '@/hooks/useLatestTemperatureData';
+
+import Box from '../Box';
 
 interface StatusOverview {
   battery: number;
@@ -11,20 +13,16 @@ interface StatusOverview {
 }
 
 const StatusOverviewComponent = () => {
-  const {battery} = useLatestBatteryData();
-  const {temperature} = useLatestTemperatureData();
+  const { battery } = useLatestBatteryData();
+  const { temperature } = useLatestTemperatureData();
   const indicator = useMemo(() => {
     return (
       <Box title="Overview">
-          <div className="mt-2 text-ms">
-            Battery: {Number(battery[0]).toFixed(0)}
-          </div>
-          <div className="mt-2 text-ms">
-            Temperature: {Number(temperature[0]).toFixed(2)}
-          </div>
+        <div className="mt-2 text-ms">Battery: {Number(battery[0]).toFixed(0)}</div>
+        <div className="mt-2 text-ms">Temperature: {Number(temperature[0]).toFixed(2)}</div>
       </Box>
     );
-  }, [battery,temperature]);
+  }, [battery, temperature]);
 
   return indicator;
 };

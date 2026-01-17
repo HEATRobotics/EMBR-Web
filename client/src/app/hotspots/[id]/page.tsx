@@ -1,15 +1,14 @@
-"use client";
+'use client';
 
 // Navigation is rendered in RootLayout; remove local render
-import { useParams } from "next/navigation";
+import { useParams } from 'next/navigation';
 
 export default function HotspotDetail() {
   const params = useParams();
   const hotspotId = params.id;
 
   return (
-  <div className="bg-gray-100 min-h-full">
-      
+    <div className="bg-gray-100 min-h-full">
       <main className="mb-16 container mx-auto px-4 py-8">
         <div className="flex justify-between items-center mb-6">
           <div>
@@ -103,8 +102,12 @@ export default function HotspotDetail() {
             <div className="bg-white rounded-lg shadow p-6">
               <h2 className="text-xl font-semibold mb-4">Mission Info</h2>
               <div className="space-y-2">
-                <p><span className="text-sm text-gray-600">Mission:</span> N/A</p>
-                <p><span className="text-sm text-gray-600">Bot:</span> N/A</p>
+                <p>
+                  <span className="text-sm text-gray-600">Mission:</span> N/A
+                </p>
+                <p>
+                  <span className="text-sm text-gray-600">Bot:</span> N/A
+                </p>
               </div>
             </div>
 
@@ -113,9 +116,7 @@ export default function HotspotDetail() {
               <h2 className="text-xl font-semibold mb-4">Field Assignment</h2>
               <div className="space-y-3">
                 <div>
-                  <label className="block text-sm font-medium mb-2">
-                    Assign to Team Member
-                  </label>
+                  <label className="block text-sm font-medium mb-2">Assign to Team Member</label>
                   <select className="w-full px-4 py-2 border rounded-md">
                     <option>Select member...</option>
                   </select>

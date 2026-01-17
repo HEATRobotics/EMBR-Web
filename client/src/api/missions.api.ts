@@ -1,159 +1,129 @@
 import axios from 'axios';
-import { MissionType } from '@/types/mission.type';
-const API_BASE_URL = 'http://localhost:3100/api';
-import { normalizeTimeField } from '@/utils/DateTimeConversion';
 
-// Type for mission data as stored in the database
+import { MissionType } from '@/types/mission.type';
+
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL ?? 'http://localhost:3100/api';
+
+type AreaDto = { north: number; south: number; east: number; west: number } | null;
+
 type MissionDto = {
   missionID: number;
   missionName: string;
-  botID: number;
-  areaCoordinates: string; // JSON string
   progress: number;
   avgTemp: number;
   timePassed: number;
   timeEstimated: number;
+  timeStart: string | null;
+  timeEnd: string | null;
+  areaCoordinates: AreaDto | string;
+  assignedBots?: number[];
 };
 
-// Type for area coordinates from database
-type AreaCoordinatesDto = {
-  north: number;
-  south: number;
-  east: number;
-  west: number;
+const parseArea = (area: AreaDto | string): AreaDto => {
+  if (!area) return null;
+  if (typeof area === 'string') {
+    try {
+      return JSON.parse(area);
+    } catch {
+      return null;
+    }
+  }
+  return area;
 };
 
-/**
- * Transforms mission data from database format to frontend format
- */
-const transformMissionFromDto = (mission: MissionDto): MissionType => {
-  const areaCoords: AreaCoordinatesDto = JSON.parse(mission.areaCoordinates);
-  
+const toFrontend = (dto: MissionDto): MissionType => {
+  const area = parseArea(dto.areaCoordinates);
+  const coords = area
+    ? [
+        { lat: area.north, lng: area.west },
+        { lat: area.south, lng: area.east },
+      ]
+    : undefined;
+
+  const assigned = dto.assignedBots ?? [];
+
   return {
-    ...mission,
-    areaCoordinates: [
-      { lat: areaCoords.north, lng: areaCoords.west },  // NW corner
-      { lat: areaCoords.south, lng: areaCoords.east }   // SE corner
-    ],
+    missionID: dto.missionID,
+    missionName: dto.missionName,
+    progress: dto.progress,
+    averageTemperature: dto.avgTemp,
+    timePassed: dto.timePassed,
+    timeEstimated: dto.timeEstimated,
+    areaCoordinates: coords,
+    assignedBots: assigned,
+    hotspots: [],
   };
 };
 
-/**
- * Transforms mission data from frontend format to database format
- */
-const transformMissionToDto = (mission: MissionType) => {
-  return {
-    name: mission.missionName,
-    botID: mission.botID,
-    areaCoordinates: {
-      north: mission.areaCoordinates![0].lat,
-      west: mission.areaCoordinates![0].lng,
-      south: mission.areaCoordinates![1].lat,
-      east: mission.areaCoordinates![1].lng,
-    },
-  };
-};
+const toPayload = (mission: MissionType, botIds: number[] = []) => ({
+  missionName: mission.missionName,
+  areaCoordinates: mission.areaCoordinates
+    ? {
+        north: mission.areaCoordinates[0].lat,
+        west: mission.areaCoordinates[0].lng,
+        south: mission.areaCoordinates[1].lat,
+        east: mission.areaCoordinates[1].lng,
+      }
+    : null,
+  progress: mission.progress,
+  avgTemp: mission.averageTemperature,
+  timePassed: mission.timePassed,
+  timeEstimated: mission.timeEstimated,
+  botIds: botIds.length ? botIds : (mission.assignedBots ?? []),
+});
 
-/**
- * Fetches all missions from the API
- * 
- * @returns {Promise<MissionType[]>} - Array of missions
- * @throws {Error} - If the request fails
- */
 export const fetchMissions = async (): Promise<MissionType[]> => {
-  try {
-    const response = await axios.get(`${API_BASE_URL}/missions`);
-    const missions = response.data;
-
-    return missions.map(transformMissionFromDto);
-  } catch (error: any) {
-    console.error('Error fetching missions:', error);
-    throw new Error(error.response?.data?.error || 'Failed to fetch missions');
-  }
+  const response = await axios.get(`${API_BASE_URL}/missions`);
+  return (response.data as MissionDto[]).map(toFrontend);
 };
 
-/**
- * Creates a new mission in the database
- * 
- * @param {MissionType} mission - Mission data to create
- * @returns {Promise<{ missionID: string }>} - Created mission ID
- * @throws {Error} - If the request fails
- */
-export const addMissionToDB = async (mission: MissionType): Promise<{ missionID: string }> => {
-  try {
-    const missionForDB = transformMissionToDto(mission);
-    const response = await axios.post(
-      `${API_BASE_URL}/missions`, 
-      missionForDB, 
-      { headers: { 'Content-Type': 'application/json' } }
-    );
-    return response.data;
-  } catch (error: any) {
-    console.error('Error creating mission:', error);
-    throw new Error(error.response?.data?.error || 'Failed to create mission');
-  }
-};
-
-// Mission API update
-export const updateMissionInDB = async (mission: MissionType): Promise<{ message: string }> => {
-    // Normalize all time fields so backend always gets "YYYY-MM-DD HH:mm:ss"
-    const normalizedTimeStart = normalizeTimeField(mission.timeStart);
-    const normalizedTimeEnd = normalizeTimeField(mission.timeEnd);
-
-    // Transform coordinates back to backend format
-    const missionForDB = {
-      id: mission.missionID, // assuming the backend identifies the mission with missionID
-      missionName: mission.missionName,
-      botID: mission.botID,
-      areaCoordinates: {
-        north: mission.areaCoordinates![0].lat,
-        west: mission.areaCoordinates![0].lng,
-        south: mission.areaCoordinates![1].lat,
-        east: mission.areaCoordinates![1].lng,
-      },
-      progress: mission.progress || 0,
-      averageTemperature: mission.avgTemp || 0,
-      timeStart: normalizedTimeStart || null,
-      timeEnd: normalizedTimeEnd || null,
-      timePassed: mission.timePassed || 0,
-      timeEstimated: mission.timeEstimated || 0 ,
-    };
-    console.log("Check mission passed with:", mission);
-
-    console.log("Calling /update endpoint with:", missionForDB);
-
-    const response = await axios.put(
-      `${API_BASE_URL}/missions/update/${mission.missionID}`, // <- include ID
-      missionForDB,
-      { headers: { "Content-Type": "application/json" } }
-    );
-
-    return response.data as { message: string };
-};
-export const deleteMission = async (missionId: string): Promise<{ message: string }> => {//export func to make it available to other files
-  try {
-    const response = await axios.delete(`${API_BASE_URL}/missions/${missionId}`);
-    return response.data; 
-  } catch (error: any) {
-    console.error('Error deleting mission:', error.response?.data);
-    throw new Error(error.response?.data?.error || 'Failed to delete mission');
-  }
-};
-
-/**
- * Fetches a single mission by ID
- * 
- * @param {number} id - Mission ID
- * @returns {Promise<MissionType>} - Mission data
- * @throws {Error} - If the request fails
- */
 export const fetchMissionById = async (id: number): Promise<MissionType> => {
-  try {
-    const response = await axios.get(`${API_BASE_URL}/missions/${id}`);
-    return transformMissionFromDto(response.data);
-  } catch (error: any) {
-    console.error('Error fetching mission:', error);
-    throw new Error(error.response?.data?.error || 'Failed to fetch mission');
-  }
+  const response = await axios.get(`${API_BASE_URL}/missions/${id}`);
+  return toFrontend(response.data as MissionDto);
 };
 
+export const createMission = async (mission: MissionType, botIds: number[] = []) => {
+  const payload = toPayload(mission, botIds);
+  const response = await axios.post(`${API_BASE_URL}/missions`, payload, {
+    headers: { 'Content-Type': 'application/json' },
+  });
+  return response.data as { missionID: number };
+};
+
+export const updateMission = async (mission: Partial<MissionType>) => {
+  const payload: Record<string, unknown> = {};
+
+  if (mission.missionName !== undefined) payload.missionName = mission.missionName;
+  if (mission.progress !== undefined) payload.progress = mission.progress;
+  if (mission.averageTemperature !== undefined) payload.avgTemp = mission.averageTemperature;
+  if (mission.timePassed !== undefined) payload.timePassed = mission.timePassed;
+  if (mission.timeEstimated !== undefined) payload.timeEstimated = mission.timeEstimated;
+  if (mission.assignedBots !== undefined) payload.botIds = mission.assignedBots;
+  if (mission.areaCoordinates) {
+    payload.areaCoordinates = {
+      north: mission.areaCoordinates[0].lat,
+      west: mission.areaCoordinates[0].lng,
+      south: mission.areaCoordinates[1].lat,
+      east: mission.areaCoordinates[1].lng,
+    };
+  }
+
+  const response = await axios.put(`${API_BASE_URL}/missions/${mission.missionID}`, payload, {
+    headers: { 'Content-Type': 'application/json' },
+  });
+  return response.data as { message: string };
+};
+
+export const deleteMission = async (id: number) => {
+  const response = await axios.delete(`${API_BASE_URL}/missions/${id}`);
+  return response.data as { message: string };
+};
+
+export const assignBotsToMission = async (missionId: number, botIds: number[]) => {
+  const response = await axios.post(
+    `${API_BASE_URL}/missions/${missionId}/assign`,
+    { botIds },
+    { headers: { 'Content-Type': 'application/json' } },
+  );
+  return response.data as { message: string };
+};

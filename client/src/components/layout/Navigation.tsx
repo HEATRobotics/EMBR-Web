@@ -1,23 +1,23 @@
-"use client";
+'use client';
 
-import Link from "next/link";
-import { usePathname } from "next/navigation";
+import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 
 const Navigation = () => {
   const pathname = usePathname();
 
   const navItems = [
-    { name: "Dashboard", path: "/dashboard" },
-    { name: "Missions", path: "/missions" },
-    { name: "Bots", path: "/bots" },
-    { name: "Hotspots", path: "/hotspots" },
-    { name: "Reports", path: "/reports" },
-    { name: "Team", path: "/team" },
-    { name: "Settings", path: "/settings" },
+    { name: 'Dashboard', path: '/dashboard' },
+    { name: 'Missions', path: '/missions' },
+    { name: 'Bots', path: '/bots' },
+    { name: 'Hotspots', path: '/hotspots' },
+    { name: 'Reports', path: '/reports' },
+    { name: 'Team', path: '/team' },
+    { name: 'Settings', path: '/settings' },
   ];
 
   return (
-  <nav className="bg-brand-black text-brand-white shadow-lg fixed top-0 left-0 w-full z-50 border-b border-gray-800">
+    <nav className="bg-brand-black text-brand-white shadow-lg fixed top-0 left-0 w-full z-50 border-b border-gray-800">
       <div className="max-w-full px-4">
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
@@ -34,8 +34,8 @@ const Navigation = () => {
                 href={item.path}
                 className={`px-4 py-2 rounded-md font-medium transition-colors ${
                   pathname === item.path
-                    ? "bg-brand-orange text-brand-white shadow"
-                    : "text-gray-300 hover:bg-gray-800 hover:text-brand-orange"
+                    ? 'bg-brand-orange text-brand-white shadow'
+                    : 'text-gray-300 hover:bg-gray-800 hover:text-brand-orange'
                 }`}
               >
                 {item.name}

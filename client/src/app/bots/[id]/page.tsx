@@ -1,44 +1,57 @@
-import { notFound } from "next/navigation";
-import StatusOverviewComponent from "@/components/features/bot/FleetDetails/StatusOverview";
-import BotInfoPanel from "@/components/features/bot/Details/BotInfo/BotInfoPanel";
-import { fetchBots } from "@/api/bots.api";
-import { fetchMissions } from "@/api/missions.api";
-import { MissionType } from "@/types/mission.type";
-import { RobotType } from "@/types/robot.type";
+'use client';
 
-export const revalidate = 0;
+import { useMemo } from 'react';
 
-export default async function BotDetail({
-  params,
-}: {
-  params: { id: string };
-}) {
-  const [botsResult, missionsResult] = await Promise.allSettled([
-    fetchBots(),
-    fetchMissions(),
-  ]);
+import BotInfoPanel from '@/components/features/bot/Details/BotInfo/BotInfoPanel';
+import StatusOverviewComponent from '@/components/features/bot/FleetDetails/StatusOverview';
+import { useBotData } from '@/hooks/useBotData';
+import { useMissions } from '@/hooks/useMissions';
+import { useParams } from 'next/navigation';
 
-  const bots = botsResult.status === "fulfilled" ? botsResult.value : [] as RobotType[];
-  const missionsData = missionsResult.status === "fulfilled" ? missionsResult.value : [] as MissionType[];
+export default function BotDetail() {
+  const params = useParams();
+  const { bots, botsLoading } = useBotData();
+  const { missionsData, missionsLoading } = useMissions();
 
-  const selectedBot = bots.find((b) => b.id === params.id);
-  const botMission = missionsData?.find((m) => m.botID === Number(params.id));
+  const botId = useMemo(() => Number(params.id), [params.id]);
+  const selectedBot = useMemo(() => bots.find((b) => b.id === botId), [bots, botId]);
+  const botMission = useMemo(
+    () => missionsData?.find((m) => m.assignedBots?.includes(botId)),
+    [missionsData, botId]
+  );
+
+  if (botsLoading || missionsLoading) {
+    return (
+      <div className="bg-gray-100 min-h-full">
+        <main className="mb-16 container mx-auto px-4 py-8">
+          <p className="text-gray-600">Loading bot details...</p>
+        </main>
+      </div>
+    );
+  }
 
   if (!selectedBot) {
-    return notFound();
+    return (
+      <div className="bg-gray-100 min-h-full">
+        <main className="mb-16 container mx-auto px-4 py-8">
+          <p className="text-gray-600">Bot not found</p>
+        </main>
+      </div>
+    );
   }
 
   return (
     <div className="bg-gray-100 min-h-full">
-      
       <main className="mb-16 container mx-auto px-4 py-8">
         <div className="flex justify-between items-center mb-6">
           <div>
             <h1 className="text-3xl font-bold">Bot #{selectedBot.id}</h1>
             <p className="text-gray-600">
-              <span className={`inline-block w-2 h-2 rounded-full mr-2 ${
-                selectedBot.operationalStatus === 'operational' ? 'bg-green-500' : 'bg-red-500'
-              }`}></span>
+              <span
+                className={`inline-block w-2 h-2 rounded-full mr-2 ${
+                  selectedBot.operationalStatus === 'operational' ? 'bg-green-500' : 'bg-red-500'
+                }`}
+              ></span>
               {selectedBot.operationalStatus}
             </p>
           </div>
@@ -46,9 +59,7 @@ export default async function BotDetail({
             <button className="px-4 py-2 border rounded-md hover:bg-gray-100">
               Edit Configuration
             </button>
-            <button className="px-4 py-2 border rounded-md hover:bg-gray-100">
-              Delete Bot
-            </button>
+            <button className="px-4 py-2 border rounded-md hover:bg-gray-100">Delete Bot</button>
           </div>
         </div>
 
@@ -66,8 +77,12 @@ export default async function BotDetail({
               <div className="text-gray-500">
                 {botMission ? (
                   <div>
-                    <p><span className="font-medium">Current Mission:</span> {botMission.missionName}</p>
-                    <p><span className="font-medium">Progress:</span> {botMission.progress}%</p>
+                    <p>
+                      <span className="font-medium">Current Mission:</span> {botMission.missionName}
+                    </p>
+                    <p>
+                      <span className="font-medium">Progress:</span> {botMission.progress}%
+                    </p>
                   </div>
                 ) : (
                   <p>No missions completed yet</p>
@@ -87,11 +102,22 @@ export default async function BotDetail({
             <div className="bg-white rounded-lg shadow p-6">
               <h2 className="text-xl font-semibold mb-4">Specifications</h2>
               <div className="space-y-2 text-sm">
-                <p><span className="font-medium">Name:</span> {selectedBot.name}</p>
-                <p><span className="font-medium">ID:</span> {selectedBot.id}</p>
-                <p><span className="font-medium">Assignment:</span> {selectedBot.assignmentStatus}</p>
-                <p><span className="font-medium">Location:</span> {selectedBot.lat.toFixed(4)}, {selectedBot.lng.toFixed(4)}</p>
-                <p><span className="font-medium">Heading:</span> {selectedBot.heading}°</p>
+                <p>
+                  <span className="font-medium">Name:</span> {selectedBot.name}
+                </p>
+                <p>
+                  <span className="font-medium">ID:</span> {selectedBot.id}
+                </p>
+                <p>
+                  <span className="font-medium">Assignment:</span> {selectedBot.assignmentStatus}
+                </p>
+                <p>
+                  <span className="font-medium">Location:</span> {selectedBot.lat.toFixed(4)},{' '}
+                  {selectedBot.lng.toFixed(4)}
+                </p>
+                <p>
+                  <span className="font-medium">Heading:</span> {selectedBot.heading}°
+                </p>
               </div>
             </div>
 

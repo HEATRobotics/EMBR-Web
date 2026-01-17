@@ -1,72 +1,71 @@
 import { useState, useEffect } from 'react';
+
+import { fetchAllBattery } from '@/api/temperature.api';
 import { useWebSocket } from '@/context/WebSocketContext';
-import axios from 'axios';
 
-const API_BASE_URL = 'http://localhost:3100/api';
+// Helper function to extract bot-specific data
+const filterBotData = (data: any[], botId: number) => {
+  const batteryList: Number[] = [];
+  const timeList: Date[] = [];
 
-export function useAllBatteryData() {
-    const [battery, setBattery] = useState<Number[]>([]);
-    const [clockTime, setClockTime] = useState<Date[]>([]);
-    const [loading, setLoading] = useState<boolean>(true);
-    const [error, setError] = useState<string | null>(null);
-    const { socket, isConnected } = useWebSocket();
+  for (let i = 0; i < data.length; i++) {
+    if (data[i].botID === botId) {
+      batteryList.push(data[i].battery);
+      timeList.push(data[i].clockTime);
+    }
+  }
 
-    // Fetch initial data immediately via HTTP
-    useEffect(() => {
-        const fetchInitialBatteryData = async () => {
-            try {
-                const response = await axios.get(`${API_BASE_URL}/battery/all`);
-                console.log('Initial battery information fetched via HTTP!', response.data);
-                processBatteryData(response.data);
-            } catch (err: any) {
-                setError('Failed to fetch battery data.');
-                setLoading(false);
-            }
-        };
+  return { batteryList, timeList };
+};
 
-        fetchInitialBatteryData();
-    }, []);
+export function useAllBatteryData(botId: number = 1) {
+  const [battery, setBattery] = useState<Number[]>([]);
+  const [clockTime, setClockTime] = useState<Date[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
+  const { socket, isConnected } = useWebSocket();
 
-    // Listen for real-time updates via WebSocket
-    useEffect(() => {
-        if (!socket) return;
-
-        // Listen for battery data updates
-        const handleBatteryUpdate = (data: any[]) => {
-            console.log('Battery information updated via WebSocket!', data);
-            processBatteryData(data);
-        };
-
-        socket.on('battery:update', handleBatteryUpdate);
-
-        // Cleanup listeners on unmount
-        return () => {
-            socket.off('battery:update', handleBatteryUpdate);
-        };
-    }, [socket]);
-
-    const processBatteryData = (data: any[]) => {
-        try {
-            const batteryList: Number[] = [];
-            const timeList: Date[] = [];
-
-            for (let i = 0; i < data.length; i++) {
-                if (data[i].botID == 1) { //NOTE: since there is only one EMBR robot this is hard coded.
-                    batteryList.push(data[i].battery);
-                    timeList.push(data[i].clockTime);
-                }
-            }
-
-            setBattery(batteryList);
-            setClockTime(timeList);
-            setError(null);
-            setLoading(false);
-        } catch (err: any) {
-            setError('Failed to process battery data.');
-            console.error(err);
-            setLoading(false);
-        }
+  // Fetch initial data immediately via HTTP
+  useEffect(() => {
+    const fetchInitialBatteryData = async () => {
+      try {
+        const response = await fetchAllBattery();
+        console.log('Initial battery information fetched via HTTP!', response);
+        const { batteryList, timeList } = filterBotData(response, botId);
+        setBattery(batteryList);
+        setClockTime(timeList);
+        setError(null);
+        setLoading(false);
+      } catch (err: any) {
+        setError('Failed to fetch battery data.');
+        setLoading(false);
+      }
     };
 
-    return { battery, clockTime, loading, error, isConnected };
+    fetchInitialBatteryData();
+  }, [botId]);
+
+  // Listen for real-time updates via WebSocket
+  useEffect(() => {
+    if (!socket) return;
+
+    // Listen for battery data updates
+    const handleBatteryUpdate = (data: any[]) => {
+      console.log('Battery information updated via WebSocket!', data);
+      const { batteryList, timeList } = filterBotData(data, botId);
+      setBattery(batteryList);
+      setClockTime(timeList);
+      setError(null);
+      setLoading(false);
+    };
+
+    socket.on('battery:update', handleBatteryUpdate);
+
+    // Cleanup listeners on unmount
+    return () => {
+      socket.off('battery:update', handleBatteryUpdate);
+    };
+  }, [socket, botId]);
+
+  return { battery, clockTime, loading, error, isConnected };
 }

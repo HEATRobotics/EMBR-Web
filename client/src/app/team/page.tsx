@@ -1,11 +1,10 @@
-"use client";
+'use client';
 
 // Navigation is rendered in RootLayout; remove local render
 
 export default function Team() {
   return (
-  <div className="bg-gray-100 min-h-full">
-      
+    <div className="bg-gray-100 min-h-full">
       <main className="mb-16 container mx-auto px-4 py-8">
         <div className="flex justify-between items-center mb-6">
           <h1 className="text-3xl font-bold">Team Management</h1>
@@ -34,7 +33,7 @@ export default function Team() {
         <div className="bg-white rounded-lg shadow">
           <div className="p-6">
             <h2 className="text-xl font-semibold mb-4">Team Members</h2>
-            
+
             {/* Table */}
             <div className="overflow-x-auto">
               <table className="w-full">
@@ -43,7 +42,9 @@ export default function Team() {
                     <th className="px-4 py-3 text-left text-sm font-semibold">Name</th>
                     <th className="px-4 py-3 text-left text-sm font-semibold">Role</th>
                     <th className="px-4 py-3 text-left text-sm font-semibold">Status</th>
-                    <th className="px-4 py-3 text-left text-sm font-semibold">Current Assignment</th>
+                    <th className="px-4 py-3 text-left text-sm font-semibold">
+                      Current Assignment
+                    </th>
                     <th className="px-4 py-3 text-left text-sm font-semibold">Contact</th>
                     <th className="px-4 py-3 text-left text-sm font-semibold">Actions</th>
                   </tr>
@@ -72,15 +73,11 @@ export default function Team() {
             </div>
             <div className="border rounded-lg p-4">
               <h3 className="font-semibold mb-2">Operator</h3>
-              <p className="text-sm text-gray-600">
-                Can create and manage missions, view all data
-              </p>
+              <p className="text-sm text-gray-600">Can create and manage missions, view all data</p>
             </div>
             <div className="border rounded-lg p-4">
               <h3 className="font-semibold mb-2">Field Crew</h3>
-              <p className="text-sm text-gray-600">
-                View assigned hotspots, update status on-site
-              </p>
+              <p className="text-sm text-gray-600">View assigned hotspots, update status on-site</p>
             </div>
           </div>
         </div>

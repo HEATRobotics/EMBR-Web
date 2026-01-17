@@ -6,6 +6,7 @@ import { Server } from 'socket.io';
 import { serverConfig } from './config/server.config.mjs';
 import missionRoutes from './routes/mission.routes.js';
 import botRoutes from './routes/bot.routes.mjs';
+import temperatureRoutes from './routes/temperature.routes.mjs';
 import { setupSocketHandlers } from './sockets/socket.handlers.mjs';
 import { simulateMavlinkData, setStoreMavlinkDataCallback } from './services/mavlink.service.mjs';
 import { storeMavlinkData } from './services/mavlinkStorage.service.mjs';
@@ -31,6 +32,7 @@ app.use(express.json());
 // Routes
 app.use('/api/missions', missionRoutes);
 app.use('/api/bots', botRoutes);
+app.use('/api/temperature', temperatureRoutes);
 
 // Setup Socket.IO handlers
 setupSocketHandlers(io);
