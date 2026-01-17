@@ -176,7 +176,7 @@ const handleDelete = async (missionId: number, missionName: string) => {
                         </div>
                         <td className="px-4 py-2 space-y-2"> 
                           <div className="ml-4">
-                            <Link href={`/missions/${idx + 1}`}>
+                            <Link href={`/missions/${mission.missionID}`}>
                               <button className="px-4 py-2 bg-brand-blue text-white rounded-md hover:bg-blue-700 text-sm">
                                 View Details
                               </button>
