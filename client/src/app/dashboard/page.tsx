@@ -1,6 +1,8 @@
+
 'use client';
 
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import CustomGoogleMap from '@/components/features/map/GoogleMap';
 import { DashboardSidebar } from '@/components/features/dashboard';
 import { useBotData } from '@/hooks/useBotData';
@@ -8,9 +10,9 @@ import { useMissions } from '@/hooks/useMissions';
 import { RobotType } from '@/types/robot.type';
 
 export default function Dashboard() {
+  const router = useRouter();
   const { bots, setBots } = useBotData();
   const { missionsData, setMissions } = useMissions();
-  const [selectedBot, setSelectedBot] = useState<RobotType | null>(null);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [showMissionCreate, setShowMissionCreate] = useState(false);
 
@@ -33,8 +35,7 @@ export default function Dashboard() {
       <DashboardSidebar
         bots={bots}
         missionsData={missionsData}
-        selectedBot={selectedBot}
-        onBotSelect={setSelectedBot}
+        onBotSelect={(bot) => {router.push(`/bots/${bot!.id}`)}}
         onMissionCreate={() => setShowMissionCreate(true)}
         isCollapsed={sidebarCollapsed}
         onToggleCollapse={() => setSidebarCollapsed(!sidebarCollapsed)}

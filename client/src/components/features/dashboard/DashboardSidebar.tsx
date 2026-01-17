@@ -2,13 +2,12 @@ import React, { useState } from 'react';
 import { RobotType } from '@/types/robot.type';
 import { MissionType } from '@/types/mission.type';
 import StatusCard from './StatusCard';
-import BotStatusCard from './BotStatusCard';
-import MissionStatusCard from './MissionStatusCard';
+import BotOverviewCard from '@/components/features/bot/BotOverviewCard';
+import MissionStatusCard from '../mission/MissionStatusCard';
 
 interface DashboardSidebarProps {
   bots: RobotType[];
   missionsData: MissionType[] | null;
-  selectedBot: RobotType | null;
   onBotSelect: (bot: RobotType | null) => void;
   onMissionCreate: () => void;
   isCollapsed: boolean;
@@ -18,7 +17,6 @@ interface DashboardSidebarProps {
 export default function DashboardSidebar({
   bots,
   missionsData,
-  selectedBot,
   onBotSelect,
   onMissionCreate,
   isCollapsed,
@@ -179,11 +177,10 @@ export default function DashboardSidebar({
                   </div>
                 ) : (
                   bots.map((bot) => (
-                    <BotStatusCard
+                    <BotOverviewCard
                       key={bot.id}
                       bot={bot}
-                      isSelected={selectedBot?.id === bot.id}
-                      onClick={() => onBotSelect(selectedBot?.id === bot.id ? null : bot)}
+                      onClick={() => onBotSelect(bot)}
                     />
                   ))
                 )}

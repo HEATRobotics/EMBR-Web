@@ -1,7 +1,8 @@
 import React from 'react';
 import { RobotType } from '@/types/robot.type';
+import { RobotOperationalStatusType } from '@/constants/robotConstants';
 
-interface BotStatusCardProps {
+interface BotOverviewCardProps {
   bot: RobotType;
   onClick?: () => void;
   isSelected?: boolean;
@@ -33,57 +34,58 @@ const getAssignmentColor = (status: string) => {
   }
 };
 
-export default function BotStatusCard({ bot, onClick, isSelected }: BotStatusCardProps) {
+export default function BotOverviewCard({ bot, onClick }: BotOverviewCardProps) {
   return (
     <div
-      onClick={onClick}
-      className={`p-4 rounded-lg border-2 cursor-pointer transition-all ${
-        isSelected
-          ? 'border-orange-600 bg-orange-50 shadow-md'
-          : 'border-gray-200 bg-white hover:border-gray-300 hover:shadow-sm'
-      }`}
+      className={`p-4 rounded-lg border-2 transition-all border-gray-200 bg-white`}
     >
       <div className="flex items-start justify-between mb-3">
         <div className="flex-1">
           <h3 className="font-semibold text-gray-900">{bot.name}</h3>
           <p className="text-xs text-gray-500">ID: {bot.id}</p>
         </div>
-        <span className={`px-2 py-1 text-xs font-medium rounded-full border ${getStatusColor(bot.operationalStatus)}`}>
-          {bot.operationalStatus}
+        <span className="px-2 py-1 text-xs font-medium rounded-full border"
+        style={{ backgroundColor: RobotOperationalStatusType[bot.operationalStatus].color}}>
+          {RobotOperationalStatusType[bot.operationalStatus].text}
         </span>
       </div>
 
       <div className="space-y-2">
         <div className="flex items-center justify-between">
           <span className="text-xs text-gray-600">Assignment:</span>
-          <span className={`text-xs font-medium px-2 py-1 rounded ${getAssignmentColor(bot.assignmentStatus)}`}>
+          <span className={`text-xs font-medium px-2 py-1 rounded`}>
             {bot.assignmentStatus}
           </span>
         </div>
 
-        {bot.batteryStatus !== undefined && (
+        {bot.battery !== undefined && (
           <div className="flex items-center justify-between">
             <span className="text-xs text-gray-600">Battery:</span>
             <div className="flex items-center gap-2">
               <div className="w-16 h-2 bg-gray-200 rounded-full overflow-hidden">
                 <div
                   className={`h-full transition-all ${
-                    bot.batteryStatus > 60
-                      ? 'bg-green-500'
-                      : bot.batteryStatus > 30
+                    bot.battery > 60
+                      ? 'bg-green'
+                      : bot.battery > 30
                         ? 'bg-yellow-500'
-                        : 'bg-red-500'
+                        : 'bg-red'
                   }`}
-                  style={{ width: `${Math.min(bot.batteryStatus, 100)}%` }}
+                  style={{ width: `${Math.max(2, Math.min(bot.battery, 100))}%` }}
                 ></div>
               </div>
               <span className="text-xs font-semibold text-gray-700 w-8 text-right">
-                {Math.round(bot.batteryStatus)}%
+                {Math.round(bot.battery)}%
               </span>
             </div>
           </div>
         )}
       </div>
+
+    <button className="mt-3 w-full px-4 py-2 bg-brand-blue text-white rounded-md hover:bg-brand-blue/90 text-sm"
+    onClick={onClick}>
+        View Details
+    </button>
     </div>
   );
 }

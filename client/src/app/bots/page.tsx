@@ -1,14 +1,16 @@
 'use client';
 
-import Link from 'next/link';
+import {useRouter} from 'next/navigation';
 
-import { RobotOperationalStatusType } from '@/constants/robotConstants';
+import BotOverviewCard from '@/components/features/bot/BotOverviewCard';
 import { useBotData } from '@/hooks/useBotData';
 import { useMissions } from '@/hooks/useMissions';
+import { RobotType } from '@/types/robot.type';
 
 export default function Bots() {
   const { bots, botsLoading, botError } = useBotData();
   const { missionsData, missionsLoading } = useMissions();
+  const router = useRouter();
 
   const totalBots = bots.length;
   const onlineBots = bots.filter((b) => b.operationalStatus === 'operational').length;
@@ -73,43 +75,13 @@ export default function Bots() {
                   const botMission = missionsData?.find((m) => m.assignedBots?.includes(bot.id));
 
                   return (
-                    <div
+                    <BotOverviewCard
                       key={bot.id}
-                      className="border rounded-lg p-4 hover:shadow-lg transition-shadow"
-                    >
-                      <div className="flex justify-between items-start mb-2">
-                        <h3 className="font-semibold">{bot.name}</h3>
-                        <span
-                          className={`px-2 py-1 text-xs rounded ${
-                            bot.operationalStatus === 'operational'
-                              ? 'bg-green-100 text-green-800'
-                              : bot.operationalStatus === 'chargingRequired'
-                                ? 'bg-yellow-100 text-yellow-800'
-                                : 'bg-red-100 text-red-800'
-                          }`}
-                        >
-                          {RobotOperationalStatusType[bot.operationalStatus].text}
-                        </span>
-                      </div>
-                      <div className="space-y-1 text-sm">
-                        <p>
-                          <span className="text-gray-600">Battery:</span>{' '}
-                          {bot.battery ?? 'N/A'}%
-                        </p>
-                        <p>
-                          <span className="text-gray-600">Status:</span> {bot.assignmentStatus}
-                        </p>
-                        <p>
-                          <span className="text-gray-600">Mission:</span>{' '}
-                          {botMission?.missionName || 'None'}
-                        </p>
-                      </div>
-                      <Link href={`/bots/${bot.id}`}>
-                        <button className="mt-3 w-full px-4 py-2 bg-brand-blue text-white rounded-md hover:bg-brand-blue/90 text-sm">
-                          View Details
-                        </button>
-                      </Link>
-                    </div>
+                      bot={bot}
+                      onClick={() => {
+                        router.push(`/bots/${bot.id}`);
+                      }}
+                    />  
                   );
                 })}
               </div>

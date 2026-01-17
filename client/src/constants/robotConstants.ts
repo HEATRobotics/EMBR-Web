@@ -10,7 +10,7 @@ const RobotOperationalStatusBadgeColors = {
 
 // Light (original) and dark mode color sets for operational statuses
 const RobotOperationalStatusColors = {
-  operational: '#22C55E',
+  operational: '#035f25',
   chargingRequired: '#FBBF24',
   attentionRequired: '#EF4444',
   systemFailed: '#DC2626',
