@@ -33,8 +33,12 @@ const determineOperationalStatus = (
 };
 
 export const mapBotDtoToRobot = (bot: BotDto): RobotType => {
-  const latitude = toNumber(bot.latitude);
-  const longitude = toNumber(bot.longitude);
+  const UBCO_COORDS: google.maps.LatLngLiteral = {
+  lat: 49.939434,
+  lng: -119.396427,
+};
+  const latitude = toNumber(bot.latitude) || UBCO_COORDS.lat;
+  const longitude = toNumber(bot.longitude) || UBCO_COORDS.lng;
   const battery = toNumber(bot.battery);
 
   return {

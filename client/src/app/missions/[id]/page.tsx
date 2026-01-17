@@ -1,16 +1,12 @@
 'use client';
 
-// Navigation is rendered in RootLayout; remove local render
-import { useJsApiLoader, GoogleMap } from '@react-google-maps/api';
 import { Trash2 } from 'lucide-react';
-import { useParams } from 'next/navigation';
-import { useRouter } from 'next/navigation';
-import { useState, useCallback, useEffect } from 'react';
+import { useParams, useRouter } from 'next/navigation';
 import React from 'react';
 
-import { createMission, updateMission } from '@/api/missions.api';
-import { deleteMission } from '@/api/missions.api';
+import { updateMission, deleteMission } from '@/api/missions.api';
 import MissionPanel from '@/components/features/bot/Details/MissionPanel';
+import CustomGoogleMap from '@/components/features/map/GoogleMap';
 import {
   startAndEndMissionButton,
   getMissionStatus,
@@ -18,72 +14,17 @@ import {
 import { useBotData } from '@/hooks/useBotData';
 import { useMission } from '@/hooks/useMissions';
 import type { MissionType, RobotType } from '@/types';
-import MapDrawUtils from '@/utils/MapDrawUtils';
-
-const UBCO_COORDS = {
-  lat: 49.939434,
-  lng: -119.396427,
-};
-
-const exampleMapStyles: google.maps.MapTypeStyle[] = [
-  {
-    featureType: 'poi',
-    elementType: 'geometry',
-    stylers: [{ color: '#eeeeee' }],
-  },
-  {
-    featureType: 'water',
-    elementType: 'labels.text.fill',
-    stylers: [{ color: '#9e9e9e' }],
-  },
-];
 
 export default function MissionDetail() {
   const params = useParams();
   const router = useRouter();
   const missionId = Number(params.id);
-  //const missionId = params.id as string | undefined;
-  // const missionId = params.id? Number(params.id) : undefined; // Ensure ID is a number
-
-  const [map, setMap] = useState<google.maps.Map | null>(null);
-  const [satelliteView, setSatelliteView] = useState<boolean>(false);
 
   const { missionData } = useMission(missionId);
   const { bots } = useBotData();
 
-  // Find the mission by the ID from the URL params
-  //const mission: MissionType | undefined = missionsData?.find((m) => m.missionId === missionId);
-  //const mission: MissionType | undefined = missionsData?.find((m) => String(m.missionId) === missionId);
   const mission = missionData;
   const assignedBot = bots.find((b) => mission?.assignedBots?.includes(b.id));
-
-  const { isLoaded } = useJsApiLoader({
-    id: 'google-map-script',
-    libraries: ['places'],
-    googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || '',
-  });
-
-  const mapOptions = isLoaded
-    ? {
-        styles: exampleMapStyles,
-        streetViewControl: false,
-        scaleControl: false,
-        fullscreenControl: false,
-        panControl: false,
-        zoomControl: false,
-        mapTypeControl: false,
-        rotateControl: false,
-        mapTypeId: satelliteView ? 'satellite' : 'roadmap',
-      }
-    : {};
-
-  const onLoad = useCallback(function callback(map: google.maps.Map | null) {
-    if (map) setMap(map);
-  }, []);
-
-  const onUnmount = useCallback(function callback() {
-    setMap(null);
-  }, []);
 
   const saveUpdate = async (updatedMission: MissionType) => {
     console.log('Updating mission:', updatedMission);
@@ -119,17 +60,6 @@ export default function MissionDetail() {
     console.log('Mission updated:', response);
   };
 
-  // Draw bot and mission area on map
-  useEffect(() => {
-    if (!map || !assignedBot) return;
-    MapDrawUtils.drawBots([assignedBot], map);
-  }, [assignedBot, map]);
-
-  useEffect(() => {
-    if (!map || !mission) return;
-    MapDrawUtils.drawMissionAreas([mission], map);
-  }, [mission, map]);
-
   const handleDelete = async (missionId: number, missionName: string) => {
     const confirmed = window.confirm(`Are you sure you want to delete mission "${missionName}"?`);
     if (!confirmed) return;
@@ -137,16 +67,11 @@ export default function MissionDetail() {
     try {
       const response = await deleteMission(missionId);
       alert(response.message);
-      // Optionally, you can refresh the page or refetch missions after deletion
-      router.push('/missions'); // Next.js 13+ app router
+      router.push('/missions');
     } catch (error: any) {
       alert(error.message || 'Failed to delete mission.');
     }
   };
-
-  if (!isLoaded) {
-    return <div>Loading map...</div>;
-  }
 
   return (
     <div className="bg-gray-100 min-h-full">
@@ -154,31 +79,17 @@ export default function MissionDetail() {
         <div className="flex h-full">
           {/* Map View - Main Content */}
           <div className="flex-1 relative">
-            <GoogleMap
-              options={mapOptions}
-              mapContainerClassName="h-full w-full"
-              center={UBCO_COORDS}
-              zoom={14}
-              onLoad={onLoad}
-              onUnmount={onUnmount}
+            <CustomGoogleMap
+              bots={assignedBot ? [assignedBot] : []}
+              missionsData={mission ? [mission] : []}
             />
 
             {/* Mission Controls Overlay */}
-            <div className="absolute top-4 left-4 bg-white rounded-lg shadow p-4">
+            <div className="absolute top-4 left-4 bg-white rounded-lg shadow p-4 z-10">
               <div className="mb-2">
                 <h2 className="text-xl font-bold">Mission #{missionId}</h2>
                 <p className="text-gray-600">{mission?.missionName || 'Loading...'}</p>
               </div>
-            </div>
-
-            {/* Toggle Satellite View */}
-            <div className="absolute top-4 right-4">
-              <button
-                onClick={() => setSatelliteView(!satelliteView)}
-                className="px-4 py-2 bg-white rounded-md shadow hover:bg-gray-100"
-              >
-                {satelliteView ? 'Map' : 'Satellite'}
-              </button>
             </div>
           </div>
 
