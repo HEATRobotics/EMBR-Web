@@ -10,7 +10,7 @@ import {
 } from "@react-google-maps/api";
 import BotsBar from "./BotsBar";
 import MissionCreate from "./MissionControls/MissionCreate";
-import MissionStartEnd from "./MissionControls/MissionStartEnd";
+import MissionStartEnd, { getMissionStatus }  from "./MissionControls/MissionStartEnd";
 import { useAppDispatch, useAppSelector } from "@/redux/hooks";
 import { MissionType } from "@/types/mission.type";
 import { useBotData } from "@/hooks/useBotData";
@@ -120,7 +120,7 @@ const CustomGoogleMap: React.FC = () => {
   const [activeMissionStartEnd, setActiveMissionStartEnd] = useState<boolean>(false); 
 
   // Data Hooks
-  const { bots, botsLoading, botError } = useBotData();
+  const { bots, botsLoading, botError, setBots } = useBotData();
   const { missionsData, missionsLoading, missionsError, setMissions } = useMissions();
 
   const { isLoaded } = useJsApiLoader({
@@ -189,7 +189,31 @@ const CustomGoogleMap: React.FC = () => {
     const newMissionList = (missionsData ?? []).map(m => 
       m.missionID === updatedMission.missionID ? updatedMission : m
     );
+    const updateMissionStatus=getMissionStatus(updatedMission.timeStart, updatedMission.timeEnd);
 
+    
+    if (updatedMission.botID != null) {
+      let newBotStatus: RobotType["assignmentStatus"] | null = null;
+
+      if (
+        updateMissionStatus === "not started" ||
+        updateMissionStatus === "completed"
+      ) {
+        newBotStatus = "assigned";
+      } else if (updateMissionStatus === "in progress") {
+        newBotStatus = "active";
+      }
+
+      if (newBotStatus) {
+        setBots(prevBots =>
+          prevBots.map(bot =>
+            bot.id === String(updatedMission.botID)
+              ? { ...bot, assignmentStatus: newBotStatus }
+              : bot
+          )
+        );
+      }
+    }
     setMissions(newMissionList);
 
     // Push update to the database

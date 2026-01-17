@@ -5,13 +5,14 @@ import { useMissions } from "@/hooks/useMissions";
 import { useBotData } from "@/hooks/useBotData";
 import Link from "next/link";
 import { useState } from "react";
-import { startAndEndMissionButton } from "@/components/MissionControls/MissionStartEnd";
+import { startAndEndMissionButton, getMissionStatus } from "@/components/MissionControls/MissionStartEnd";
 import { updateMissionInDB } from "@/api/missions.api";
+//import MissionStartEnd, { getMissionStatus }  from "./MissionControls/MissionStartEnd";
 
 
 export default function Missions() {
   const { missionsData, missionsLoading, missionsError, setMissions } = useMissions();
-  const { bots } = useBotData();
+  const { bots, setBots } = useBotData();
   const [filter, setFilter] = useState<"all" | "active" | "completed">("all");
   const saveUpdate = async (updatedMission: MissionType) => {
     console.log("Updating mission:", updatedMission);
@@ -20,6 +21,30 @@ export default function Missions() {
     const newMissionList = (missionsData ?? []).map(m => 
       m.missionID === updatedMission.missionID ? updatedMission : m
     );
+    const updateMissionStatus=getMissionStatus(updatedMission.timeStart, updatedMission.timeEnd);
+        
+    if (updatedMission.botID != null) {
+      let newBotStatus: RobotType["assignmentStatus"] | null = null;
+
+      if (
+        updateMissionStatus === "not started" ||
+        updateMissionStatus === "completed"
+      ) {
+        newBotStatus = "assigned";
+      } else if (updateMissionStatus === "in progress") {
+        newBotStatus = "active";
+      }
+
+      if (newBotStatus) {
+        setBots(prevBots =>
+          prevBots.map(bot =>
+            bot.id === String(updatedMission.botID)
+              ? { ...bot, assignmentStatus: newBotStatus }
+              : bot
+          )
+        );
+      }
+    }
 
     setMissions(newMissionList);
 

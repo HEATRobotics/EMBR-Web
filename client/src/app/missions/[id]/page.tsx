@@ -12,7 +12,7 @@ import { addMissionToDB, updateMissionInDB } from "@/api/missions.api";
 import MissionStartEnd from "./MissionControls/MissionStartEnd";
 import { MissionType } from "@/types/mission.type";
 import React from "react";
-import { startAndEndMissionButton } from "@/components/MissionControls/MissionStartEnd";
+import { startAndEndMissionButton, getMissionStatus } from "@/components/MissionControls/MissionStartEnd";
 
 const UBCO_COORDS = {
   lat: 49.939434,
@@ -39,8 +39,8 @@ export default function MissionDetail() {
   const [map, setMap] = useState<google.maps.Map | null>(null);
   const [satelliteView, setSatelliteView] = useState<boolean>(false);
   
-  const { missionsData } = useMissions();
-  const { bots } = useBotData();
+  const { missionsData, setMissions } = useMissions();
+  const { bots, setBots } = useBotData();
   
   // For now, use first mission as example since missionID doesn't exist in type
   const mission = missionsData?.[0];
@@ -76,21 +76,44 @@ export default function MissionDetail() {
   }, []);
 
   const saveUpdate = async (updatedMission: MissionType) => {
-    console.log("Updating mission:", updatedMission);
-
-    // Update missions in React state. Checks for matching missionID to replace the updated mission.
-    const newMissionList = (missionsData ?? []).map(m => 
-      m.missionID === updatedMission.missionID ? updatedMission : m
-    );
-
-    setMissions(newMissionList);
-
-    // Push update to the database
-    const response = await updateMissionInDB(updatedMission);
-    console.log("Mission updated:", response);
-
-    if (map) enableMapInteraction(map);
-  };
+      console.log("Updating mission:", updatedMission);
+  
+      // Update missions in React state. Checks for matching missionID to replace the updated mission.
+      const newMissionList = (missionsData ?? []).map(m => 
+        m.missionID === updatedMission.missionID ? updatedMission : m
+      );
+      const updateMissionStatus=getMissionStatus(updatedMission.timeStart, updatedMission.timeEnd);
+  
+      
+      if (updatedMission.botID != null) {
+        let newBotStatus: RobotType["assignmentStatus"] | null = null;
+  
+        if (
+          updateMissionStatus === "not started" ||
+          updateMissionStatus === "completed"
+        ) {
+          newBotStatus = "assigned";
+        } else if (updateMissionStatus === "in progress") {
+          newBotStatus = "active";
+        }
+  
+        if (newBotStatus) {
+          setBots(prevBots =>
+            prevBots.map(bot =>
+              bot.id === String(updatedMission.botID)
+                ? { ...bot, assignmentStatus: newBotStatus }
+                : bot
+            )
+          );
+        }
+      }
+      setMissions(newMissionList);
+  
+      // Push update to the database
+      const response = await updateMissionInDB(updatedMission);
+      console.log("Mission updated:", response);
+  
+    };
 
 
   // Draw bot and mission area on map
@@ -159,14 +182,17 @@ export default function MissionDetail() {
               <button className="w-full px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700">
                 Export Mission Data
               </button>
-              {startAndEndMissionButton(
+              {mission && (
+                startAndEndMissionButton(
                 mission,
                 undefined,
                 saveUpdate,
                 bots,
                 "w-full px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700",
                 "absolute left-1/2 -translate-x-1/2 bottom-full mb-2 hidden group-hover:block bg-black text-white text-xs p-2 rounded shadow-lg z-50"
+              )
               )}
+              
             </div>
             
           </div>

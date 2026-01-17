@@ -79,7 +79,7 @@ function handleStartEndMission(
   saveUpdate: (m: MissionType) => Promise<void>,
   missionStatus?: 'not started' | 'in progress' | 'completed',
 ) {
-  {/* In case missionStatus is not provided */}
+  // In case missionStatus is not provided 
   if (!missionStatus) {
     missionStatus = getMissionStatus(mission.timeStart, mission.timeEnd);}
 
@@ -99,11 +99,11 @@ function handleStartEndMission(
     const updatedMission: MissionType = { ...mission, timeEnd: now };
     return saveUpdate(updatedMission);
   }
-
+ 
 }
 
 // Determine mission status. These status are not presented in the database but are useful for frontend logic.
-function getMissionStatus(start_time:string, end_time:string): 'not started' | 'in progress' | 'completed'{
+export function getMissionStatus(start_time:string, end_time:string): 'not started' | 'in progress' | 'completed'{
   if (!start_time) return 'not started';
   if (start_time && !end_time) return 'in progress';
   return 'completed'; 
@@ -118,8 +118,9 @@ export function startAndEndMissionButton(
   className: string = "px-3 py-1 rounded-md bg-blue-500 text-white hover:bg-blue-600 transition-colors",
   warningPanelclassName: string = "absolute top-0 left-0 -translate-x-full -translate-y-full hidden group-hover:block bg-black text-white text-xs p-2 rounded shadow-lg z-50"
 ) {
-  {/* In case missionStatus is not provided */}
+  //* In case missionStatus is not provided *
   if (!missionStatus) {
+    
     missionStatus = getMissionStatus(mission.timeStart, mission.timeEnd);}
   
   let bot: RobotType | undefined;
