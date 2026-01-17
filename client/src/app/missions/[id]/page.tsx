@@ -8,10 +8,14 @@ import { useMission } from "@/hooks/useMissions";
 import { useBotData } from "@/hooks/useBotData";
 import MapDrawUtils from "@/utils/MapDrawUtils";
 import MissionPanel from "@/components/Details/MissionPanel";
+import { addMissionToDB, updateMissionInDB } from "@/api/missions.api";
+import MissionStartEnd from "./MissionControls/MissionStartEnd";
+import { MissionType } from "@/types/mission.type";
+import React from "react";
+import { startAndEndMissionButton, getMissionStatus } from "@/components/MissionControls/MissionStartEnd";
 import { deleteMission } from "@/api/missions.api";
 import { useRouter } from "next/navigation";
 import { Trash2 } from "lucide-react";
-import { MissionType } from "@/types/mission.type"; // <-- ADD THIS IMPORT
 
 
 const UBCO_COORDS = {
@@ -79,6 +83,47 @@ const assignedBot = bots.find((b) => Number(b.id) === mission?.botID);
   const onUnmount = useCallback(function callback() {
     setMap(null);
   }, []);
+
+  const saveUpdate = async (updatedMission: MissionType) => {
+      console.log("Updating mission:", updatedMission);
+  
+      // Update missions in React state. Checks for matching missionID to replace the updated mission.
+      const newMissionList = (missionsData ?? []).map(m => 
+        m.missionID === updatedMission.missionID ? updatedMission : m
+      );
+      const updateMissionStatus=getMissionStatus(updatedMission.timeStart, updatedMission.timeEnd);
+  
+      
+      if (updatedMission.botID != null) {
+        let newBotStatus: RobotType["assignmentStatus"] | null = null;
+  
+        if (
+          updateMissionStatus === "not started" ||
+          updateMissionStatus === "completed"
+        ) {
+          newBotStatus = "assigned";
+        } else if (updateMissionStatus === "in progress") {
+          newBotStatus = "active";
+        }
+  
+        if (newBotStatus) {
+          setBots(prevBots =>
+            prevBots.map(bot =>
+              bot.id === String(updatedMission.botID)
+                ? { ...bot, assignmentStatus: newBotStatus }
+                : bot
+            )
+          );
+        }
+      }
+      setMissions(newMissionList);
+  
+      // Push update to the database
+      const response = await updateMissionInDB(updatedMission);
+      console.log("Mission updated:", response);
+  
+    };
+
 
   // Draw bot and mission area on map
   useEffect(() => {
@@ -157,8 +202,23 @@ const assignedBot = bots.find((b) => Number(b.id) === mission?.botID);
 </div>
  )}
             
-            {/* Delete Button: THIS MUST BE WRAPPED IN THE 'mission' CHECK */}
-{mission && ( // <-- **CRITICAL: Only render button if mission is defined**
+            {/* Export Button, Export Mission Data */}
+            <div className="p-4 border-t space-y-4">
+              <button className="w-full px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700">
+                Export Mission Data
+              </button>
+              {mission && (
+                startAndEndMissionButton(
+                mission,
+                undefined,
+                saveUpdate,
+                bots,
+                "w-full px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700",
+                "absolute left-1/2 -translate-x-1/2 bottom-full mb-2 hidden group-hover:block bg-black text-white text-xs p-2 rounded shadow-lg z-50"
+              )
+              )}
+
+              {mission && ( // <-- **CRITICAL: Only render button if mission is defined**
 <button
 // Remove the non-null assertion operator (!) now that you have checked above
  onClick={() => handleDelete(mission.missionID, mission.missionName)} 
@@ -167,7 +227,12 @@ const assignedBot = bots.find((b) => Number(b.id) === mission?.botID);
 <Trash2 size={20} color="red" />
 <span>Delete Mission</span>
 </button>)}
-</div> {/* closes side panel div */}
-</div> {/* closes flex container */}
-</main> {/* closes main */}
-</div> );{/* closes bg-gray-100 div */}}
+              
+            </div>
+            
+          </div>
+        </div>
+      </main>
+    </div>
+  );
+}

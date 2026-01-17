@@ -17,7 +17,8 @@ Whether the robot is available for mission assignment.
 
 **Values**:
 - `"ready"` - Bot is available and ready to be assigned to a new mission
-- `"assigned"` - Bot is currently assigned to and executing a mission
+- `"assigned"` - Bot is currently assigned to but NOT executing a mission (missions that are already ended are still "assigned" to the bot)
+- `"active"` - Bot is currently assigned to and executing a mission
 - `"inactive"` - Bot is temporarily out of service (maintenance, decommissioned, etc.)
 
 **Determined by**: Mission assignment updates in the database
@@ -44,7 +45,7 @@ The real-time operational health based on sensor readings.
 - **`operationalStatus`** is **CALCULATED from live sensor data** because it changes constantly and doesn't need persistence
 
 **Example Scenario**:
-- A bot can be `assignmentStatus: "assigned"` (on a mission) in the database
+- A bot can be `assignmentStatus: "active"` (on a mission) in the database
 - While simultaneously `operationalStatus: "chargingRequired"` (battery low) from live sensors
 - This tells you: "Bot is on a mission but needs attention soon"
 

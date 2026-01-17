@@ -4,7 +4,7 @@
 
 Each robot now uses exactly two statuses with distinct responsibilities:
 
-- assignmentStatus (DB-stored): Mission availability — one of "ready" | "assigned" | "inactive"
+- assignmentStatus (DB-stored): Mission availability — one of "ready" | "assigned" | "active | "inactive"
 - operationalStatus (calculated): Real-time health — one of "operational" | "chargingRequired" | "attentionRequired" | "systemFailed"
 
 This replaces the previous three-status model (missionStatus/databaseStatus/operationalStatus) to remove overlap and confusion.
@@ -14,7 +14,7 @@ This replaces the previous three-status model (missionStatus/databaseStatus/oper
 ### Scenario 1: Healthy Bot on Mission
 ```typescript
 {
-  assignmentStatus: "assigned",       // Currently working a mission
+  assignmentStatus: "active",       // Currently working a mission
   operationalStatus: "operational",   // All systems healthy
 }
 ```
@@ -58,7 +58,7 @@ This replaces the previous three-status model (missionStatus/databaseStatus/oper
 ### Scenario 5: Critical Failure
 ```typescript
 {
-  assignmentStatus: "assigned",      // Was on a mission
+  assignmentStatus: "assigned",      // Assigned to a mission but is not actively doing the mission
   operationalStatus: "systemFailed", // Battery dead or critical error
 }
 ```
@@ -98,6 +98,7 @@ This replaces the previous three-status model (missionStatus/databaseStatus/oper
 - `BotPanel.tsx` - Health status display
 - `robotConstants.ts` - Status colors/icons
 - `useBotData.tsx` - Calculate from sensor data
+- `MissionStartEnd.tsx` - Use in startAndEndMissionButton to determine when to enable and dissable the button
 
 **Storage**: 
 - **NOT STORED** - calculated on-the-fly from live sensor data

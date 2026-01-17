@@ -45,7 +45,7 @@ export default class MapDrawUtils {
   private static drawMissionArea(mission: MissionType, map: google.maps.Map) {
     if (!mission.areaCoordinates) return;
 
-    console.log(mission.areaCoordinates);
+    //console.log(mission.areaCoordinates);
 
     const bounds: google.maps.LatLngBoundsLiteral = {
       north: mission.areaCoordinates[0].lat,

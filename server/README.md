@@ -23,6 +23,8 @@ The database is managed using MySQL. Below is an overview of the key tables:
   - `areaCoordinates`: JSON field storing mission area coordinates.
   - `progress`: Decimal value indicating mission progress.
   - `avgTemp`: Average temperature recorded during the mission.
+  - `timeStart`: Time Stamp of when the mission is started 'null' if mission not started yet.
+  - `timeEnd`: Time Stamp since the mission is ended, 'null if the mission is not ended yet'.
   - `timePassed`: Time elapsed since the mission started.
   - `timeEstimated`: Estimated time for mission completion.
 

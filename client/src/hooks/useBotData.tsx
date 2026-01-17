@@ -84,7 +84,7 @@ export function useBotData() {
         }
     };
 
-    return { bots, botsLoading, botError, isConnected };
+    return { bots, botsLoading, botError, isConnected , setBots};
 }
 
 /**
