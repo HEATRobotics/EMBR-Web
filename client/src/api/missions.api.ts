@@ -1,6 +1,7 @@
 import axios from 'axios';
 import { MissionType } from '@/types/mission.type';
 const API_BASE_URL = 'http://localhost:3100/api';
+import { normalizeTimeField } from '@/utils/DateTimeConversion';
 
 // Type for mission data as stored in the database
 type MissionDto = {
@@ -93,14 +94,43 @@ export const addMissionToDB = async (mission: MissionType): Promise<{ missionID:
   }
 };
 
-/**
- * Deletes a mission by ID
- * 
- * @param {string} missionId - ID of the mission to delete
- * @returns {Promise<{ message: string }>} - Success message
- * @throws {Error} - If the request fails
- */
-export const deleteMission = async (missionId: string): Promise<{ message: string }> => {
+// Mission API update
+export const updateMissionInDB = async (mission: MissionType): Promise<{ message: string }> => {
+    // Normalize all time fields so backend always gets "YYYY-MM-DD HH:mm:ss"
+    const normalizedTimeStart = normalizeTimeField(mission.timeStart);
+    const normalizedTimeEnd = normalizeTimeField(mission.timeEnd);
+
+    // Transform coordinates back to backend format
+    const missionForDB = {
+      id: mission.missionID, // assuming the backend identifies the mission with missionID
+      missionName: mission.missionName,
+      botID: mission.botID,
+      areaCoordinates: {
+        north: mission.areaCoordinates![0].lat,
+        west: mission.areaCoordinates![0].lng,
+        south: mission.areaCoordinates![1].lat,
+        east: mission.areaCoordinates![1].lng,
+      },
+      progress: mission.progress || 0,
+      averageTemperature: mission.avgTemp || 0,
+      timeStart: normalizedTimeStart || null,
+      timeEnd: normalizedTimeEnd || null,
+      timePassed: mission.timePassed || 0,
+      timeEstimated: mission.timeEstimated || 0 ,
+    };
+    console.log("Check mission passed with:", mission);
+
+    console.log("Calling /update endpoint with:", missionForDB);
+
+    const response = await axios.put(
+      `${API_BASE_URL}/missions/update/${mission.missionID}`, // <- include ID
+      missionForDB,
+      { headers: { "Content-Type": "application/json" } }
+    );
+
+    return response.data as { message: string };
+};
+export const deleteMission = async (missionId: string): Promise<{ message: string }> => {//export func to make it available to other files
   try {
     const response = await axios.delete(`${API_BASE_URL}/missions/${missionId}`);
     return response.data; 

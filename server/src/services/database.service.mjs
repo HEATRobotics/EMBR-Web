@@ -370,12 +370,42 @@ export async function getAllMissions() {
 
 
 export async function updateMission(missionId, missionData) {
-    const { name, areaCoordinates, process, averageTemperature, timePassed, timeEstimated } = missionData;
+    const { missionName, areaCoordinates, botID, progress, averageTemperature, timePassed, timeEstimated, timeStart, timeEnd } = missionData;
     try {
         const connection = await pool.getConnection();
+
+    
+        //Compare previous mission and new data mission so that other data table that are affected by the update are also updated
+        // 1) Get the current mission row
+        const [rows] = await connection.execute(
+            'SELECT timeStart, timeEnd FROM mission WHERE missionID = ?',
+            [missionId]
+        );
+        if (rows.length === 0) {
+            throw new Error("Mission not found");
+        }
+         
+        const current = rows[0];
+        // Compare only timeStart and timeEnd for now
+        if (current.timeStart !== missionData.timeStart) {//Check if mission is started
+            // Mark the bot as active
+            console.log("=== MISSION STARTED - UPDATING BOT STATUS TO ACTIVE ===");
+            const updateBotQuery = `UPDATE bot SET assignmentStatus = 'active' WHERE botID = ?`;
+            await connection.execute(updateBotQuery, [botID]);
+        }
+
+        if (current.timeEnd !== missionData.timeEnd) {
+            // Mark the bot as active
+            console.log("=== MISSION ENDED - UPDATING BOT STATUS TO ASSIGNED ===");
+            const updateBotQuery = `UPDATE bot SET assignmentStatus = 'assigned' WHERE botID = ?`;
+            await connection.execute(updateBotQuery, [botID]);
+        }
+            
+
+        // Acuallu update
         await connection.execute(
-            'UPDATE mission SET name = ?, area_coordinates = ?, progress = ?, avgTemp = ?, timePassed = ?, timeEstimated = ? WHERE missionID = ?',
-            [name, JSON.stringify(areaCoordinates), process, averageTemperature, timePassed, timeEstimated, missionId]
+            'UPDATE mission SET missionName = ?, areaCoordinates = ?, progress = ?, avgTemp = ?, timePassed = ?, timeEstimated = ?, timeStart = ?, timeEnd = ? WHERE missionID = ?',
+            [missionName, JSON.stringify(areaCoordinates), progress, averageTemperature, timePassed, timeEstimated, timeStart, timeEnd, missionId]
         );
         connection.release();
         return { success: true }; 
