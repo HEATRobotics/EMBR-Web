@@ -398,8 +398,15 @@ const CustomGoogleMap: React.FC = () => {
           <div className="h-full bg-gray-100 overflow-y-auto" style={{ width: `${100 - mapWidth}%` }}>
             <DetailsPanel
               selectedBot={selectedBot}
-              activeMission={missionsData.filter((mission) => mission.botID === Number(selectedBot.id))[0]}
-            ></DetailsPanel>
+              activeMission={
+                missionsData.filter(
+                  (mission) => mission.botID === Number(selectedBot.id)
+                )[0]
+              }
+              onClose={() => {
+                setSelectedBot(null);
+              }}
+            />
           </div>
         ) : (
           <></>
