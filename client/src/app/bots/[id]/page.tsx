@@ -1,11 +1,11 @@
 'use client';
 
+import { useParams } from 'next/navigation';
 import { useMemo } from 'react';
 
 import BotInfoPanel from '@/components/features/bot/BotInfoPanel';
 import { useBotData } from '@/hooks/useBotData';
 import { useMissions } from '@/hooks/useMissions';
-import { useParams } from 'next/navigation';
 
 export default function BotDetail() {
   const params = useParams();
@@ -16,7 +16,7 @@ export default function BotDetail() {
   const selectedBot = useMemo(() => bots.find((b) => b.id === botId), [bots, botId]);
   const botMission = useMemo(
     () => missionsData?.find((m) => m.assignedBots?.includes(botId)),
-    [missionsData, botId]
+    [missionsData, botId],
   );
 
   if (botsLoading || missionsLoading) {
@@ -92,7 +92,6 @@ export default function BotDetail() {
 
           {/* Side Panel */}
           <div className="space-y-6">
-
             {/* Bot Specifications */}
             <div className="bg-white rounded-lg shadow p-6">
               <h2 className="text-xl font-semibold mb-4">Specifications</h2>

@@ -22,20 +22,18 @@ type BotDto = {
 
 const toNumber = (value: unknown): number => Number(value ?? 0);
 
-const determineOperationalStatus = (
-  battery: number
-): RobotType['operationalStatus'] => {
+const determineOperationalStatus = (battery: number): RobotType['operationalStatus'] => {
   if (battery === 0) return 'systemFailed';
   if (battery < 20) return 'chargingRequired';
-  if (!battery) return 'attentionRequired'; 
+  if (!battery) return 'attentionRequired';
   return 'operational';
 };
 
 export const mapBotDtoToRobot = (bot: BotDto): RobotType => {
   const UBCO_COORDS: google.maps.LatLngLiteral = {
-  lat: 49.939434,
-  lng: -119.396427,
-};
+    lat: 49.939434,
+    lng: -119.396427,
+  };
   const latitude = toNumber(bot.latitude) || UBCO_COORDS.lat;
   const longitude = toNumber(bot.longitude) || UBCO_COORDS.lng;
   const battery = toNumber(bot.battery);

@@ -5,9 +5,9 @@ import { useParams, useRouter } from 'next/navigation';
 import React from 'react';
 
 import { deleteMission, endMission, startMission } from '@/api/missions.api';
-import MissionPanel from '@/components/features/mission/MissionPanel';
 import CustomGoogleMap from '@/components/features/map/GoogleMap';
-import { startAndEndMissionButton} from '@/components/features/mission/MissionStartEnd';
+import MissionPanel from '@/components/features/mission/MissionPanel';
+import { startAndEndMissionButton } from '@/components/features/mission/MissionStartEnd';
 import { useBotData, useMission } from '@/hooks';
 import type { RobotType } from '@/types';
 
@@ -25,12 +25,12 @@ export default function MissionDetail() {
   const handleStartEndMission = async (id: number, start: boolean, time: string) => {
     console.log('Updating mission:', id);
 
-    if(start) {
+    if (start) {
       mission!.timeStart = time;
-    }else if(!start) {
+    } else if (!start) {
       mission!.timeEnd = time;
     }
-    
+
     let newBotStatus: RobotType['assignmentStatus'] | null = null;
 
     if (!start) {

@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
-import { RobotType } from '@/types/robot.type';
-import { MissionType } from '@/types/mission.type';
-import StatusCard from './StatusCard';
+
 import BotOverviewCard from '@/components/features/bot/BotOverviewCard';
+import { MissionType } from '@/types/mission.type';
+import { RobotType } from '@/types/robot.type';
+
+import StatusCard from './StatusCard';
 import MissionStatusCard from '../mission/MissionStatusCard';
 
 interface DashboardSidebarProps {
@@ -27,9 +29,10 @@ export default function DashboardSidebar({
   const [activeTab, setActiveTab] = useState<'overview' | 'bots' | 'missions'>('overview');
 
   // Calculate stats
-  const activeMissions = missionsData?.filter(m => m.timeStart !== null && m.timeEnd === null).length || 0;
+  const activeMissions =
+    missionsData?.filter((m) => m.timeStart !== null && m.timeEnd === null).length || 0;
   const totalMissions = missionsData?.length || 0;
-  const completedMissions = missionsData?.filter(m => m.timeEnd !== null).length || 0;
+  const completedMissions = missionsData?.filter((m) => m.timeEnd !== null).length || 0;
   const onlineBots = bots.filter((b) => b.operationalStatus === 'operational').length;
   const activeBots = bots.filter((b) => b.assignmentStatus === 'active').length;
   const totalBots = bots.length;
@@ -150,24 +153,9 @@ export default function DashboardSidebar({
                   color="green"
                   icon="✅"
                 />
-                <StatusCard
-                  label="Operational Bots"
-                  value={onlineBots}
-                  color="green"
-                  icon="🤖"
-                />
-                <StatusCard
-                  label="Active Bots"
-                  value={activeBots}
-                  color="blue"
-                  icon="⚡"
-                />
-                <StatusCard
-                  label="Total Hotspots"
-                  value={totalHotspots}
-                  color="orange"
-                  icon="🔥"
-                />
+                <StatusCard label="Operational Bots" value={onlineBots} color="green" icon="🤖" />
+                <StatusCard label="Active Bots" value={activeBots} color="blue" icon="⚡" />
+                <StatusCard label="Total Hotspots" value={totalHotspots} color="orange" icon="🔥" />
 
                 {/* Quick Actions */}
                 <div className="pt-4 space-y-2 border-t border-gray-200">
@@ -190,11 +178,7 @@ export default function DashboardSidebar({
                   </div>
                 ) : (
                   bots.map((bot) => (
-                    <BotOverviewCard
-                      key={bot.id}
-                      bot={bot}
-                      onClick={() => onBotSelect(bot)}
-                    />
+                    <BotOverviewCard key={bot.id} bot={bot} onClick={() => onBotSelect(bot)} />
                   ))
                 )}
               </div>
@@ -209,7 +193,11 @@ export default function DashboardSidebar({
                   </div>
                 ) : (
                   missionsData.map((mission) => (
-                    <MissionStatusCard key={mission.missionID} mission={mission} onClick={() => onMissionSelect(mission)} />
+                    <MissionStatusCard
+                      key={mission.missionID}
+                      mission={mission}
+                      onClick={() => onMissionSelect(mission)}
+                    />
                   ))
                 )}
               </div>

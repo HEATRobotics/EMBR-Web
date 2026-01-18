@@ -1,16 +1,12 @@
+import { calc } from 'antd/es/theme/internal';
+import { format } from 'path';
 import { useMemo } from 'react';
 
 import InfoGrid from '@/components/ui/InfoGrid';
 import { MissionType } from '@/types/mission.type';
-import { calc } from 'antd/es/theme/internal';
 import { calculateRectangleArea, formatArea } from '@/utils/calculateArea';
-import { format } from 'path';
 
-function MissionPanel({
-  activeMission,
-}: {
-  activeMission: MissionType | undefined;
-}) {
+function MissionPanel({ activeMission }: { activeMission: MissionType | undefined }) {
   const { centerData, upCornerData, downCornerData, areaData } = useMemo(() => {
     console.log('MissionPanel', activeMission);
 

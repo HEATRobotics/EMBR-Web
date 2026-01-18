@@ -21,9 +21,8 @@ class MapDrawUtilsClass {
   }
 
   private static drawBot(robot: RobotType, map: google.maps.Map) {
-
     const statusColor = RobotOperationalStatusType[robot.operationalStatus].color;
-    
+
     const svgData = `
       <svg width="20" height="20" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
   <circle cx="10" cy="10" r="5" fill="${statusColor}" />

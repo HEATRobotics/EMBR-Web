@@ -36,7 +36,10 @@ export default function StatusCard({
       <div className="flex items-start justify-between">
         <div className="flex-1">
           <p className="text-xs font-semibold uppercase tracking-wider opacity-75">{label}</p>
-          <p className="text-3xl font-bold mt-2">{value}{total !== undefined && ` / ${total}`}</p>
+          <p className="text-3xl font-bold mt-2">
+            {value}
+            {total !== undefined && ` / ${total}`}
+          </p>
         </div>
         {icon && <div className="text-2xl ml-2">{icon}</div>}
       </div>

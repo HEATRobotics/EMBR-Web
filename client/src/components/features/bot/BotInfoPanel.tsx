@@ -35,7 +35,10 @@ function BotInfoPanel({ selectedBot }: { selectedBot: RobotType }) {
     if (!selectedBot) return; // Safeguard against undefined
 
     setOverviewData([
-      { title: 'Battery', value: selectedBot.battery ? `${selectedBot.battery.toFixed(0)}%` : 'N/A' },
+      {
+        title: 'Battery',
+        value: selectedBot.battery ? `${selectedBot.battery.toFixed(0)}%` : 'N/A',
+      },
       {
         title: 'Speed',
         value: `${Math.sqrt(selectedBot.gz ** 2 + selectedBot.gy ** 2 + selectedBot.gx ** 2) ?? 'N/A'} m/s`,

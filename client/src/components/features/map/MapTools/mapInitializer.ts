@@ -1,5 +1,6 @@
 import { MissionType } from '@/types/mission.type';
 import { RobotType } from '@/types/robot.type';
+
 import { DEFAULT_ZOOM, UBCO_COORDS } from './mapConfig';
 
 /**
@@ -7,7 +8,7 @@ import { DEFAULT_ZOOM, UBCO_COORDS } from './mapConfig';
  */
 export const calculateBoundsFromData = (
   bots?: RobotType[],
-  missionsData?: MissionType[]
+  missionsData?: MissionType[],
 ): { bounds: google.maps.LatLngBounds; hasPoints: boolean } => {
   const bounds = new google.maps.LatLngBounds();
   let hasPoints = false;
@@ -42,7 +43,7 @@ export const calculateBoundsFromData = (
 export const initializeMapView = (
   map: google.maps.Map,
   bots?: RobotType[],
-  missionsData?: MissionType[]
+  missionsData?: MissionType[],
 ): void => {
   const hasBots = bots && bots.length > 0;
   const hasMissions = missionsData && missionsData.length > 0;

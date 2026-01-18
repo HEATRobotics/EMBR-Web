@@ -1,10 +1,10 @@
-
 'use client';
 
-import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import CustomGoogleMap from '@/components/features/map/GoogleMap';
+import { useState } from 'react';
+
 import { DashboardSidebar } from '@/components/features/dashboard';
+import CustomGoogleMap from '@/components/features/map/GoogleMap';
 import { useBotData, useMissions } from '@/hooks';
 
 export default function Dashboard() {
@@ -13,7 +13,7 @@ export default function Dashboard() {
   const { missionsData } = useMissions();
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
 
-  if(!bots || !missionsData) {
+  if (!bots || !missionsData) {
     return <div>Loading...</div>;
   }
 
@@ -22,18 +22,19 @@ export default function Dashboard() {
       {/* Map Container */}
       <div className="flex-1 overflow-hidden flex flex-col mb-16">
         {/* Map on its own */}
-        <CustomGoogleMap 
-          bots={bots} 
-          missionsData={missionsData}
-        />
+        <CustomGoogleMap bots={bots} missionsData={missionsData} />
       </div>
 
       {/* Sidebar */}
       <DashboardSidebar
         bots={bots}
         missionsData={missionsData}
-        onBotSelect={(bot) => {router.push(`/bots/${bot!.id}`)}}
-        onMissionSelect={(mission) => {router.push(`/missions/${mission.missionID}`)}}
+        onBotSelect={(bot) => {
+          router.push(`/bots/${bot!.id}`);
+        }}
+        onMissionSelect={(mission) => {
+          router.push(`/missions/${mission.missionID}`);
+        }}
         onMissionCreate={() => router.push('/missions/create')}
         isCollapsed={sidebarCollapsed}
         onToggleCollapse={() => setSidebarCollapsed(!sidebarCollapsed)}

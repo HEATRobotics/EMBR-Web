@@ -1,6 +1,6 @@
 'use client';
 
-import {useRouter} from 'next/navigation';
+import { useRouter } from 'next/navigation';
 
 import BotOverviewCard from '@/components/features/bot/BotOverviewCard';
 import { useBotData } from '@/hooks/useBotData';
@@ -74,7 +74,7 @@ export default function Bots() {
                       onClick={() => {
                         router.push(`/bots/${bot.id}`);
                       }}
-                    />  
+                    />
                   );
                 })}
               </div>

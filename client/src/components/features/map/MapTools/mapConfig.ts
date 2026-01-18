@@ -1,7 +1,7 @@
 // ========== MAP CONFIGURATION ==========
 
 // Google Maps API Libraries
-export const GOOGLE_MAPS_LIBRARIES: ('places')[] = ['places'];
+export const GOOGLE_MAPS_LIBRARIES: 'places'[] = ['places'];
 
 // Map Zoom Levels
 export const DEFAULT_ZOOM = 14;

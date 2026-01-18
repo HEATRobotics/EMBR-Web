@@ -4,8 +4,6 @@ import { useJsApiLoader, GoogleMap } from '@react-google-maps/api';
 import { Map, Satellite } from 'lucide-react';
 import React, { useCallback, useEffect, useState, useRef } from 'react';
 
-import { MissionType, RobotType } from '@/types';
-import { CoordinatesType } from '@/types/coordinate.type';
 import {
   createRectangle,
   updateRectangleBounds,
@@ -15,9 +13,11 @@ import {
   drawMissionAreas,
   getMapOptions,
   GOOGLE_MAPS_LIBRARIES,
-  initializeMapView
+  initializeMapView,
 } from '@/components/features/map/MapTools';
 import Search from '@/components/features/map/MapTools/search';
+import { MissionType, RobotType } from '@/types';
+import { CoordinatesType } from '@/types/coordinate.type';
 
 // ========== COMPONENT ==========
 
@@ -45,7 +45,7 @@ const CustomGoogleMap: React.FC<CustomGoogleMapProps> = ({
   const [satelliteView, setSatelliteView] = useState<boolean>(false);
   const [hasInitialized, setHasInitialized] = useState<boolean>(false);
   const [editableRectangle, setEditableRectangle] = useState<google.maps.Rectangle | null>(null);
-  
+
   const { isLoaded, loadError } = useJsApiLoader({
     id: 'google-map-script',
     googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY,
@@ -76,10 +76,10 @@ const CustomGoogleMap: React.FC<CustomGoogleMapProps> = ({
         const clickedLat = e.latLng.lat();
         const clickedLng = e.latLng.lng();
         const offset = 0.001; // Small default size
-        
+
         onRectangleChange(
           { lat: clickedLat + offset, lng: clickedLng - offset },
-          { lat: clickedLat - offset, lng: clickedLng + offset }
+          { lat: clickedLat - offset, lng: clickedLng + offset },
         );
       }
     });
@@ -141,7 +141,7 @@ const CustomGoogleMap: React.FC<CustomGoogleMapProps> = ({
     }
 
     initializeMapView(map, bots, missionsData);
-    
+
     setHasInitialized(true);
   }, [map, bots, missionsData, hasInitialized]);
 
@@ -182,14 +182,14 @@ const CustomGoogleMap: React.FC<CustomGoogleMapProps> = ({
         onLoad={onLoad}
         onUnmount={onUnmount}
       />
-      
+
       {/* Search Box */}
       {showSearch && isLoaded && (
         <div className="absolute top-4 left-1/2 transform -translate-x-1/2 z-10">
           <Search />
         </div>
       )}
-      
+
       {/* Satellite/Map Toggle Button */}
       <div className="absolute top-4 right-4 z-10">
         <button
@@ -210,12 +210,12 @@ const CustomGoogleMap: React.FC<CustomGoogleMapProps> = ({
           )}
         </button>
       </div>
-      
+
       {/* Drawing Mode Indicator */}
       {drawingMode && (
         <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 z-10">
           <div className="bg-blue-600 text-white px-4 py-2 rounded-md shadow-lg">
-            {currentRectangle 
+            {currentRectangle
               ? '🖊️ Drawing Mode Active - Drag corners/edges to adjust area'
               : '📍 Click anywhere on the map to create a new area'}
           </div>

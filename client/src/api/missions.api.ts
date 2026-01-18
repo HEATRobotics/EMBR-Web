@@ -119,19 +119,26 @@ export const updateMission = async (mission: Partial<MissionType>) => {
 };
 
 export const startMission = async (id: number, time: string) => {
-  
-  const response = await axios.put(`${API_BASE_URL}/missions/start/${id}`, { time }, {
-    headers: { 'Content-Type': 'application/json' },
-  });
+  const response = await axios.put(
+    `${API_BASE_URL}/missions/start/${id}`,
+    { time },
+    {
+      headers: { 'Content-Type': 'application/json' },
+    },
+  );
   return response.data as { message: string };
-}
+};
 
 export const endMission = async (id: number, time: string) => {
-  const response = await axios.put(`${API_BASE_URL}/missions/end/${id}`, { time }, {
-    headers: { 'Content-Type': 'application/json' },
-  });
+  const response = await axios.put(
+    `${API_BASE_URL}/missions/end/${id}`,
+    { time },
+    {
+      headers: { 'Content-Type': 'application/json' },
+    },
+  );
   return response.data as { message: string };
-}
+};
 
 export const deleteMission = async (id: number) => {
   const response = await axios.delete(`${API_BASE_URL}/missions/${id}`);

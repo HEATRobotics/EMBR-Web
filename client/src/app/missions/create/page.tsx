@@ -4,28 +4,28 @@ import { useRouter } from 'next/navigation';
 import React, { useState, useEffect } from 'react';
 
 import { createMission } from '@/api/missions.api';
+import CustomGoogleMap from '@/components/features/map/GoogleMap';
 import { useBotData } from '@/hooks/useBotData';
 import { useMissions } from '@/hooks/useMissions';
-import CustomGoogleMap from '@/components/features/map/GoogleMap';
-import { MissionType } from '@/types/mission.type';
 import { CoordinatesType } from '@/types/coordinate.type';
+import { MissionType } from '@/types/mission.type';
 
 export default function CreateMissionPage() {
   const router = useRouter();
-  
+
   // Mission form state
   const [missionName, setMissionName] = useState('');
   const [timeEstimated, setTimeEstimated] = useState(60); // in minutes
   const [isSubmitting, setIsSubmitting] = useState(false);
-  
+
   const { bots, botsLoading } = useBotData();
   const { missionsData: missions, missionsLoading } = useMissions();
   const [selectedBotIds, setSelectedBotIds] = useState<number[]>([]);
-  
+
   // Area coordinates state (north-west corner and south-east corner)
   const [northWest, setNorthWest] = useState<CoordinatesType | null>(null);
   const [southEast, setSouthEast] = useState<CoordinatesType | null>(null);
-  
+
   // Drawing state
   const [drawingMode, setDrawingMode] = useState(false);
   const [rectangle, setRectangle] = useState<google.maps.Rectangle | null>(null);
@@ -38,28 +38,26 @@ export default function CreateMissionPage() {
   };
 
   const handleToggleBot = (botId: number) => {
-    setSelectedBotIds(prev => 
-      prev.includes(botId) 
-        ? prev.filter(id => id !== botId)
-        : [...prev, botId]
+    setSelectedBotIds((prev) =>
+      prev.includes(botId) ? prev.filter((id) => id !== botId) : [...prev, botId],
     );
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!missionName.trim()) {
       alert('Please enter a mission name');
       return;
     }
-    
+
     if (!northWest || !southEast) {
       alert('Please define a mission area');
       return;
     }
 
     setIsSubmitting(true);
-    
+
     try {
       const newMission: MissionType = {
         missionID: 0,
@@ -86,9 +84,9 @@ export default function CreateMissionPage() {
     if (isNaN(numValue)) return;
 
     if (corner === 'nw') {
-      setNorthWest(prev => ({ ...(prev || { lat: 0, lng: 0 }), [field]: numValue }));
+      setNorthWest((prev) => ({ ...(prev || { lat: 0, lng: 0 }), [field]: numValue }));
     } else {
-      setSouthEast(prev => ({ ...(prev || { lat: 0, lng: 0 }), [field]: numValue }));
+      setSouthEast((prev) => ({ ...(prev || { lat: 0, lng: 0 }), [field]: numValue }));
     }
   };
 
@@ -105,9 +103,7 @@ export default function CreateMissionPage() {
           <form onSubmit={handleSubmit} className="space-y-6">
             {/* Mission Name */}
             <div>
-              <label className="block text-sm font-medium mb-2">
-                Mission Name *
-              </label>
+              <label className="block text-sm font-medium mb-2">Mission Name *</label>
               <input
                 type="text"
                 value={missionName}
@@ -120,9 +116,7 @@ export default function CreateMissionPage() {
 
             {/* Time Estimated */}
             <div>
-              <label className="block text-sm font-medium mb-2">
-                Estimated Time (minutes)
-              </label>
+              <label className="block text-sm font-medium mb-2">Estimated Time (minutes)</label>
               <input
                 type="number"
                 value={timeEstimated}
@@ -137,7 +131,7 @@ export default function CreateMissionPage() {
               <label className="block text-sm font-medium mb-2">
                 Assign Bots {selectedBotIds.length > 0 && `(${selectedBotIds.length} selected)`}
               </label>
-              
+
               {botsLoading ? (
                 <div className="text-sm text-gray-500 py-2">Loading available bots...</div>
               ) : bots.length === 0 ? (
@@ -160,13 +154,15 @@ export default function CreateMissionPage() {
                       <div className="flex-1 flex items-center justify-between">
                         <span className="text-sm font-medium">{bot.name}</span>
                         <div className="flex items-center space-x-2 text-xs">
-                          <span className={`px-2 py-1 rounded ${
-                            bot.operationalStatus === 'operational' 
-                              ? 'bg-green-100 text-green-800'
-                              : bot.operationalStatus === 'chargingRequired'
-                              ? 'bg-yellow-100 text-yellow-800'
-                              : 'bg-red-100 text-red-800'
-                          }`}>
+                          <span
+                            className={`px-2 py-1 rounded ${
+                              bot.operationalStatus === 'operational'
+                                ? 'bg-green-100 text-green-800'
+                                : bot.operationalStatus === 'chargingRequired'
+                                  ? 'bg-yellow-100 text-yellow-800'
+                                  : 'bg-red-100 text-red-800'
+                            }`}
+                          >
                             {bot.battery ? `${bot.battery}%` : 'N/A'}
                           </span>
                         </div>
@@ -175,7 +171,7 @@ export default function CreateMissionPage() {
                   ))}
                 </div>
               )}
-              
+
               {selectedBotIds.length === 0 && bots.length > 0 && (
                 <p className="text-xs text-gray-500 mt-2">
                   💡 Select one or more bots to assign to this mission
@@ -186,7 +182,7 @@ export default function CreateMissionPage() {
             {/* Area Coordinates */}
             <div>
               <h3 className="text-lg font-semibold mb-3">Mission Area</h3>
-              
+
               <div className="mb-4 p-3 bg-blue-50 rounded-md text-sm text-blue-800">
                 <p>💡 Draw a rectangle on the map or enter coordinates manually</p>
               </div>
@@ -286,11 +282,11 @@ export default function CreateMissionPage() {
                 className="flex-1 px-4 py-2 bg-green-600 text-white rounded-md transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                 disabled={isSubmitting || !missionName.trim() || !northWest || !southEast}
                 title={
-                  !missionName.trim() 
+                  !missionName.trim()
                     ? 'Please enter a mission name'
                     : !northWest || !southEast
-                    ? 'Please define a mission area'
-                    : ''
+                      ? 'Please define a mission area'
+                      : ''
                 }
               >
                 {isSubmitting ? 'Creating...' : 'Create Mission'}
@@ -302,7 +298,7 @@ export default function CreateMissionPage() {
         {/* Right Panel - Map */}
         <div className="flex-1 bg-white rounded-lg shadow-lg overflow-hidden">
           <CustomGoogleMap
-            bots={[]} 
+            bots={[]}
             missionsData={missions ?? []}
             drawingMode={drawingMode}
             currentRectangle={northWest && southEast ? { northWest, southEast } : null}

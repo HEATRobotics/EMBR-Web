@@ -1,4 +1,5 @@
 import { CoordinatesType } from '@/types/coordinate.type';
+
 import { RECTANGLE_STYLE } from './mapConfig';
 
 /**
@@ -7,7 +8,7 @@ import { RECTANGLE_STYLE } from './mapConfig';
 export const createRectangle = (
   bounds: google.maps.LatLngBoundsLiteral,
   map: google.maps.Map,
-  onBoundsChange: (northWest: CoordinatesType, southEast: CoordinatesType) => void
+  onBoundsChange: (northWest: CoordinatesType, southEast: CoordinatesType) => void,
 ): google.maps.Rectangle => {
   const rectangle = new google.maps.Rectangle({
     bounds,
@@ -23,10 +24,7 @@ export const createRectangle = (
     if (newBounds) {
       const ne = newBounds.getNorthEast();
       const sw = newBounds.getSouthWest();
-      onBoundsChange(
-        { lat: ne.lat(), lng: sw.lng() },
-        { lat: sw.lat(), lng: ne.lng() }
-      );
+      onBoundsChange({ lat: ne.lat(), lng: sw.lng() }, { lat: sw.lat(), lng: ne.lng() });
     }
   });
 
@@ -38,7 +36,7 @@ export const createRectangle = (
  */
 export const updateRectangleBounds = (
   rectangle: google.maps.Rectangle,
-  bounds: google.maps.LatLngBoundsLiteral
+  bounds: google.maps.LatLngBoundsLiteral,
 ): boolean => {
   const currentBounds = rectangle.getBounds();
   if (!currentBounds) return false;
@@ -64,7 +62,7 @@ export const updateRectangleBounds = (
  */
 export const coordinatesToBounds = (
   northWest: CoordinatesType,
-  southEast: CoordinatesType
+  southEast: CoordinatesType,
 ): google.maps.LatLngBoundsLiteral => {
   return {
     north: Math.max(northWest.lat, southEast.lat),

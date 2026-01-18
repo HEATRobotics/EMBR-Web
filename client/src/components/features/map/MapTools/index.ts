@@ -1,4 +1,10 @@
-export { GOOGLE_MAPS_LIBRARIES, DEFAULT_ZOOM, UBCO_COORDS, RECTANGLE_STYLE, getMapOptions } from './mapConfig';
+export {
+  GOOGLE_MAPS_LIBRARIES,
+  DEFAULT_ZOOM,
+  UBCO_COORDS,
+  RECTANGLE_STYLE,
+  getMapOptions,
+} from './mapConfig';
 export {
   createRectangle,
   updateRectangleBounds,

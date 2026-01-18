@@ -1,4 +1,5 @@
 import React from 'react';
+
 import { MissionType } from '@/types/mission.type';
 
 interface MissionStatusCardProps {
@@ -22,10 +23,7 @@ const getProgressBg = (progress: number) => {
   return 'bg-red-100';
 };
 
-export default function MissionStatusCard({
-  mission,
-  onClick,
-}: MissionStatusCardProps) {
+export default function MissionStatusCard({ mission, onClick }: MissionStatusCardProps) {
   return (
     <div
       onClick={onClick}
@@ -45,7 +43,9 @@ export default function MissionStatusCard({
             <span className="text-xs font-medium text-gray-600">Progress</span>
             <span className="text-sm font-bold text-gray-900">{mission.progress}%</span>
           </div>
-          <div className={`w-full h-3 ${getProgressBg(mission.progress)} rounded-full overflow-hidden`}>
+          <div
+            className={`w-full h-3 ${getProgressBg(mission.progress)} rounded-full overflow-hidden`}
+          >
             <div
               className={`h-full transition-all ${getProgressColor(mission.progress)}`}
               style={{ width: `${Math.min(mission.progress, 100)}%` }}
@@ -76,7 +76,11 @@ export default function MissionStatusCard({
                   : 'bg-gray-100 text-gray-800'
             }`}
           >
-            {mission.progress === 100 ? 'Completed' : mission.progress > 0 ? 'In Progress' : 'Not Started'}
+            {mission.progress === 100
+              ? 'Completed'
+              : mission.progress > 0
+                ? 'In Progress'
+                : 'Not Started'}
           </span>
         </div>
       </div>

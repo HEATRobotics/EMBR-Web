@@ -1,6 +1,7 @@
 import React from 'react';
-import { RobotType } from '@/types/robot.type';
+
 import { RobotOperationalStatusType } from '@/constants/robotConstants';
+import { RobotType } from '@/types/robot.type';
 
 interface BotOverviewCardProps {
   bot: RobotType;
@@ -21,8 +22,10 @@ export default function BotOverviewCard({ bot, onClick }: BotOverviewCardProps) 
           <h3 className="font-semibold text-gray-900">{bot.name}</h3>
           <p className="text-xs text-gray-500">ID: {bot.id}</p>
         </div>
-        <span className="px-2 py-1 text-xs font-medium rounded-full border"
-        style={{ backgroundColor: RobotOperationalStatusType[bot.operationalStatus].color}}>
+        <span
+          className="px-2 py-1 text-xs font-medium rounded-full border"
+          style={{ backgroundColor: RobotOperationalStatusType[bot.operationalStatus].color }}
+        >
           {RobotOperationalStatusType[bot.operationalStatus].text}
         </span>
       </div>
@@ -30,9 +33,7 @@ export default function BotOverviewCard({ bot, onClick }: BotOverviewCardProps) 
       <div className="space-y-2">
         <div className="flex items-center justify-between">
           <span className="text-xs text-gray-600">Assignment:</span>
-          <span className={`text-xs font-medium px-2 py-1 rounded`}>
-            {bot.assignmentStatus}
-          </span>
+          <span className={`text-xs font-medium px-2 py-1 rounded`}>{bot.assignmentStatus}</span>
         </div>
 
         {bot.battery !== undefined && (
