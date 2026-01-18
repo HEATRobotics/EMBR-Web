@@ -5,13 +5,10 @@ import { useParams, useRouter } from 'next/navigation';
 import React from 'react';
 
 import { deleteMission, endMission, startMission } from '@/api/missions.api';
-import MissionPanel from '@/components/features/bot/Details/MissionPanel';
+import MissionPanel from '@/components/features/mission/MissionPanel';
 import CustomGoogleMap from '@/components/features/map/GoogleMap';
-import {
-  startAndEndMissionButton,
-} from '@/components/features/mission/MissionControls/MissionStartEnd';
-import { useBotData } from '@/hooks/useBotData';
-import { useMission } from '@/hooks/useMissions';
+import { startAndEndMissionButton} from '@/components/features/mission/MissionStartEnd';
+import { useBotData, useMission } from '@/hooks';
 import type { RobotType } from '@/types';
 
 export default function MissionDetail() {
@@ -25,7 +22,7 @@ export default function MissionDetail() {
   const mission = missionData;
   const assignedBot = bots.find((b) => mission?.assignedBots?.includes(b.id));
 
-  const saveUpdate = async (id: number, start: boolean, time: string) => {
+  const handleStartEndMission = async (id: number, start: boolean, time: string) => {
     console.log('Updating mission:', id);
 
     if(start) {
@@ -95,7 +92,7 @@ export default function MissionDetail() {
           <div className="w-96 bg-white border-l overflow-y-auto">
             {/* The MissionPanel check handles the main display */}
             {mission && assignedBot ? (
-              <MissionPanel selectedBot={assignedBot} activeMission={mission} />
+              <MissionPanel activeMission={mission} />
             ) : (
               <div className="p-6">
                 <p className="text-gray-500">Loading mission details...</p>
@@ -110,14 +107,14 @@ export default function MissionDetail() {
               {mission &&
                 startAndEndMissionButton(
                   mission,
-                  saveUpdate,
+                  handleStartEndMission,
                   bots,
                   undefined,
                   'w-full px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700',
                   'absolute left-1/2 -translate-x-1/2 bottom-full mb-2 hidden group-hover:block bg-black text-white text-xs p-2 rounded shadow-lg z-50',
                 )}
 
-              {mission && ( // <-- **CRITICAL: Only render button if mission is defined**
+              {mission && (
                 <button
                   // Remove the non-null assertion operator (!) now that you have checked above
                   onClick={() => handleDelete(mission.missionID, mission.missionName)}

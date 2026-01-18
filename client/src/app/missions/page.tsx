@@ -6,22 +6,19 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 
-import { startMission, endMission } from '@/api/missions.api';
-import { deleteMission } from '@/api/missions.api';
-import MissionPanel from '@/components/features/bot/Details/MissionPanel';
+import { startMission, endMission, deleteMission } from '@/api/missions.api';
 import {
-  startAndEndMissionButton,
-  getMissionStatus,
-} from '@/components/features/mission/MissionControls/MissionStartEnd';
-import { useBotData } from '@/hooks/useBotData';
-import { useMissions } from '@/hooks/useMissions';
-import type { MissionType, RobotType } from '@/types';
+  startAndEndMissionButton
+} from '@/components/features/mission/MissionStartEnd';
+import { useBotData, useMissions } from '@/hooks';
+import type { RobotType } from '@/types';
+import { convertMinutes } from '@/utils/convertMinutes';
 
 export default function Missions() {
-  const { missionsData, missionsLoading, missionsError, setMissions } = useMissions();
+  const { missionsData, missionsLoading, setMissions } = useMissions();
   const { bots, setBots } = useBotData();
   const [filter, setFilter] = useState<'all' | 'active' | 'completed'>('all');
-  const saveUpdate = async (missionId: number, start: boolean, time: string) => {
+  const handleStartEndMission = async (missionId: number, start: boolean, time: string) => {
     console.log('Updating mission:', missionId);
 
     // Update missions in React state. Checks for matching missionID to replace the updated mission.
@@ -64,7 +61,6 @@ export default function Missions() {
     const response = await start ? startMission(missionId, time) : endMission(missionId, time);
     console.log('Mission updated:', response);
   };
-  const router = useRouter();
 
   const handleDelete = async (missionId: number, missionName: string) => {
     const confirmed = window.confirm(`Are you sure you want to delete mission "${missionName}"?`);
@@ -140,11 +136,11 @@ export default function Missions() {
               </div>
             ) : (
               <div className="space-y-4">
-                {missionsData.map((mission) => {
-                  const assignedBot =
-                    mission.assignedBots && mission.assignedBots.length > 0
-                      ? bots.find((b) => mission.assignedBots?.includes(b.id))
-                      : undefined;
+                {missionsData.filter(m => 
+                  filter === 'all' ||
+                  (filter === 'active' && !m.timeEnd) ||
+                  (filter === 'completed' && m.timeEnd
+                )).map((mission) => {
 
                   return (
                     <div
@@ -156,12 +152,16 @@ export default function Missions() {
                           <h3 className="text-lg font-semibold mb-2">{mission.missionName}</h3>
                           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
                             <div>
-                              <p className="text-gray-600">Bot</p>
+                              <p className="text-gray-600">Bot(s)</p>
                               <p className="font-medium">
-                                {assignedBot?.name ||
-                                  (mission.assignedBots?.length
-                                    ? `Bot ${mission.assignedBots[0]}`
-                                    : 'Unassigned')}
+                                {mission.assignedBots && mission.assignedBots.length > 0
+                                  ? mission.assignedBots
+                                      .map((botId) => {
+                                        const bot = bots.find((b) => b.id === botId);
+                                        return bot ? bot.name : `Bot #${botId}`;
+                                      })
+                                      .join(', ')
+                                  : 'None'}
                               </p>
                             </div>
                             <div>
@@ -170,7 +170,7 @@ export default function Missions() {
                             </div>
                             <div>
                               <p className="text-gray-600">Time Passed</p>
-                              <p className="font-medium">{mission.timePassed} min</p>
+                              <p className="font-medium">{convertMinutes(mission.timePassed)}</p>
                             </div>
                             <div>
                               <p className="text-gray-600">Hotspots Found</p>
@@ -198,7 +198,7 @@ export default function Missions() {
                           <div className="ml-4">
                             {startAndEndMissionButton(
                               mission,
-                              saveUpdate,
+                              handleStartEndMission,
                               bots,
                               undefined,
                               'w-full px-4 py-2 bg-brand-blue text-white rounded-md hover:bg-blue-700 text-sm',

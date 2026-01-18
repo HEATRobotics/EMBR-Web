@@ -1,14 +1,11 @@
 import React from 'react';
 import ReactGoogleAutocomplete from 'react-google-autocomplete';
 
-import { bellNotificationIcon, searchIcon } from '@/assets/icons';
+import { searchIcon } from '@/assets/icons';
 
 function Search() {
   return (
     <div className="flex justify-end items-center gap-x-2.5">
-      <div className="cursor-pointer size-[38px] flex justify-center items-center rounded-[22px] bg-white">
-        {bellNotificationIcon}
-      </div>
       <div className="relative">
         <div className="absolute size-[17px] top-1/2 -translate-y-1/2 left-[18px]">
           {searchIcon}

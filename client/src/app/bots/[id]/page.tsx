@@ -2,8 +2,7 @@
 
 import { useMemo } from 'react';
 
-import BotInfoPanel from '@/components/features/bot/Details/BotInfo/BotInfoPanel';
-import StatusOverviewComponent from '@/components/features/bot/FleetDetails/StatusOverview';
+import BotInfoPanel from '@/components/features/bot/BotInfoPanel';
 import { useBotData } from '@/hooks/useBotData';
 import { useMissions } from '@/hooks/useMissions';
 import { useParams } from 'next/navigation';
@@ -93,10 +92,6 @@ export default function BotDetail() {
 
           {/* Side Panel */}
           <div className="space-y-6">
-            {/* Status Overview */}
-            <div className="bg-white rounded-lg shadow p-6">
-              <StatusOverviewComponent />
-            </div>
 
             {/* Bot Specifications */}
             <div className="bg-white rounded-lg shadow p-6">

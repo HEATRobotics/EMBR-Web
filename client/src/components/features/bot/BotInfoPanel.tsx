@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 
-import InfoGrid from '@/components/features/bot/Details/BotInfo/InfoGrid';
+import InfoGrid from '@/components/ui/InfoGrid';
 import { RobotType } from '@/types/robot.type';
 
 function BotInfoPanel({ selectedBot }: { selectedBot: RobotType }) {

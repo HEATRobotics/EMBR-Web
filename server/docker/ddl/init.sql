@@ -24,7 +24,6 @@ CREATE TABLE mission (
   areaCoordinates JSON,
   progress DECIMAL(5,2),
   avgTemp DECIMAL(5,2),
-  timePassed INT,
   timeEstimated INT,
   timeStart TIMESTAMP NULL DEFAULT NULL,
   timeEnd TIMESTAMP NULL DEFAULT NULL,
@@ -109,11 +108,11 @@ CREATE TABLE battery (
 -- Sample data
 INSERT INTO bot (botID, assignmentStatus) VALUES (1,'active'),(2,'ready'),(3,'ready');
 
-INSERT INTO mission (missionName, areaCoordinates, progress, avgTemp, timePassed, timeEstimated, timeStart)
+INSERT INTO mission (missionName, areaCoordinates, progress, avgTemp, timeEstimated, timeStart)
 VALUES (
   'Mission K-lona',
   JSON_OBJECT('north', 49.94909967001919, 'south', 49.92712108869749, 'east', -119.38269345092772, 'west', -119.40673239135744),
-  50.00, 22.50, 120, 240, '2025-04-26 00:00:00'
+  50.00, 22.50, 240, '2025-04-26 00:00:00'
 );
 
 -- Assign bot 1 to mission 1

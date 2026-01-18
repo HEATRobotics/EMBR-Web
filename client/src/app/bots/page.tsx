@@ -5,7 +5,6 @@ import {useRouter} from 'next/navigation';
 import BotOverviewCard from '@/components/features/bot/BotOverviewCard';
 import { useBotData } from '@/hooks/useBotData';
 import { useMissions } from '@/hooks/useMissions';
-import { RobotType } from '@/types/robot.type';
 
 export default function Bots() {
   const { bots, botsLoading, botError } = useBotData();
@@ -14,7 +13,7 @@ export default function Bots() {
 
   const totalBots = bots.length;
   const onlineBots = bots.filter((b) => b.operationalStatus === 'operational').length;
-  const onMission = bots.filter((b) => b.assignmentStatus === 'assigned').length;
+  const onMission = bots.filter((b) => b.assignmentStatus === 'active').length;
 
   if (botsLoading || missionsLoading) {
     return (
@@ -59,10 +58,6 @@ export default function Bots() {
           <div className="p-6">
             <div className="flex justify-between items-center mb-4">
               <h2 className="text-xl font-semibold">All Bots</h2>
-              <div className="flex gap-2">
-                <button className="px-4 py-2 border rounded-md hover:bg-gray-100">Grid View</button>
-                <button className="px-4 py-2 border rounded-md hover:bg-gray-100">List View</button>
-              </div>
             </div>
 
             {botError ? (
@@ -72,8 +67,6 @@ export default function Bots() {
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 {bots.map((bot) => {
-                  const botMission = missionsData?.find((m) => m.assignedBots?.includes(bot.id));
-
                   return (
                     <BotOverviewCard
                       key={bot.id}

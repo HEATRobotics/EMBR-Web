@@ -4,7 +4,7 @@ import { RobotOperationalStatusType } from '@/constants/robotConstants';
 import { MissionType } from '@/types/mission.type';
 import { RobotType } from '@/types/robot.type';
 
-export default class MapDrawUtils {
+class MapDrawUtilsClass {
   static markers: google.maps.Marker[] = [];
   static missionAreas: google.maps.Rectangle[] = [];
 
@@ -100,3 +100,8 @@ export default class MapDrawUtils {
     this.missionAreas = [];
   }
 }
+
+// Export as named functions for easier importing
+export const drawBots = MapDrawUtilsClass.drawBots.bind(MapDrawUtilsClass);
+export const drawMissionAreas = MapDrawUtilsClass.drawMissionAreas.bind(MapDrawUtilsClass);
+export default MapDrawUtilsClass;

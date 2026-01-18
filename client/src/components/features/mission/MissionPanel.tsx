@@ -1,15 +1,14 @@
 import { useMemo } from 'react';
 
-import InfoGrid from '@/components/features/bot/Details/BotInfo/InfoGrid';
-import DetailsPanel from '@/components/features/bot/Details/DetailsPanel';
+import InfoGrid from '@/components/ui/InfoGrid';
 import { MissionType } from '@/types/mission.type';
-import { RobotType } from '@/types/robot.type';
+import { calc } from 'antd/es/theme/internal';
+import { calculateRectangleArea, formatArea } from '@/utils/calculateArea';
+import { format } from 'path';
 
 function MissionPanel({
-  selectedBot,
   activeMission,
 }: {
-  selectedBot: RobotType;
   activeMission: MissionType | undefined;
 }) {
   const { centerData, upCornerData, downCornerData, areaData } = useMemo(() => {
@@ -52,16 +51,16 @@ function MissionPanel({
       { title: 'Longitude', value: bottomRight.lng.toFixed(6) },
     ];
 
-    // Calculate area
-    const avgLatitudeRad = (centerLatitude * Math.PI) / 180;
-    const latDistanceKm = Math.abs(topLeft.lat - bottomRight.lat) * 111;
-    const lonDistanceKm = Math.abs(topLeft.lng - bottomRight.lng) * 111 * Math.cos(avgLatitudeRad);
-
-    const areaKm2 = latDistanceKm * lonDistanceKm;
+    const areaKm2 = calculateRectangleArea({
+      north: topLeft.lat,
+      south: bottomRight.lat,
+      east: bottomRight.lng,
+      west: topLeft.lng,
+    });
     const areaHa = areaKm2 * 100;
 
     const areaData = [
-      { title: 'Area', value: `${areaKm2.toFixed(2)} km²` },
+      { title: 'Area', value: formatArea(areaKm2) },
       { title: 'Area', value: `${areaHa.toFixed(1)} ha` },
       { title: 'Time passed', value: activeMission.timePassed + ' min' || 'N/A' },
       { title: 'Est Duration', value: activeMission.timeEstimated + ' min' || 'N/A' },

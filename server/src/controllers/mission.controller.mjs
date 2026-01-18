@@ -19,10 +19,19 @@ const mapMission = async (missionRow) => {
 	}
 	const assignedBots = await getAssignmentsForMission(missionRow.missionID);
 
+	// Calculate timePassed from timeStart and timeEnd
+	let timePassed = 0;
+	if (missionRow.timeStart) {
+		const startTime = new Date(missionRow.timeStart).getTime();
+		const endTime = missionRow.timeEnd ? new Date(missionRow.timeEnd).getTime() : Date.now();
+		timePassed = Math.floor((endTime - startTime) / 1000 / 60); // Convert to minutes
+	}
+
 	return {
 		...missionRow,
 		areaCoordinates: areaParsed,
 		assignedBots,
+		timePassed,
 	};
 };
 
@@ -58,7 +67,6 @@ export async function createMissionController(req, res) {
 			areaCoordinates: body.areaCoordinates,
 			progress: body.progress ?? 0,
 			avgTemp: body.avgTemp ?? 0,
-			timePassed: body.timePassed ?? 0,
 			timeEstimated: body.timeEstimated ?? 0,
 			timeStart: body.timeStart ?? null,
 			timeEnd: body.timeEnd ?? null,

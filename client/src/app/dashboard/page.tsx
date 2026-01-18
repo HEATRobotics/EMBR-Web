@@ -5,16 +5,13 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import CustomGoogleMap from '@/components/features/map/GoogleMap';
 import { DashboardSidebar } from '@/components/features/dashboard';
-import { useBotData } from '@/hooks/useBotData';
-import { useMissions } from '@/hooks/useMissions';
-import { RobotType } from '@/types/robot.type';
+import { useBotData, useMissions } from '@/hooks';
 
 export default function Dashboard() {
   const router = useRouter();
-  const { bots, setBots } = useBotData();
-  const { missionsData, setMissions } = useMissions();
+  const { bots } = useBotData();
+  const { missionsData } = useMissions();
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
-  const [showMissionCreate, setShowMissionCreate] = useState(false);
 
   if(!bots || !missionsData) {
     return <div>Loading...</div>;

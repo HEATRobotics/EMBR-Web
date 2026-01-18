@@ -278,7 +278,6 @@ export async function createMission(missionData) {
 		areaCoordinates,
 		progress = 0,
 		avgTemp = 0,
-		timePassed = 0,
 		timeEstimated = 0,
 		timeStart = null,
 		timeEnd = null,
@@ -295,9 +294,9 @@ export async function createMission(missionData) {
 		await conn.beginTransaction();
 
 		const [result] = await conn.execute(
-			`INSERT INTO mission (missionName, areaCoordinates, progress, avgTemp, timePassed, timeEstimated, timeStart, timeEnd)
-			 VALUES (?, ?, ?, ?, ?, ?, ?, ?)` ,
-			[missionName, JSON.stringify(areaCoordinates), progress, avgTemp, timePassed, timeEstimated, timeStart, timeEnd]
+			`INSERT INTO mission (missionName, areaCoordinates, progress, avgTemp, timeEstimated, timeStart, timeEnd)
+			 VALUES (?, ?, ?, ?, ?, ?, ?)` ,
+			[missionName, JSON.stringify(areaCoordinates), progress, avgTemp, timeEstimated, timeStart, timeEnd]
 		);
 
 		const missionID = result.insertId;
@@ -334,7 +333,6 @@ export async function updateMission(missionId, missionData) {
 		areaCoordinates,
 		progress,
 		avgTemp,
-		timePassed,
 		timeEstimated,
 		timeStart,
 		timeEnd,
@@ -345,7 +343,7 @@ export async function updateMission(missionId, missionData) {
 		conn = await pool.getConnection();
 		await conn.execute(
 			`UPDATE mission SET missionName = COALESCE(?, missionName), areaCoordinates = COALESCE(?, areaCoordinates),
-			 progress = COALESCE(?, progress), avgTemp = COALESCE(?, avgTemp), timePassed = COALESCE(?, timePassed),
+			 progress = COALESCE(?, progress), avgTemp = COALESCE(?, avgTemp),
 			 timeEstimated = COALESCE(?, timeEstimated), timeStart = COALESCE(?, timeStart), timeEnd = COALESCE(?, timeEnd)
 			 WHERE missionID = ?`,
 			[
@@ -353,7 +351,6 @@ export async function updateMission(missionId, missionData) {
 				areaCoordinates ? JSON.stringify(areaCoordinates) : null,
 				progress ?? null,
 				avgTemp ?? null,
-				timePassed ?? null,
 				timeEstimated ?? null,
 				timeStart ?? null,
 				timeEnd ?? null,

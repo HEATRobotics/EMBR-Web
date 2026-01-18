@@ -1,6 +1,5 @@
 'use client';
 
-// Navigation is rendered in RootLayout; remove local render
 import { useParams } from 'next/navigation';
 
 export default function HotspotDetail() {

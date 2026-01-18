@@ -5,7 +5,7 @@ export interface MissionType {
   missionName: string;
   progress: number;
   averageTemperature: number;
-  timePassed: number;
+  timePassed: number; // in minutes
   timeEstimated: number;
   areaCoordinates: CoordinatesType[] | undefined;
   assignedBots?: number[];
