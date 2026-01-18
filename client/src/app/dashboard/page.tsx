@@ -23,7 +23,7 @@ export default function Dashboard() {
   return (
     <div className="h-full flex bg-gray-50">
       {/* Map Container */}
-      <div className="flex-1 overflow-hidden flex flex-col">
+      <div className="flex-1 overflow-hidden flex flex-col mb-16">
         {/* Map on its own */}
         <CustomGoogleMap 
           bots={bots} 
@@ -36,7 +36,8 @@ export default function Dashboard() {
         bots={bots}
         missionsData={missionsData}
         onBotSelect={(bot) => {router.push(`/bots/${bot!.id}`)}}
-        onMissionCreate={() => setShowMissionCreate(true)}
+        onMissionSelect={(mission) => {router.push(`/missions/${mission.missionID}`)}}
+        onMissionCreate={() => router.push('/missions/create')}
         isCollapsed={sidebarCollapsed}
         onToggleCollapse={() => setSidebarCollapsed(!sidebarCollapsed)}
       />

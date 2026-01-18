@@ -209,7 +209,6 @@ export async function getLatestBotData() {
 			SELECT
 				b.botID,
 				b.assignmentStatus,
-				bm.missionID,
 				p.clockTime AS positionTime,
 				p.latitude,
 				p.longitude,
@@ -233,7 +232,6 @@ export async function getLatestBotData() {
                 FROM battery ba2
                 WHERE ba2.botID = b.botID
             )
-            LEFT JOIN bot_mission_assignment bm ON b.botID = bm.botID
 		`;
 		const [rows] = await conn.execute(query);
 		return rows;
@@ -365,6 +363,48 @@ export async function updateMission(missionId, missionData) {
 		return { success: true };
 	} catch (error) {
 		console.error('Error updating mission:', error);
+		return { success: false, error: error.message };
+	} finally {
+		if (conn) await conn.release();
+	}
+}
+
+export async function startMission(missionId, startTime, bots) {
+	let conn;
+	try {
+		conn = await pool.getConnection();
+		await conn.execute(
+			`UPDATE mission SET timeStart = ? WHERE missionID = ?`,
+			[startTime, missionId]
+		);
+		await conn.execute(
+			`UPDATE bot SET assignmentStatus = 'active' WHERE botID IN (${bots.map(() => '?').join(',')})`,
+			bots
+		);
+		return { success: true };
+	} catch (error) {
+		console.error('Error starting mission:', error);
+		return { success: false, error: error.message };
+	} finally {
+		if (conn) await conn.release();
+	}
+}
+
+export async function endMission(missionId, endTime, bots) {
+	let conn;
+	try {
+		conn = await pool.getConnection();
+		await conn.execute(
+			`UPDATE mission SET timeEnd = ? WHERE missionID = ?`,
+			[endTime, missionId]
+		);
+		await conn.execute(
+			`UPDATE bot SET assignmentStatus = 'ready' WHERE botID IN (${bots.map(() => '?').join(',')})`,
+			bots
+		);
+		return { success: true };
+	} catch (error) {
+		console.error('Error ending mission:', error);
 		return { success: false, error: error.message };
 	} finally {
 		if (conn) await conn.release();

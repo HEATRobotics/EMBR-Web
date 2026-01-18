@@ -4,7 +4,6 @@ import { MissionType } from '@/types/mission.type';
 interface MissionStatusCardProps {
   mission: MissionType;
   onClick?: () => void;
-  isSelected?: boolean;
 }
 
 const getProgressColor = (progress: number) => {
@@ -26,16 +25,13 @@ const getProgressBg = (progress: number) => {
 export default function MissionStatusCard({
   mission,
   onClick,
-  isSelected,
 }: MissionStatusCardProps) {
   return (
     <div
       onClick={onClick}
-      className={`p-4 rounded-lg border-2 cursor-pointer transition-all ${
-        isSelected
-          ? 'border-orange-600 bg-orange-50 shadow-md'
-          : 'border-gray-200 bg-white hover:border-gray-300 hover:shadow-sm'
-      }`}
+      className={`p-4 rounded-lg cursor-pointer border-2 transition-all border-gray-200 bg-white
+                transition-transform transition-shadow duration-200 ease-out
+                hover:scale-[1.03] hover:shadow-lg active:scale-[1.01]`}
     >
       <div className="mb-3">
         <h3 className="font-semibold text-gray-900 truncate">{mission.missionName}</h3>

@@ -59,10 +59,10 @@ export default class MapDrawUtils {
     const rectangle = new google.maps.Rectangle({
       bounds,
       map,
-      strokeColor: '#FF0000',
+      strokeColor: mission.timeEnd ? '#00FF00' : mission.timeStart ? '#FFFF00' : '#686363',
       strokeOpacity: 0.8,
       strokeWeight: 2,
-      fillColor: '#FF0000',
+      fillColor: mission.timeEnd ? '#00FF00' : mission.timeStart ? '#FFFF00' : '#686363',
       fillOpacity: 0.35,
     });
 

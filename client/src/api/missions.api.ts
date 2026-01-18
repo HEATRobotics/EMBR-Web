@@ -49,6 +49,8 @@ const toFrontend = (dto: MissionDto): MissionType => {
     averageTemperature: dto.avgTemp,
     timePassed: dto.timePassed,
     timeEstimated: dto.timeEstimated,
+    timeStart: dto.timeStart,
+    timeEnd: dto.timeEnd,
     areaCoordinates: coords,
     assignedBots: assigned,
     hotspots: [],
@@ -99,6 +101,8 @@ export const updateMission = async (mission: Partial<MissionType>) => {
   if (mission.timePassed !== undefined) payload.timePassed = mission.timePassed;
   if (mission.timeEstimated !== undefined) payload.timeEstimated = mission.timeEstimated;
   if (mission.assignedBots !== undefined) payload.botIds = mission.assignedBots;
+  if (mission.timeStart !== undefined) payload.timeStart = mission.timeStart;
+  if (mission.timeEnd !== undefined) payload.timeEnd = mission.timeEnd;
   if (mission.areaCoordinates) {
     payload.areaCoordinates = {
       north: mission.areaCoordinates[0].lat,
@@ -113,6 +117,21 @@ export const updateMission = async (mission: Partial<MissionType>) => {
   });
   return response.data as { message: string };
 };
+
+export const startMission = async (id: number, time: string) => {
+  
+  const response = await axios.put(`${API_BASE_URL}/missions/start/${id}`, { time }, {
+    headers: { 'Content-Type': 'application/json' },
+  });
+  return response.data as { message: string };
+}
+
+export const endMission = async (id: number, time: string) => {
+  const response = await axios.put(`${API_BASE_URL}/missions/end/${id}`, { time }, {
+    headers: { 'Content-Type': 'application/json' },
+  });
+  return response.data as { message: string };
+}
 
 export const deleteMission = async (id: number) => {
   const response = await axios.delete(`${API_BASE_URL}/missions/${id}`);

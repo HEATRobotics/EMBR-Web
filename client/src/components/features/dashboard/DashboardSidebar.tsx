@@ -10,6 +10,7 @@ interface DashboardSidebarProps {
   missionsData: MissionType[] | null;
   onBotSelect: (bot: RobotType | null) => void;
   onMissionCreate: () => void;
+  onMissionSelect: (mission: MissionType) => void;
   isCollapsed: boolean;
   onToggleCollapse: () => void;
 }
@@ -19,15 +20,19 @@ export default function DashboardSidebar({
   missionsData,
   onBotSelect,
   onMissionCreate,
+  onMissionSelect,
   isCollapsed,
   onToggleCollapse,
 }: DashboardSidebarProps) {
   const [activeTab, setActiveTab] = useState<'overview' | 'bots' | 'missions'>('overview');
 
   // Calculate stats
-  const activeMissions = missionsData?.length || 0;
+  const activeMissions = missionsData?.filter(m => m.timeStart !== null && m.timeEnd === null).length || 0;
+  const totalMissions = missionsData?.length || 0;
+  const completedMissions = missionsData?.filter(m => m.timeEnd !== null).length || 0;
   const onlineBots = bots.filter((b) => b.operationalStatus === 'operational').length;
   const activeBots = bots.filter((b) => b.assignmentStatus === 'active').length;
+  const totalBots = bots.length;
   const totalHotspots =
     missionsData?.reduce((acc, mission) => {
       return acc + (mission.hotspots?.length || 0);
@@ -134,11 +139,19 @@ export default function DashboardSidebar({
                 <StatusCard
                   label="Active Missions"
                   value={activeMissions}
-                  color="orange"
+                  total={totalMissions}
+                  color="yellow"
                   icon="🎯"
                 />
                 <StatusCard
-                  label="Online Bots"
+                  label="Completed Missions"
+                  value={completedMissions}
+                  total={totalMissions}
+                  color="green"
+                  icon="✅"
+                />
+                <StatusCard
+                  label="Operational Bots"
                   value={onlineBots}
                   color="green"
                   icon="🤖"
@@ -152,7 +165,7 @@ export default function DashboardSidebar({
                 <StatusCard
                   label="Total Hotspots"
                   value={totalHotspots}
-                  color="gray"
+                  color="orange"
                   icon="🔥"
                 />
 
@@ -196,7 +209,7 @@ export default function DashboardSidebar({
                   </div>
                 ) : (
                   missionsData.map((mission) => (
-                    <MissionStatusCard key={mission.missionID} mission={mission} />
+                    <MissionStatusCard key={mission.missionID} mission={mission} onClick={() => onMissionSelect(mission)} />
                   ))
                 )}
               </div>

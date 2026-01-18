@@ -6,7 +6,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 
-import { updateMission } from '@/api/missions.api';
+import { startMission, endMission } from '@/api/missions.api';
 import { deleteMission } from '@/api/missions.api';
 import MissionPanel from '@/components/features/bot/Details/MissionPanel';
 import {
@@ -21,38 +21,47 @@ export default function Missions() {
   const { missionsData, missionsLoading, missionsError, setMissions } = useMissions();
   const { bots, setBots } = useBotData();
   const [filter, setFilter] = useState<'all' | 'active' | 'completed'>('all');
-  const saveUpdate = async (updatedMission: MissionType) => {
-    console.log('Updating mission:', updatedMission);
+  const saveUpdate = async (missionId: number, start: boolean, time: string) => {
+    console.log('Updating mission:', missionId);
 
     // Update missions in React state. Checks for matching missionID to replace the updated mission.
-    const newMissionList = (missionsData ?? []).map((m) =>
-      m.missionID === updatedMission.missionID ? updatedMission : m,
-    );
-    const updateMissionStatus = getMissionStatus(updatedMission.timeStart, updatedMission.timeEnd);
-
-    if (updatedMission.assignedBots && updatedMission.assignedBots.length > 0) {
-      let newBotStatus: RobotType['assignmentStatus'] | null = null;
-
-      if (updateMissionStatus === 'not started' || updateMissionStatus === 'completed') {
-        newBotStatus = 'assigned';
-      } else if (updateMissionStatus === 'in progress') {
-        newBotStatus = 'active';
+    const newMissionList = (missionsData ?? []).map((m) =>{
+      if(m.missionID === missionId) {
+        const updatedMission = { ...m };
+        if(start) {
+          updatedMission.timeStart = time;
+        }else{
+          updatedMission.timeEnd = time;
+        }
+        return updatedMission;
       }
+      return m;
+    });
 
-      if (newBotStatus) {
-        const assignedSet = new Set(updatedMission.assignedBots);
-        setBots((prevBots) =>
-          prevBots.map((bot) =>
-            assignedSet.has(bot.id) ? { ...bot, assignmentStatus: newBotStatus } : bot,
-          ),
-        );
-      }
+    const updatedMission = newMissionList.find((m) => m.missionID === missionId)!;
+
+    let newBotStatus: RobotType['assignmentStatus'] | null = null;
+
+    if (!start) {
+      newBotStatus = 'assigned';
+    } else if (start) {
+      newBotStatus = 'active';
     }
+
+    if (newBotStatus) {
+      const assignedSet = new Set(updatedMission.assignedBots);
+      setBots((prevBots) =>
+        prevBots.map((bot) =>
+          assignedSet.has(bot.id) ? { ...bot, assignmentStatus: newBotStatus } : bot,
+        ),
+      );
+    }
+    
 
     setMissions(newMissionList);
 
     // Push update to the database
-    const response = await updateMission(updatedMission);
+    const response = await start ? startMission(missionId, time) : endMission(missionId, time);
     console.log('Mission updated:', response);
   };
   const router = useRouter();
@@ -195,14 +204,16 @@ export default function Missions() {
                               'w-full px-4 py-2 bg-brand-blue text-white rounded-md hover:bg-blue-700 text-sm',
                             )}
                           </div>
-                          {/*Delete button thats included in the loop*/}
-                          <button
-                            // Call the handler function, passing the ID and Name
-                            onClick={() => handleDelete(mission.missionID, mission.missionName)}
-                            className="w-full mt-3 px-6 py-2 bg-red-100 hover:bg-red-200 rounded-md flex items-center justify-center gap-2 shadow"
-                          >
-                            <Trash2 size={20} color="red" />
-                          </button>
+                          <div className="ml-4">
+                            <button
+                              // Call the handler function, passing the ID and Name
+                              onClick={() => handleDelete(mission.missionID, mission.missionName)}
+                              className="w-full mt-3 py-2 bg-brand-orange rounded-md flex items-center justify-center gap-2 shadow"
+                            >
+                              <Trash2 size={20} color="white" />
+                            </button>
+                          </div>
+                          
                         </td>
                       </div>
                     </div>

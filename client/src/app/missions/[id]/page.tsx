@@ -4,60 +4,57 @@ import { Trash2 } from 'lucide-react';
 import { useParams, useRouter } from 'next/navigation';
 import React from 'react';
 
-import { updateMission, deleteMission } from '@/api/missions.api';
+import { deleteMission, endMission, startMission } from '@/api/missions.api';
 import MissionPanel from '@/components/features/bot/Details/MissionPanel';
 import CustomGoogleMap from '@/components/features/map/GoogleMap';
 import {
   startAndEndMissionButton,
-  getMissionStatus,
 } from '@/components/features/mission/MissionControls/MissionStartEnd';
 import { useBotData } from '@/hooks/useBotData';
 import { useMission } from '@/hooks/useMissions';
-import type { MissionType, RobotType } from '@/types';
+import type { RobotType } from '@/types';
 
 export default function MissionDetail() {
   const params = useParams();
   const router = useRouter();
   const missionId = Number(params.id);
 
-  const { missionData } = useMission(missionId);
-  const { bots } = useBotData();
+  const { missionData, setMission } = useMission(missionId);
+  const { bots, setBots } = useBotData();
 
   const mission = missionData;
   const assignedBot = bots.find((b) => mission?.assignedBots?.includes(b.id));
 
-  const saveUpdate = async (updatedMission: MissionType) => {
-    console.log('Updating mission:', updatedMission);
+  const saveUpdate = async (id: number, start: boolean, time: string) => {
+    console.log('Updating mission:', id);
 
-    // Update missions in React state. Checks for matching missionID to replace the updated mission.
-    const newMissionList = (missionData ?? []).map((m) =>
-      m.missionID === updatedMission.missionID ? updatedMission : m,
-    );
-    const updateMissionStatus = getMissionStatus(updatedMission.timeStart, updatedMission.timeEnd);
-
-    if (updatedMission.assignedBots && updatedMission.assignedBots.length > 0) {
-      let newBotStatus: RobotType['assignmentStatus'] | null = null;
-
-      if (updateMissionStatus === 'not started' || updateMissionStatus === 'completed') {
-        newBotStatus = 'assigned';
-      } else if (updateMissionStatus === 'in progress') {
-        newBotStatus = 'active';
-      }
-
-      if (newBotStatus) {
-        const assignedSet = new Set(updatedMission.assignedBots);
-        setBots((prevBots) =>
-          prevBots.map((bot) =>
-            assignedSet.has(bot.id) ? { ...bot, assignmentStatus: newBotStatus } : bot,
-          ),
-        );
-      }
+    if(start) {
+      mission!.timeStart = time;
+    }else if(!start) {
+      mission!.timeEnd = time;
     }
-    setMissions(newMissionList);
+    
+    let newBotStatus: RobotType['assignmentStatus'] | null = null;
+
+    if (!start) {
+      newBotStatus = 'assigned';
+    } else if (start) {
+      newBotStatus = 'active';
+    }
+
+    if (newBotStatus) {
+      const assignedSet = new Set(mission!.assignedBots);
+      setBots((prevBots) =>
+        prevBots.map((bot) =>
+          assignedSet.has(bot.id) ? { ...bot, assignmentStatus: newBotStatus } : bot,
+        ),
+      );
+    }
+    setMission(mission!);
 
     // Push update to the database
-    const response = await updateMission(updatedMission);
-    console.log('Mission updated:', response);
+    const response = await (start ? startMission(missionId, time) : endMission(missionId, time));
+    console.log(`Mission ${start ? 'started' : 'ended'}:`, response);
   };
 
   const handleDelete = async (missionId: number, missionName: string) => {
@@ -82,6 +79,7 @@ export default function MissionDetail() {
             <CustomGoogleMap
               bots={assignedBot ? [assignedBot] : []}
               missionsData={mission ? [mission] : []}
+              showSearch={false}
             />
 
             {/* Mission Controls Overlay */}

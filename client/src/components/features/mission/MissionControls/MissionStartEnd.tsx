@@ -5,69 +5,10 @@ import { useMissions } from '@/hooks/useMissions';
 import { MissionType } from '@/types/mission.type';
 import { RobotType } from '@/types/robot.type';
 
-type MissionStartEndProps = {
-  missionsData: MissionType[];
-  saveUpdate: (updatedMission: MissionType) => Promise<void>;
-  bots: RobotType[] | RobotType;
-};
-
-export default function MissionStartEnd({ missionsData, saveUpdate, bots }: MissionStartEndProps) {
-  //const { bots, botsLoading, botError } = useBotData();
-  return (
-    <div
-      className="z-[20] absolute right-4 top-20 w-auto max-h-[350px] overflow-y-auto bg-white border border-gray-300 rounded-md shadow-lg overflow-auto"
-      style={{ pointerEvents: 'auto' }}
-    >
-      <div className="p-4 font-semibold border-b border-gray-100">Missions</div>
-
-      <div className="p-4">
-        <table className="min-w-full border border-gray-200 text-sm text-left">
-          <thead className="bg-gray-100 text-gray-700">
-            <tr>
-              <th className="px-4 py-2 border-b">Mission Name</th>
-              <th className="px-4 py-2 border-b">Mission ID</th>
-              <th className="px-4 py-2 border-b">Bot ID</th>
-              <th className="px-4 py-2 border-b">Mission Status</th>
-              <th className="px-4 py-2 border-b">Action</th>
-            </tr>
-          </thead>
-          <tbody>
-            {missionsData?.map((mission) => {
-              const missionStatus = getMissionStatus(mission.timeStart, mission.timeEnd);
-
-              return (
-                <tr key={mission.missionID} className="hover:bg-gray-50 transition">
-                  <td className="px-4 py-2 border-b font-medium text-gray-800">
-                    {mission.missionName}
-                  </td>
-
-                  <td className="px-4 py-2 border-b font-medium text-gray-800">
-                    {mission.missionID}
-                  </td>
-
-                  <td className="px-4 py-2 border-b text-gray-600">
-                    {bots && Array.isArray(bots) ? bots.map((b) => b.id).join(', ') : bots?.id}
-                  </td>
-
-                  <td className="px-4 py-2 border-b text-gray-600">{missionStatus}</td>
-
-                  <td className="px-4 py-2 border-b">
-                    {startAndEndMissionButton(mission, saveUpdate, bots, missionStatus)}
-                  </td>
-                </tr>
-              );
-            })}
-          </tbody>
-        </table>
-      </div>
-    </div>
-  );
-}
-
 // Mission logic update
 function handleStartEndMission(
   mission: MissionType,
-  saveUpdate: (m: MissionType) => Promise<void>,
+  saveUpdate: (missionId: number, start: boolean, time: string) => Promise<void>,
   missionStatus?: 'not started' | 'in progress' | 'completed',
 ) {
   // In case missionStatus is not provided
@@ -77,17 +18,12 @@ function handleStartEndMission(
 
   const now = new Date().toISOString().slice(0, 19).replace('T', ' ');
 
-  // Use provided missionStatus, otherwise compute it
-  const status = missionStatus ?? getMissionStatus(mission.timeStart, mission.timeEnd);
-
-  if (status === 'not started') {
-    const updatedMission: MissionType = { ...mission, timeStart: now };
-    return saveUpdate(updatedMission);
+  if (missionStatus === 'not started') {
+    return saveUpdate(mission.missionID, true, now);
   }
 
-  if (status === 'in progress') {
-    const updatedMission: MissionType = { ...mission, timeEnd: now };
-    return saveUpdate(updatedMission);
+  if (missionStatus === 'in progress') {
+    return saveUpdate(mission.missionID, false, now);
   }
 }
 
@@ -104,7 +40,7 @@ export function getMissionStatus(
 // Render action button based on mission status
 export function startAndEndMissionButton(
   mission: MissionType,
-  saveUpdate: (m: MissionType) => Promise<void>,
+  saveUpdate: (id: number, start: boolean, time: string) => Promise<void>,
   bots: RobotType[] | RobotType, //You can pass either a single bot or all bots
   missionStatus?: 'not started' | 'in progress' | 'completed',
   className: string = 'px-3 py-1 rounded-md bg-blue-500 text-white hover:bg-blue-600 transition-colors',

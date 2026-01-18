@@ -107,7 +107,7 @@ CREATE TABLE battery (
 ) ENGINE=InnoDB;
 
 -- Sample data
-INSERT INTO bot (botID, assignmentStatus) VALUES (1,'assigned'),(2,'ready'),(3,'ready');
+INSERT INTO bot (botID, assignmentStatus) VALUES (1,'active'),(2,'ready'),(3,'ready');
 
 INSERT INTO mission (missionName, areaCoordinates, progress, avgTemp, timePassed, timeEstimated, timeStart)
 VALUES (
@@ -140,12 +140,6 @@ INSERT INTO temperature (botID, missionID, hotspotID, clockTime, temperature) VA
   (1, 1, @hotspotId, '2025-04-26 01:05:08', 81.6),
   (1, 1, @hotspotId, '2025-04-26 01:05:09', 80.9),
   (1, 1, @hotspotId, '2025-04-26 01:05:10', 80.2);
-
--- Non-hotspot temps and battery
-INSERT INTO temperature (botID, missionID, clockTime, temperature) VALUES
-  (1, 1, '2025-04-26 00:00:00', 22.5),
-  (1, 1, '2025-04-26 01:00:00', 22.7),
-  (1, 1, '2025-04-26 02:00:00', 22.8);
 
 INSERT INTO battery (botID, missionID, clockTime, battery) VALUES
   (1, 1, '2025-04-26 00:00:00', 97),

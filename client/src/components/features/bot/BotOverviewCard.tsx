@@ -8,36 +8,13 @@ interface BotOverviewCardProps {
   isSelected?: boolean;
 }
 
-const getStatusColor = (status: string) => {
-  switch (status) {
-    case 'operational':
-      return 'bg-green-100 text-green-800 border-green-300';
-    case 'idle':
-      return 'bg-blue-100 text-blue-800 border-blue-300';
-    case 'offline':
-      return 'bg-red-100 text-red-800 border-red-300';
-    default:
-      return 'bg-gray-100 text-gray-800 border-gray-300';
-  }
-};
-
-const getAssignmentColor = (status: string) => {
-  switch (status) {
-    case 'active':
-      return 'bg-orange-100 text-orange-800';
-    case 'assigned':
-      return 'bg-yellow-100 text-yellow-800';
-    case 'idle':
-      return 'bg-gray-100 text-gray-800';
-    default:
-      return 'bg-gray-100 text-gray-800';
-  }
-};
-
 export default function BotOverviewCard({ bot, onClick }: BotOverviewCardProps) {
   return (
     <div
-      className={`p-4 rounded-lg border-2 transition-all border-gray-200 bg-white`}
+      onClick={onClick}
+      className={`p-4 rounded-lg cursor-pointer border-2 transition-all border-gray-200 bg-white
+                transition-transform transition-shadow duration-200 ease-out
+                hover:scale-[1.03] hover:shadow-lg active:scale-[1.01]`}
     >
       <div className="flex items-start justify-between mb-3">
         <div className="flex-1">
@@ -66,10 +43,10 @@ export default function BotOverviewCard({ bot, onClick }: BotOverviewCardProps) 
                 <div
                   className={`h-full transition-all ${
                     bot.battery > 60
-                      ? 'bg-green'
+                      ? 'bg-green-600'
                       : bot.battery > 30
                         ? 'bg-yellow-500'
-                        : 'bg-red'
+                        : 'bg-red-600'
                   }`}
                   style={{ width: `${Math.max(2, Math.min(bot.battery, 100))}%` }}
                 ></div>
@@ -81,11 +58,6 @@ export default function BotOverviewCard({ bot, onClick }: BotOverviewCardProps) 
           </div>
         )}
       </div>
-
-    <button className="mt-3 w-full px-4 py-2 bg-brand-blue text-white rounded-md hover:bg-brand-blue/90 text-sm"
-    onClick={onClick}>
-        View Details
-    </button>
     </div>
   );
 }

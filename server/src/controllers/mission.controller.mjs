@@ -3,6 +3,8 @@ import {
 	getMissionByID,
 	createMission,
 	updateMission,
+	startMission,
+	endMission,
 	deleteMission,
 	assignBotsToMission,
 	getAssignmentsForMission
@@ -77,6 +79,42 @@ export async function updateMissionController(req, res) {
 		const result = await updateMission(req.params.id, req.body || {});
 		if (!result.success) return res.status(500).json({ error: result.error || 'Failed to update mission' });
 		res.status(200).json({ message: 'Mission updated successfully' });
+	} catch (error) {
+		res.status(500).json({ error: error.message });
+	}
+}
+
+export async function startMissionController(req, res) {
+	try {
+		const missionId = req.params.id;
+        const time = req.body?.time;
+
+        if (!time) {
+            return res.status(400).json({ error: 'Start time is required' });
+        }
+
+        const bots = await getAssignmentsForMission(missionId);
+        const result = await startMission(missionId, time, bots);
+		if (!result.success) return res.status(500).json({ error: result.error || 'Failed to start mission' });
+		res.status(200).json({ message: 'Mission started successfully' });
+	} catch (error) {
+		res.status(500).json({ error: error.message });
+	}
+}
+
+export async function endMissionController(req, res) {
+	try {
+        const missionId = req.params.id;
+        const time = req.body?.time;
+
+        if (!time) {
+            return res.status(400).json({ error: 'End time is required' });
+        }
+
+        const bots = await getAssignmentsForMission(missionId);
+		const result = await endMission(missionId, time, bots);
+		if (!result.success) return res.status(500).json({ error: result.error || 'Failed to end mission' });
+		res.status(200).json({ message: 'Mission ended successfully' });
 	} catch (error) {
 		res.status(500).json({ error: error.message });
 	}

@@ -13,13 +13,6 @@ const config: Config = {
         'nav-content': 'calc(100vh - var(--nav-height))',
       },
       colors: {
-        // Existing custom colors
-        gray: '#B1B1B1',
-        lightgray: '#EBEBEB',
-        darkgray: '#535A56',
-        red: '#FF3131',
-        green: '#007205',
-
         // Brand palette
         brand: {
           black: '#2C2C2C',

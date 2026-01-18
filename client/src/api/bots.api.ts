@@ -8,7 +8,6 @@ type BotDto = {
   botID: number;
   assignmentStatus: RobotType['assignmentStatus'];
   positionTime?: string;
-  missionID?: number | null;
   latitude?: number | string;
   longitude?: number | string;
   altitude?: number | string;
@@ -46,7 +45,6 @@ export const mapBotDtoToRobot = (bot: BotDto): RobotType => {
     name: `Bot ${bot.botID}`,
     assignmentStatus: bot.assignmentStatus ?? 'ready',
     operationalStatus: determineOperationalStatus(battery),
-    missionID: bot.missionID ?? null,
     battery,
     coordinates: {
       lat: latitude,
