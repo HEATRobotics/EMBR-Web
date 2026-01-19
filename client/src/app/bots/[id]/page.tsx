@@ -7,6 +7,8 @@ import BotInfoPanel from '@/components/features/bot/BotInfoPanel';
 import { useBotData } from '@/hooks/useBotData';
 import { useMissions } from '@/hooks/useMissions';
 
+
+
 export default function BotDetail() {
   const params = useParams();
   const { bots, botsLoading } = useBotData();
