@@ -9,6 +9,8 @@ import TemperatureChart from "@/components/TemperatureChart";
 import BatteryChart from "@/components/BatteryChart";
 import StatusOverviewComponent from "@/components/FleetDetails/StatusOverview";
 
+
+
 export default function BotDetail() {
   const params = useParams();
   const botId = params.id;

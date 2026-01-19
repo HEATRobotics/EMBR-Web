@@ -42,36 +42,46 @@ function DetailsPanel({
       {/* Content container */}
       <div className="flex flex-col h-[calc(100%-2.5rem)] border border-t-0 border-black">
 
-        {/* Tab Menu*/}
-        <div className="flex w-full border-b border-black">
-          <button
-            onClick={() => setCurrentTab("Bot Info")}
-            className={`w-1/2 py-3 text-center text-sm font-semibold transition-colors duration-200 ${
-              currentTab === "Bot Info"
-                ? "bg-blue-100 text-blue-800"
-                : "bg-gray-100 text-gray-600 hover:bg-gray-200 hover:text-gray-800"
-            }`}
-          >
-            Bot Info
-          </button>
+        {/* Tab Menu */}
+             <div className="flex w-full overflow-hidden shadow gap-3 justify-center ">      
+                <button
+                    onClick={() => setCurrentTab("Bot Info")}
+                    style={{
+                     backgroundColor: currentTab === "Bot Info" ? "#262626" : "#FFFFFF",
+                     color: currentTab === "Bot Info" ? "#8c351bff" : "#333333", 
+                     fontfamily: "Afacad, sans-serif",
+                    transition: "background-color 0.2s, color 0.2s",
+                    }}
+                    className={`py-2 px-14 mt-2 mb-1 text-center text-xl font-semibold transition-colors duration-200 rounded-md ${
+                        currentTab === "Bot Info"
+                            ? "bg-blue-100 text-blue-800"
+                            : "bg-gray-100 text-gray-600 hover:bg-gray-200 hover:text-gray-800"
+                    }`}
+                >
+                    Bot Info
+                </button>
+                <button
+                    onClick={() => setCurrentTab("Mission Info")}
+                    style={{
+                     backgroundColor: currentTab === "Mission Info" ? "#262626" : "#FFFFFF",
+                     color: currentTab === "Mission Info" ? "#8c351bff" : "#333333", 
+                     fontfamily: "Afacad, sans-serif",
+                    transition: "background-color 0.2s, color 0.2s",
+                    }}
+                    className={`py-2 px-10 mt-2 mb-1 text-center text-xl font-semibold transition-colors duration-200 rounded-md ${
+                        currentTab === "Mission Info"
+                            ? "bg-blue-100 text-blue-800"
+                            : "bg-gray-100 text-gray-600 hover:bg-gray-200 hover:text-gray-800"
+                            
+                    }`}
+                >
+                    Mission Info
+                </button>
+            </div>
 
-          <button
-            onClick={() => setCurrentTab("Mission Info")}
-            className={`w-1/2 py-3 text-center text-sm font-semibold transition-colors duration-200 ${
-              currentTab === "Mission Info"
-                ? "bg-blue-100 text-blue-800"
-                : "bg-gray-100 text-gray-600 hover:bg-gray-200 hover:text-gray-800"
-            }`}
-          >
-            Mission Info
-          </button>
-        </div>
-
-        {/* Inner content – NO borders added */}
-        <div className="flex-1 overflow-y-auto">
-          {currentTab === "Bot Info" && (
-            <BotPanel selectedBot={selectedBot} onClose={onClose} />
-          )}
+             {currentTab === 'Bot Info' && (
+                <BotPanel selectedBot={selectedBot} onClose={onClose}/>
+            )}
 
           {currentTab === "Mission Info" && (
             <MissionPanel
@@ -81,8 +91,8 @@ function DetailsPanel({
           )}
         </div>
       </div>
-    </div>
   );
 }
 
 export default DetailsPanel;
+

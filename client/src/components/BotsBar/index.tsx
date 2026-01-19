@@ -23,6 +23,7 @@ function BotsBar({
     deleteMissionCallback: () => void;
     startEndMissionCallback: () => void;
 }) {
+    
     return (
         <div className="absolute flex flex-col gap-y-1 m-1 z-[10]">
             <div className="flex flex-col gap-y-2.5">
@@ -30,7 +31,17 @@ function BotsBar({
                     bots.map((bot) => (
                         <div
                             key={bot.id}
-                            className="border border-gray-300 rounded-md shadow-sm"
+                            className="
+                              border-1 border-black 
+                              rounded-lg shadow-md px-3 py-2 
+                              bg-white/20           
+                              backdrop-blur-sm      
+                              hover:bg-orange-500/30 
+                              transition-colors duration-200 ease-in-out
+                              font-semibold        
+                              text-base  
+                              text-white
+                          "
                         >
                             <Item
                                 bot={bot}
@@ -41,7 +52,7 @@ function BotsBar({
                         </div>
                     ))
                 ) : (
-                    <p className="bg-white text-gray-500 text-center py-4 border border-dashed border-gray-300 rounded-md bg-gray-50 opacity-75">
+                    <p className="bg-white text-gray-500 text-center py-4 border border-dashed border-gray-300 rounded-md opacity-75">
                         No bots available.
                     </p>
                 )}
