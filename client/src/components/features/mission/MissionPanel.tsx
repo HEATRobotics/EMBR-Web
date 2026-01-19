@@ -1,10 +1,9 @@
-import { calc } from 'antd/es/theme/internal';
-import { format } from 'path';
 import { useMemo } from 'react';
 
 import InfoGrid from '@/components/ui/InfoGrid';
 import { MissionType } from '@/types/mission.type';
 import { calculateRectangleArea, formatArea } from '@/utils/calculateArea';
+import { convertMinutes } from '@/utils/convertMinutes';
 
 function MissionPanel({ activeMission }: { activeMission: MissionType | undefined }) {
   const { centerData, upCornerData, downCornerData, areaData } = useMemo(() => {
@@ -58,7 +57,7 @@ function MissionPanel({ activeMission }: { activeMission: MissionType | undefine
     const areaData = [
       { title: 'Area', value: formatArea(areaKm2) },
       { title: 'Area', value: `${areaHa.toFixed(1)} ha` },
-      { title: 'Time passed', value: activeMission.timePassed + ' min' || 'N/A' },
+      { title: 'Time passed', value: convertMinutes(activeMission.timePassed) || 'N/A' },
       { title: 'Est Duration', value: activeMission.timeEstimated + ' min' || 'N/A' },
     ];
 
@@ -76,42 +75,57 @@ function MissionPanel({ activeMission }: { activeMission: MissionType | undefine
 
   return (
     <>
-      <div className="flex w-full overflow-hidden shadow border-b border-t border-black">
-        <span
-          className={`w-full py-3 text-center text-sm font-semibold transition-colors duration-200 bg-gray-100 text-gray-600 hover:bg-gray-200 hover:text-gray-800"}`}
-        >
-          General Information for {activeMission.missionName}
-        </span>
+      <div className="flex w-full overflow-hidden shadow border-t-2  border-t-[#1c1c1c]  " 
+              >
+          <span
+              className={`w-full py-3 text-center text-sm font-semibold transition-colors duration-200  text-gray-600 "}`} 
+              style={{
+                  backgroundColor: "rgba(62, 60, 56, 0.5)",
+              }}
+              >
+                  General Information for {activeMission.missionName}
+          </span>
       </div>
-      <InfoGrid data={areaData} />
+      <InfoGrid data={areaData}/>
 
-      <div className="flex w-full overflow-hidden shadow border-b border-t border-black">
-        <span
-          className={`w-full py-3 text-center text-sm font-semibold transition-colors duration-200 bg-gray-100 text-gray-600 hover:bg-gray-200 hover:text-gray-800"}`}
-        >
-          Area Center
-        </span>
+      <div className="flex w-full overflow-hidden ">  
+          <span
+              className={`w-full py-3 text-center  font-semibold transition-colors duration-200  text-gray-600 "}`}   //hover:bg-gray-200 hover:text-gray-800  bg-gray-100  text-sm 
+              style={{
+                  backgroundColor: "rgba(62, 60, 56, 0.5)",
+              }}
+          >
+              Area Center
+          </span>
       </div>
-      <InfoGrid data={centerData} />
+      <InfoGrid data={centerData}/>
 
-      <div className="flex w-full overflow-hidden shadow border-b border-t border-black">
-        <span
-          className={`w-full py-3 text-center text-sm font-semibold transition-colors duration-200 bg-gray-100 text-gray-600 hover:bg-gray-200 hover:text-gray-800"}`}
-        >
-          Top Left Corner
-        </span>
+      <div className="flex w-full overflow-hidden shadow ">
+          <span
+              className={`w-full py-3 text-center text-sm font-semibold transition-colors duration-200 text-gray-600 "}`}   
+              style={{
+                  backgroundColor: "rgba(62, 60, 56, 0.5)",
+              }}
+          >
+              Top Left Corner
+          </span>
       </div>
-      <InfoGrid data={upCornerData} />
+      <InfoGrid data={upCornerData}/>
 
-      <div className="flex w-full overflow-hidden shadow border-b border-t border-black">
-        <span
-          className={`w-full py-3 text-center text-sm font-semibold transition-colors duration-200 bg-gray-100 text-gray-600 hover:bg-gray-200 hover:text-gray-800"}`}
-        >
-          Bottom Right Corner
-        </span>
+      <div className="flex w-full overflow-hidden shadow">
+          <span
+              className={`w-full py-3 text-center text-sm font-semibold transition-colors duration-200  text-gray-600 "}`}
+              style={{
+                  backgroundColor: "rgba(62, 60, 56, 0.5)",
+              }} 
+          >
+              Bottom Right Corner
+          </span>
       </div>
-      <InfoGrid data={downCornerData} />
-    </>
+      <InfoGrid data={downCornerData}/>
+
+
+  </>
   );
 }
 
