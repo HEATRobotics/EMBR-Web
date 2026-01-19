@@ -1,24 +1,21 @@
 import express from 'express';
 import {
-    getMissionByBotID,
+    getMissionByID,
     getAllMissions,
     updateMission,
-    createMission
+    createMission,
+    deleteMission
 } from '../database.mjs';
 
 const router = express.Router();
 
 // Get a mission by ID
 router.get('/get/:id', async (req, res) => {
-    try {
-        const mission = await getMissionByBotID(req.params.id);
-        if (mission) {
-            res.json(mission);
-        } else {
-            res.status(404).json({ message: 'Mission not found' });
-        }
-    } catch (error) {
-        res.status(500).json({ message: 'Failed to get mission', error: error.message });
+    const mission = await getMissionByID(req.params.id);
+    if (mission.success) {
+        res.json(mission.data);
+    } else {
+        res.status(500).json({message: 'Failed to get mission', error: mission.error || 'Unknown error'});
     }
 });
 
@@ -34,6 +31,9 @@ router.get('/get-all', async (req, res) => {
 
 // Update a mission
 router.put('/update/:id', async (req, res) => {
+    console.log("=== UPDATE ROUTE HIT ===");
+    console.log("ID:", req.params.id);
+    console.log("Body:", req.body);
     try {
         await updateMission(req.params.id, req.body);
         res.json({ message: 'Mission updated successfully' });
@@ -63,6 +63,18 @@ router.post('/create', async (req, res) => {
         console.error('Error in mission creation endpoint:', error);
         res.status(500).json({ message: 'Failed to create mission', error: error.message }); // Respond with 500 and error message
     }
+});
+
+router.delete('/delete/:id', async (req, res) => { //define delete api endpoint
+    const result = await deleteMission(Number(req.params.id)); //
+
+    if (result.success) {
+        res.json({message: 'Mission deleted successfully'});
+    }
+    else {
+        res.status(500).json({message: 'Failed to delete mission', error: result.error || 'Unknown error'});
+    }
+        
 });
 
 

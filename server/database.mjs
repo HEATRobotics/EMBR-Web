@@ -327,22 +327,40 @@ export async function getLatestBotData() {
     Mission data includes fleetID, areaCoordinates, progress, avgTemp, etc
     Returns object containing mission data if successful, or false if an error occurs.
  */
-export async function getMissionByBotID(missionID) {
+export async function getMissionByBotID(botID) {
     let conn;
     try {
         conn = await pool.getConnection();
         const query = `SELECT * FROM mission WHERE botID = ?`;
-        const [rows] = await conn.execute(query, [missionID]);
-        return rows[0];
+        const [rows] = await conn.execute(query, [botID]);
+        return {success: true, data: rows[0]};
     } catch (error) {
         console.error('Error getting mission by Bot ID:', error);
-        return false;
+        return {success: false, error: error.message}
     } finally {
         if (conn) {
             await conn.release();
         }
     }
 }
+
+export async function getMissionByID(missionID) {
+    let conn;
+    try {
+        conn = await pool.getConnection();
+        const query = `SELECT * FROM mission WHERE missionID = ?`;
+        const [rows] = await conn.execute(query, [missionID]);
+        return {success: true, data: rows[0]};
+    } catch (error) {
+        console.error('Error getting mission by mission ID:', error);
+        return {success: false, error: error.message}
+    } finally {
+        if (conn) {
+            await conn.release();
+        }
+    }
+}
+
 /*
     Fetches all missions from the database.
     Returns an array of mission objects if successful, or false if an error occurs.
@@ -367,12 +385,42 @@ export async function getAllMissions() {
 
 
 export async function updateMission(missionId, missionData) {
-    const { name, areaCoordinates, process, averageTemperature, timePassed, timeEstimated } = missionData;
+    const { missionName, areaCoordinates, botID, progress, averageTemperature, timePassed, timeEstimated, timeStart, timeEnd } = missionData;
     try {
         const connection = await pool.getConnection();
+
+    
+        //Compare previous mission and new data mission so that other data table that are affected by the update are also updated
+        // 1) Get the current mission row
+        const [rows] = await connection.execute(
+            'SELECT timeStart, timeEnd FROM mission WHERE missionID = ?',
+            [missionId]
+        );
+        if (rows.length === 0) {
+            throw new Error("Mission not found");
+        }
+         
+        const current = rows[0];
+        // Compare only timeStart and timeEnd for now
+        if (current.timeStart !== missionData.timeStart) {//Check if mission is started
+            // Mark the bot as active
+            console.log("=== MISSION STARTED - UPDATING BOT STATUS TO ACTIVE ===");
+            const updateBotQuery = `UPDATE bot SET assignmentStatus = 'active' WHERE botID = ?`;
+            await connection.execute(updateBotQuery, [botID]);
+        }
+
+        if (current.timeEnd !== missionData.timeEnd) {
+            // Mark the bot as active
+            console.log("=== MISSION ENDED - UPDATING BOT STATUS TO ASSIGNED ===");
+            const updateBotQuery = `UPDATE bot SET assignmentStatus = 'assigned' WHERE botID = ?`;
+            await connection.execute(updateBotQuery, [botID]);
+        }
+            
+
+        // Acuallu update
         await connection.execute(
-            'UPDATE mission SET name = ?, area_coordinates = ?, progress = ?, avgTemp = ?, timePassed = ?, timeEstimated = ? WHERE missionID = ?',
-            [name, JSON.stringify(areaCoordinates), process, averageTemperature, timePassed, timeEstimated, missionId]
+            'UPDATE mission SET missionName = ?, areaCoordinates = ?, progress = ?, avgTemp = ?, timePassed = ?, timeEstimated = ?, timeStart = ?, timeEnd = ? WHERE missionID = ?',
+            [missionName, JSON.stringify(areaCoordinates), progress, averageTemperature, timePassed, timeEstimated, timeStart, timeEnd, missionId]
         );
         connection.release();
         return { success: true }; 
@@ -418,6 +466,33 @@ export async function createMission(missionData) {
             try { await conn.rollback(); } catch (_) {}
         }
         throw error; // Re-throw the error to be handled by the endpoint
+    } finally {
+        if (conn) {
+            await conn.release();
+        }
+    }
+}
+
+// this is to delete a mission by id
+export async function deleteMission(missionId) {//export to make this func available to other files, async is when we need to wait for database operations (await)
+    let conn;//declare variable conn to connect the server and database
+    try {
+        conn = await pool.getConnection();
+
+        //delete the mission
+        const deleteQuery = `DELETE FROM mission WHERE missionID = ?`;
+        const [result] = await conn.execute(deleteQuery, [missionId]);
+
+        // unassign the bot that was assigned to this mission
+        if (result.affectedRows > 0) {
+            const updateBotQuery = `UPDATE bot SET assignmentStatus = 'ready' WHERE botID NOT IN (SELECT botID FROM mission)`;
+            await conn.execute(updateBotQuery);
+        }
+
+        return { success: result.affectedRows > 0 };
+    } catch (error) {
+        console.error('Error deleting mission:', error);//if mission not found
+        return { success: false, error: error.message };//return false if error occurs
     } finally {
         if (conn) {
             await conn.release();

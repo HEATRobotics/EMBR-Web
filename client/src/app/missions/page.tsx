@@ -5,11 +5,74 @@ import { useMissions } from "@/hooks/useMissions";
 import { useBotData } from "@/hooks/useBotData";
 import Link from "next/link";
 import { useState } from "react";
+import { startAndEndMissionButton, getMissionStatus } from "@/components/MissionControls/MissionStartEnd";
+import { updateMissionInDB } from "@/api/missions.api";
+
+import MissionPanel from "@/components/Details/MissionPanel";
+import { Trash2 } from "lucide-react";
+import { deleteMission } from "@/api/missions.api";
+import { useRouter } from "next/navigation";
+
 
 export default function Missions() {
-  const { missionsData, missionsLoading } = useMissions();
-  const { bots } = useBotData();
+  const { missionsData, missionsLoading, missionsError, setMissions } = useMissions();
+  const { bots, setBots } = useBotData();
   const [filter, setFilter] = useState<"all" | "active" | "completed">("all");
+  const saveUpdate = async (updatedMission: MissionType) => {
+    console.log("Updating mission:", updatedMission);
+
+    // Update missions in React state. Checks for matching missionID to replace the updated mission.
+    const newMissionList = (missionsData ?? []).map(m => 
+      m.missionID === updatedMission.missionID ? updatedMission : m
+    );
+    const updateMissionStatus=getMissionStatus(updatedMission.timeStart, updatedMission.timeEnd);
+        
+    if (updatedMission.botID != null) {
+      let newBotStatus: RobotType["assignmentStatus"] | null = null;
+
+      if (
+        updateMissionStatus === "not started" ||
+        updateMissionStatus === "completed"
+      ) {
+        newBotStatus = "assigned";
+      } else if (updateMissionStatus === "in progress") {
+        newBotStatus = "active";
+      }
+
+      if (newBotStatus) {
+        setBots(prevBots =>
+          prevBots.map(bot =>
+            bot.id === String(updatedMission.botID)
+              ? { ...bot, assignmentStatus: newBotStatus }
+              : bot
+          )
+        );
+      }
+    }
+
+    setMissions(newMissionList);
+
+    // Push update to the database
+    const response = await updateMissionInDB(updatedMission);
+    console.log("Mission updated:", response);
+
+  };
+  const router = useRouter();
+
+const handleDelete = async (missionId: number, missionName: string) => {
+  const confirmed = window.confirm(`Are you sure you want to delete mission "${missionName}"?`);
+  if (!confirmed) return;
+
+    try {
+      const response = await deleteMission(missionId.toString());
+      alert(response.message);
+      // Update local state so UI rerenders immediately
+      setMissions((prev) => (prev ? prev.filter((m) => m.missionID !== missionId) : null));
+      
+  } catch (error: any) {
+    alert(error.message || 'Failed to delete mission.');
+  }
+};
 
   return (
   <div className="bg-gray-100 min-h-full">
@@ -73,12 +136,12 @@ export default function Missions() {
               </div>
             ) : (
               <div className="space-y-4">
-                {missionsData.map((mission, idx) => {
+                {missionsData.map((mission) => {
                   const assignedBot = bots.find((b) => Number(b.id) === mission.botID);
                   
                   return (
                     <div
-                      key={idx}
+                      key={mission.missionID}
                       className="border rounded-lg p-4 hover:shadow-lg transition-shadow"
                     >
                       <div className="flex justify-between items-start">
@@ -111,14 +174,34 @@ export default function Missions() {
                             ></div>
                           </div>
                         </div>
-                        
-                        <div className="ml-4">
-                          <Link href={`/missions/${idx + 1}`}>
-                            <button className="px-4 py-2 bg-brand-blue text-white rounded-md hover:bg-blue-700 text-sm">
-                              View Details
-                            </button>
-                          </Link>
-                        </div>
+                        <td className="px-4 py-2 space-y-2"> 
+                          <div className="ml-4">
+                            <Link href={`/missions/${mission.missionID}`}>
+                              <button className="px-4 py-2 bg-brand-blue text-white rounded-md hover:bg-blue-700 text-sm">
+                                View Details
+                              </button>
+                            </Link>
+
+                          </div>
+                          {/* Start/End Mission button placed underneath */}
+                          <div className="ml-4">
+                            {startAndEndMissionButton(
+                              mission,
+                              undefined,
+                              saveUpdate,
+                              bots,
+                              "w-full px-4 py-2 bg-brand-blue text-white rounded-md hover:bg-blue-700 text-sm"
+                            )}
+                          </div>
+                          {/*Delete button thats included in the loop*/}
+                          <button
+                            // Call the handler function, passing the ID and Name
+                           onClick={() => handleDelete(mission.missionID, mission.missionName)}
+                            className="w-full mt-3 px-6 py-2 bg-red-100 hover:bg-red-200 rounded-md flex items-center justify-center gap-2 shadow"
+>
+  <Trash2 size={20} color="red" />
+  </button>
+                        </td>
                       </div>
                     </div>
                   );

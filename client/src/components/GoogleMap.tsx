@@ -10,6 +10,7 @@ import {
 } from "@react-google-maps/api";
 import BotsBar from "./BotsBar";
 import MissionCreate from "./MissionControls/MissionCreate";
+import MissionStartEnd, { getMissionStatus }  from "./MissionControls/MissionStartEnd";
 import { useAppDispatch, useAppSelector } from "@/redux/hooks";
 import { MissionType } from "@/types/mission.type";
 import { useBotData } from "@/hooks/useBotData";
@@ -17,7 +18,7 @@ import { useMissions } from "@/hooks/useMissions";
 import MapDrawUtils from "@/utils/MapDrawUtils";
 import MapTools from "@/components/MapTools";
 import { RobotType } from "@/types/robot.type";
-import { addMissionToDB } from "@/api/missions.api";
+import { addMissionToDB, updateMissionInDB } from "@/api/missions.api";
 import DetailsPanel from "@/components/Details/DetailsPanel";
 
 // ========== CONSTANTS ==========
@@ -116,9 +117,10 @@ const CustomGoogleMap: React.FC = () => {
   const [selectedBot, setSelectedBot] = useState<RobotType | null>(null);
   const [activeMissionCreate, setActiveMissionCreate] = useState<boolean>(false);
   const [newMission, setNewMission] = useState<MissionType>(NEW_MISSION_TEMPLATE);
+  const [activeMissionStartEnd, setActiveMissionStartEnd] = useState<boolean>(false); 
 
   // Data Hooks
-  const { bots, botsLoading, botError } = useBotData();
+  const { bots, botsLoading, botError, setBots } = useBotData();
   const { missionsData, missionsLoading, missionsError, setMissions } = useMissions();
 
   const { isLoaded } = useJsApiLoader({
@@ -161,13 +163,66 @@ const CustomGoogleMap: React.FC = () => {
     setActiveMissionCreate(false);
     console.log("Saving mission:", mission);
 
-    const updatedMissions = [...(missionsData ?? []), mission];
-    setMissions(updatedMissions);
 
     const response = await addMissionToDB(mission);
     console.log("Mission created with ID:", response.missionID);
+
+    // merge the ID returned by the backend into the mission object
+    const missionWithID: MissionType = {
+        ...mission,
+        missionID: response.missionID,
+        timeStart: null,
+        timeEnd: null,
+    };
+
+    const updatedMissions = [...(missionsData ?? []), missionWithID];
+    setMissions(updatedMissions);
+
+    if (map) enableMapInteraction(map);
+
+    }
+
+  const saveUpdate = async (updatedMission: MissionType) => {
+    console.log("Updating mission:", updatedMission);
+
+    // Update missions in React state. Checks for matching missionID to replace the updated mission.
+    const newMissionList = (missionsData ?? []).map(m => 
+      m.missionID === updatedMission.missionID ? updatedMission : m
+    );
+    const updateMissionStatus=getMissionStatus(updatedMission.timeStart, updatedMission.timeEnd);
+
+    
+    if (updatedMission.botID != null) {
+      let newBotStatus: RobotType["assignmentStatus"] | null = null;
+
+      if (
+        updateMissionStatus === "not started" ||
+        updateMissionStatus === "completed"
+      ) {
+        newBotStatus = "assigned";
+      } else if (updateMissionStatus === "in progress") {
+        newBotStatus = "active";
+      }
+
+      if (newBotStatus) {
+        setBots(prevBots =>
+          prevBots.map(bot =>
+            bot.id === String(updatedMission.botID)
+              ? { ...bot, assignmentStatus: newBotStatus }
+              : bot
+          )
+        );
+      }
+    }
+    setMissions(newMissionList);
+
+    // Push update to the database
+    const response = await updateMissionInDB(updatedMission);
+    console.log("Mission updated:", response);
+
     if (map) enableMapInteraction(map);
   };
+
 
   const cancelCreate = () => {
     setActiveMissionCreate(false);
@@ -177,6 +232,10 @@ const CustomGoogleMap: React.FC = () => {
   const createMission = () => {
     setActiveMissionCreate(true);
     if (map) disableMapInteraction(map);
+  };
+
+  const toggleMissionTable = () => {
+    setActiveMissionStartEnd((s) => !s);
   };
 
   const deleteMission = () => {
@@ -221,7 +280,7 @@ const CustomGoogleMap: React.FC = () => {
       map.setCenter(botPosition);
       map.setZoom(BOT_FOCUS_ZOOM);
     }
-  }, [selectedBot, map, bots]);
+  }, [selectedBot, map]); // Removed 'bots' from dependencies to prevent re-centering on every update
 
   // Update bot markers on map
   useEffect(() => {
@@ -280,7 +339,15 @@ const CustomGoogleMap: React.FC = () => {
         disabled={activeMissionCreate}
         createMissionCallback={createMission}
         deleteMissionCallback={deleteMission}
+        startEndMissionCallback={toggleMissionTable}
       />
+      {/* Panel that appears when Start/End Mission is toggled */}
+      {activeMissionStartEnd && !activeMissionCreate && selectedBot === null &&(
+        <MissionStartEnd 
+          missionsData={missionsData} 
+          saveUpdate={saveUpdate}
+          bots={bots}/>
+      )}
 
       {/* Map tools */}
       <MapTools
@@ -331,8 +398,15 @@ const CustomGoogleMap: React.FC = () => {
           <div className="h-full bg-gray-100 overflow-y-auto" style={{ width: `${100 - mapWidth}%` }}>
             <DetailsPanel
               selectedBot={selectedBot}
-              activeMission={missionsData.filter((mission) => mission.botID === Number(selectedBot.id))[0]}
-            ></DetailsPanel>
+              activeMission={
+                missionsData.filter(
+                  (mission) => mission.botID === Number(selectedBot.id)
+                )[0]
+              }
+              onClose={() => {
+                setSelectedBot(null);
+              }}
+            />
           </div>
         ) : (
           <></>

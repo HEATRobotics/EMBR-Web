@@ -13,6 +13,7 @@ function BotsBar({
     setSelectedBot,
     createMissionCallback,
     deleteMissionCallback,
+    startEndMissionCallback,
 }: { 
     bots: RobotType[]; 
     selectedBot: RobotType | null; 
@@ -20,6 +21,7 @@ function BotsBar({
     setSelectedBot: React.Dispatch<React.SetStateAction<RobotType | null>>;
     createMissionCallback: () => void;
     deleteMissionCallback: () => void;
+    startEndMissionCallback: () => void;
 }) {
     
     return (
@@ -72,6 +74,13 @@ function BotsBar({
                     Delete Mission
                 </button>
             </div>
+            {/* 🔹 New Start/End Mission button */}
+            <button
+                className="w-full bg-white text-gray-800 font-medium py-2 px-4 border border-gray-300 rounded-md shadow-sm hover:bg-gray-100 disabled:opacity-75 disabled:cursor-not-allowed"
+                onClick={startEndMissionCallback}
+            >
+                Mission List
+            </button>
 
         </div>
 

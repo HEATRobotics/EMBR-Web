@@ -45,7 +45,7 @@ export default class MapDrawUtils {
   private static drawMissionArea(mission: MissionType, map: google.maps.Map) {
     if (!mission.areaCoordinates) return;
 
-    console.log(mission.areaCoordinates);
+    //console.log(mission.areaCoordinates);
 
     const bounds: google.maps.LatLngBoundsLiteral = {
       north: mission.areaCoordinates[0].lat,
@@ -62,6 +62,24 @@ export default class MapDrawUtils {
       strokeWeight: 2,
       fillColor: "#FF0000",
       fillOpacity: 0.35,
+    });
+
+    const labelPosition = {
+      lat: bounds.north - 0.0005,
+      lng: (bounds.west + bounds.east)/2,
+    };
+
+    //Text for the label
+    const labelMarker = new google.maps.Marker({
+      position: labelPosition,
+      map: map,
+      icon: { path: google.maps.SymbolPath.CIRCLE, scale: 0 }, // invisible icon
+      label: {
+        text: mission.missionName || "Unnamed Mission",
+        color: "black",
+        fontSize: "14px",
+        fontWeight: "bold",
+      }
     });
 
     this.missionAreas.push(rectangle);
