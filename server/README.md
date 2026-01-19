@@ -187,3 +187,12 @@ The server can handle both real and simulated MAVLink data:
 - **Simulated Data**: Uses `simulateMavlinkData` to generate simulated data for demonstration purposes.
 
 ---
+
+## **Further development**
+- Set up radio connection port to be modifiable through settings
+  - For windows, must setup wsl to enable serial passthrough (create setup script)
+- Add and remove bots
+- Add reports
+- Develop hotspot functionality
+- Send mission area, temp threshold, # of temp readings per hotspot to bot on mission start
+

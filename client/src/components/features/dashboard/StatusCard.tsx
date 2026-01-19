@@ -5,7 +5,7 @@ interface StatusCardProps {
   value: string | number;
   total?: string | number;
   icon?: React.ReactNode;
-  color?: 'orange' | 'blue' | 'green' | 'gray';
+  color?: 'orange' | 'blue' | 'green' | 'gray' | 'yellow';
   trend?: 'up' | 'down' | 'stable';
 }
 
