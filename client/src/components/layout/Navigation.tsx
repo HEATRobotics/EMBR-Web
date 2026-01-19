@@ -2,6 +2,8 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import Image from 'next/image';
+import white_logo from '@/assets/white_logo.svg';
 
 const Navigation = () => {
   const pathname = usePathname();
@@ -43,12 +45,9 @@ const Navigation = () => {
             ))}
           </div>
 
-          {/* User Menu Placeholder */}
-          <div className="flex items-center gap-4">
-            <button className="px-4 py-2 rounded-md bg-gray-800 hover:bg-gray-700 transition-colors border border-gray-700">
-              User Menu
-            </button>
-          </div>
+          <Link href="https://heatrobotics.github.io/" className="flex items-center gap-2" target="_blank" rel="noopener noreferrer">
+            <Image src={white_logo} alt="EMBR Logo" width={100} height={100} />
+          </Link>
         </div>
       </div>
     </nav>
