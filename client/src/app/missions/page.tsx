@@ -10,7 +10,9 @@ import { Trash2 } from "lucide-react";
 import { deleteMission } from "@/api/missions.api";
 import { useRouter } from "next/navigation";
 
+
 export default function Missions() {
+  const [isEditMode, setIsEditMode] = useState(false);
   const { missionsData, missionsLoading, setMissions } = useMissions();
   const { bots } = useBotData();
   const [filter, setFilter] = useState<"all" | "active" | "completed">("all");
@@ -37,13 +39,39 @@ const handleDelete = async (missionId: number, missionName: string) => {
       
       <main className="container mx-auto px-4 py-8">
         <div className="flex justify-between items-center mb-6">
-          <h1 className="text-3xl font-bold">Missions</h1>
-          <Link href="/missions/create">
-            <button className="px-6 py-3 bg-brand-orange text-white rounded-md hover:bg-brand-orange/90">
-              + Create New Mission
-            </button>
-          </Link>
-        </div>
+  <h1 className="text-3xl font-bold">Missions</h1>
+
+  <div className="flex items-center gap-3">
+    {!isEditMode && (
+      <button
+        onClick={() => setIsEditMode(true)}
+        className="px-6 py-3 bg-white text-gray-800 rounded-md
+                   border border-gray-300
+                   hover:bg-gray-100 hover:border-gray-400
+                   transition-colors"
+      >
+        Edit Missions
+      </button>
+    )}
+
+    {isEditMode && (
+      <button
+        onClick={() => setIsEditMode(false)}
+        className="px-6 py-3 bg-red-50 text-red-600 rounded-md
+                   border border-red-200
+                   hover:bg-red-100 transition-colors"
+      >
+        Cancel Editing
+      </button>
+    )}
+    <Link href="/missions/create">
+      <button className="px-6 py-3 bg-brand-orange text-white rounded-md hover:bg-brand-orange/90">
+        + Create New Mission
+      </button>
+    </Link>
+  </div>
+</div>
+
 
         {/* Filter Tabs */}
         <div className="bg-white rounded-lg shadow mb-6">
@@ -98,9 +126,22 @@ const handleDelete = async (missionId: number, missionName: string) => {
                   
                   return (
                     <div
-                      key={mission.missionID}
-                      className="border rounded-lg p-4 hover:shadow-lg transition-shadow"
-                    >
+ 
+  key={mission.missionID}
+  onClick={() => {
+    if (!isEditMode) return;
+
+    setIsEditMode(false);
+    // later: router.push(`/missions/${mission.missionID}/edit`);
+  }}
+  className={`rounded-lg p-4 transition-colors
+    ${
+      isEditMode
+        ? 'border-2 border-brand-orange cursor-pointer hover:bg-brand-orange/50'
+        : 'border hover:shadow-lg'
+    }
+  `}
+>
                       <div className="flex justify-between items-start">
                         <div className="flex-1">
                           <h3 className="text-lg font-semibold mb-2">{mission.missionName}</h3>
