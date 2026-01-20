@@ -3,6 +3,9 @@ import { Marker } from '@react-google-maps/api';
 import { RobotOperationalStatusType } from '@/constants/robotConstants';
 import { MissionType } from '@/types/mission.type';
 import { RobotType } from '@/types/robot.type';
+import type { useRouter } from 'next/navigation';
+
+type AppRouter = ReturnType<typeof useRouter>;
 
 class MapDrawUtilsClass {
   static markers: google.maps.Marker[] = [];
@@ -14,10 +17,10 @@ class MapDrawUtilsClass {
     robots.forEach((robot: RobotType) => this.drawBot(robot, map));
   }
 
-  static drawMissionAreas(missions: MissionType[], map: google.maps.Map) {
+  static drawMissionAreas(missions: MissionType[], map: google.maps.Map,  router?: AppRouter) {
     this.removeOldMissionAreas();
     // Draw each mission area in the list
-    missions.forEach((mission) => this.drawMissionArea(mission, map));
+    missions.forEach((mission) => this.drawMissionArea(mission, map, router));
   }
 
   private static drawBot(robot: RobotType, map: google.maps.Map) {
@@ -43,7 +46,7 @@ class MapDrawUtilsClass {
     this.markers.push(marker);
   }
 
-  private static drawMissionArea(mission: MissionType, map: google.maps.Map) {
+  private static drawMissionArea(mission: MissionType, map: google.maps.Map, router? : ReturnType <typeof useRouter>) {
     if (!mission.areaCoordinates) return;
 
     //console.log(mission.areaCoordinates);
@@ -63,9 +66,10 @@ class MapDrawUtilsClass {
       strokeWeight: 2,
       fillColor: mission.timeEnd ? '#00FF00' : mission.timeStart ? '#FFFF00' : '#686363',
       fillOpacity: 0.35,
+      clickable: false,
     });
 
-    const labelPosition = {
+    /*const labelPosition = {
       lat: bounds.north - 0.0005,
       lng: (bounds.west + bounds.east) / 2,
     };
@@ -74,6 +78,8 @@ class MapDrawUtilsClass {
     const labelMarker = new google.maps.Marker({
       position: labelPosition,
       map: map,
+      clickable: true,
+      cursor: 'pointer',
       icon: { path: google.maps.SymbolPath.CIRCLE, scale: 0 }, // invisible icon
       label: {
         text: mission.missionName || 'Unnamed Mission',
@@ -83,6 +89,13 @@ class MapDrawUtilsClass {
       },
     });
 
+    // Added click listener to label to navigate to mission details page
+    // This is like a bridge between the google maps api and nextjs router
+    if(router){
+      labelMarker.addListener('click', () =>{
+        router.push(`/missions/${mission.missionID}`)
+      });
+    }*/
     this.missionAreas.push(rectangle);
   }
 
