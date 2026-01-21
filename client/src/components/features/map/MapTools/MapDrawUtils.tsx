@@ -61,10 +61,10 @@ class MapDrawUtilsClass {
     const rectangle = new google.maps.Rectangle({
       bounds,
       map,
-      strokeColor: mission.timeEnd ? '#00FF00' : mission.timeStart ? '#FFFF00' : '#686363',
+      strokeColor: mission.timeEnd ? '#00FF00' : mission.timeStart ? '#FFFF00' : '#262626',
       strokeOpacity: 0.8,
       strokeWeight: 2,
-      fillColor: mission.timeEnd ? '#00FF00' : mission.timeStart ? '#FFFF00' : '#686363',
+      fillColor: mission.timeEnd ? '#00FF00' : mission.timeStart ? '#FFFF00' : '#262626',
       fillOpacity: 0.35,
       clickable: false,
     });
