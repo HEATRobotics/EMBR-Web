@@ -6,7 +6,7 @@ import { RobotType } from '@/types/robot.type';
 import type { useRouter } from 'next/navigation';
 
 type AppRouter = ReturnType<typeof useRouter>;
-
+//better to use this type of router for tsx files
 class MapDrawUtilsClass {
   static markers: google.maps.Marker[] = [];
   static missionAreas: google.maps.Rectangle[] = [];
