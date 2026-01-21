@@ -69,33 +69,6 @@ class MapDrawUtilsClass {
       clickable: false,
     });
 
-    /*const labelPosition = {
-      lat: bounds.north - 0.0005,
-      lng: (bounds.west + bounds.east) / 2,
-    };
-
-    //Text for the label
-    const labelMarker = new google.maps.Marker({
-      position: labelPosition,
-      map: map,
-      clickable: true,
-      cursor: 'pointer',
-      icon: { path: google.maps.SymbolPath.CIRCLE, scale: 0 }, // invisible icon
-      label: {
-        text: mission.missionName || 'Unnamed Mission',
-        color: 'black',
-        fontSize: '14px',
-        fontWeight: 'bold',
-      },
-    });
-
-    // Added click listener to label to navigate to mission details page
-    // This is like a bridge between the google maps api and nextjs router
-    if(router){
-      labelMarker.addListener('click', () =>{
-        router.push(`/missions/${mission.missionID}`)
-      });
-    }*/
     this.missionAreas.push(rectangle);
   }
 
