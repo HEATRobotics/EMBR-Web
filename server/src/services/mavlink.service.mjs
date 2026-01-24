@@ -137,13 +137,9 @@ function simulateMavlinkData() {
         botTempData[botId] = data;
         processTemperatureMessage(data);
 
-      }
-     
-
-
+    }  
     }else { 
       for (let botId = 0; botId < NUM_SIMULATED_BOTS; botId++) {
-      if (messageType === "GLOBAL_POSITION_INT") {
         let data = botPositionData[botId];
         // Randomly update data relative to previous value
         data.timeBootMs = new Date();
@@ -157,11 +153,7 @@ function simulateMavlinkData() {
         data.hdg += (Math.random() * 10) - 5;
         
         botPositionData[botId] = data;
-        processGlobalPositionMessage(data);
-      }
-      
-      
-      
+        processGlobalPositionMessage(data);            
     }
     temperatureTick = !temperatureTick;
   }
