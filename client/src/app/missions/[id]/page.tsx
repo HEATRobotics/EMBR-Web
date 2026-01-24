@@ -1,140 +1,129 @@
-"use client";
+'use client';
 
-import Navigation from "@/components/Navigation";
-import { useParams } from "next/navigation";
-import { useJsApiLoader, GoogleMap } from "@react-google-maps/api";
-import { useState, useCallback, useEffect } from "react";
-import { useMissions } from "@/hooks/useMissions";
-import { useBotData } from "@/hooks/useBotData";
-import MapDrawUtils from "@/utils/MapDrawUtils";
-import MissionPanel from "@/components/Details/MissionPanel";
+import { Trash2 } from 'lucide-react';
+import { useParams, useRouter } from 'next/navigation';
+import React from 'react';
 
-const UBCO_COORDS = {
-  lat: 49.939434,
-  lng: -119.396427,
-};
-
-const exampleMapStyles: google.maps.MapTypeStyle[] = [
-  {
-    featureType: "poi",
-    elementType: "geometry",
-    stylers: [{ color: "#eeeeee" }],
-  },
-  {
-    featureType: "water",
-    elementType: "labels.text.fill",
-    stylers: [{ color: "#9e9e9e" }],
-  },
-];
+import { deleteMission, endMission, startMission } from '@/api/missions.api';
+import CustomGoogleMap from '@/components/features/map/GoogleMap';
+import MissionPanel from '@/components/features/mission/MissionPanel';
+import { startAndEndMissionButton } from '@/components/features/mission/MissionStartEnd';
+import { useBotData, useMission } from '@/hooks';
+import type { RobotType } from '@/types';
 
 export default function MissionDetail() {
   const params = useParams();
-  const missionId = params.id;
-  
-  const [map, setMap] = useState<google.maps.Map | null>(null);
-  const [satelliteView, setSatelliteView] = useState<boolean>(false);
-  
-  const { missionsData } = useMissions();
-  const { bots } = useBotData();
-  
-  // For now, use first mission as example since missionID doesn't exist in type
-  const mission = missionsData?.[0];
-  const assignedBot = bots.find((b) => Number(b.id) === mission?.botID);
+  const router = useRouter();
+  const missionId = Number(params.id);
 
-  const { isLoaded } = useJsApiLoader({
-    id: "google-map-script",
-    libraries: ["places"],
-    googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || "",
-  });
+  const { missionData, setMission } = useMission(missionId);
+  const { bots, setBots } = useBotData();
 
-  const mapOptions = isLoaded
-    ? {
-        styles: exampleMapStyles,
-        streetViewControl: false,
-        scaleControl: false,
-        fullscreenControl: false,
-        panControl: false,
-        zoomControl: false,
-        mapTypeControl: false,
-        rotateControl: false,
-        mapTypeId: satelliteView ? "satellite" : "roadmap",
-      }
-    : {};
+  const mission = missionData;
+  const assignedBot = bots.find((b) => mission?.assignedBots?.includes(b.id));
 
-  const onLoad = useCallback(function callback(map: google.maps.Map | null) {
-    if (map) setMap(map);
-  }, []);
+  const handleStartEndMission = async (id: number, start: boolean, time: string) => {
+    console.log('Updating mission:', id);
 
-  const onUnmount = useCallback(function callback() {
-    setMap(null);
-  }, []);
+    if (start) {
+      mission!.timeStart = time;
+    } else if (!start) {
+      mission!.timeEnd = time;
+    }
 
-  // Draw bot and mission area on map
-  useEffect(() => {
-    if (!map || !assignedBot) return;
-    MapDrawUtils.drawBots([assignedBot], map);
-  }, [assignedBot, map]);
+    let newBotStatus: RobotType['assignmentStatus'] | null = null;
 
-  useEffect(() => {
-    if (!map || !mission) return;
-    MapDrawUtils.drawMissionAreas([mission], map);
-  }, [mission, map]);
+    if (!start) {
+      newBotStatus = 'assigned';
+    } else if (start) {
+      newBotStatus = 'active';
+    }
 
-  if (!isLoaded) {
-    return <div>Loading map...</div>;
-  }
+    if (newBotStatus) {
+      const assignedSet = new Set(mission!.assignedBots);
+      setBots((prevBots) =>
+        prevBots.map((bot) =>
+          assignedSet.has(bot.id) ? { ...bot, assignmentStatus: newBotStatus } : bot,
+        ),
+      );
+    }
+    setMission(mission!);
+
+    // Push update to the database
+    const response = await (start ? startMission(missionId, time) : endMission(missionId, time));
+    console.log(`Mission ${start ? 'started' : 'ended'}:`, response);
+  };
+
+  const handleDelete = async (missionId: number, missionName: string) => {
+    const confirmed = window.confirm(`Are you sure you want to delete mission "${missionName}"?`);
+    if (!confirmed) return;
+
+    try {
+      const response = await deleteMission(missionId);
+      alert(response.message);
+      router.push('/missions');
+    } catch (error: any) {
+      alert(error.message || 'Failed to delete mission.');
+    }
+  };
 
   return (
-  <div className="bg-gray-100 min-h-full">
-      <Navigation />
-      
-      <main className="h-[calc(100vh-64px)]">
+    <div className="bg-gray-100 min-h-full">
+      <main className="mb-16 h-[calc(100vh-64px)]">
         <div className="flex h-full">
           {/* Map View - Main Content */}
           <div className="flex-1 relative">
-            <GoogleMap
-              options={mapOptions}
-              mapContainerClassName="h-full w-full"
-              center={UBCO_COORDS}
-              zoom={14}
-              onLoad={onLoad}
-              onUnmount={onUnmount}
+            <CustomGoogleMap
+              bots={assignedBot ? [assignedBot] : []}
+              missionsData={mission ? [mission] : []}
+              showSearch={false}
             />
-            
+
             {/* Mission Controls Overlay */}
-            <div className="absolute top-4 left-4 bg-white rounded-lg shadow p-4">
+            <div className="absolute top-4 left-4 bg-white rounded-lg shadow p-4 z-10">
               <div className="mb-2">
                 <h2 className="text-xl font-bold">Mission #{missionId}</h2>
-                <p className="text-gray-600">{mission?.missionName || "Loading..."}</p>
+                <p className="text-gray-600">{mission?.missionName || 'Loading...'}</p>
               </div>
-            </div>
-
-            {/* Toggle Satellite View */}
-            <div className="absolute top-4 right-4">
-              <button
-                onClick={() => setSatelliteView(!satelliteView)}
-                className="px-4 py-2 bg-white rounded-md shadow hover:bg-gray-100"
-              >
-                {satelliteView ? "Map" : "Satellite"}
-              </button>
             </div>
           </div>
 
           {/* Side Panel - Mission Details */}
           <div className="w-96 bg-white border-l overflow-y-auto">
+            {/* The MissionPanel check handles the main display */}
             {mission && assignedBot ? (
-              <MissionPanel selectedBot={assignedBot} activeMission={mission} />
+              <MissionPanel activeMission={mission} />
             ) : (
               <div className="p-6">
                 <p className="text-gray-500">Loading mission details...</p>
               </div>
             )}
-            
-            {/* Export Button */}
-            <div className="p-4 border-t">
+
+            {/* Export Button, Export Mission Data */}
+            <div className="p-4 border-t space-y-4">
               <button className="w-full px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700">
                 Export Mission Data
               </button>
+              {mission &&
+                startAndEndMissionButton(
+                  mission,
+                  handleStartEndMission,
+                  bots,
+                  undefined,
+                  'w-full px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700',
+                  'absolute left-1/2 -translate-x-1/2 bottom-full mb-2 hidden group-hover:block bg-black text-white text-xs p-2 rounded shadow-lg z-50',
+                )}
+
+              {mission && (
+                <button
+                  // Remove the non-null assertion operator (!) now that you have checked above
+                  onClick={() => handleDelete(mission.missionID, mission.missionName)}
+                  className="w-full mt-3 px-6 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 flex items-center justify-center gap-2 shadow"
+                >
+                  <Trash2 size={20} color="red" />
+                  <span>Delete Mission</span>
+                </button>
+              )}
             </div>
           </div>
         </div>

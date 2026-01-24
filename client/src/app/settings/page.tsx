@@ -1,13 +1,11 @@
-"use client";
+'use client';
 
-import Navigation from "@/components/Navigation";
+// Navigation is rendered in RootLayout; remove local render
 
 export default function Settings() {
   return (
-  <div className="bg-gray-100 min-h-full">
-      <Navigation />
-      
-      <main className="container mx-auto px-4 py-8">
+    <div className="bg-gray-100 min-h-full">
+      <main className="mb-16 container mx-auto px-4 py-8">
         <h1 className="text-3xl font-bold mb-6">Settings</h1>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -55,9 +53,7 @@ export default function Settings() {
               <h2 className="text-xl font-semibold mb-4">General Settings</h2>
               <div className="space-y-4">
                 <div>
-                  <label className="block text-sm font-medium mb-2">
-                    Organization Name
-                  </label>
+                  <label className="block text-sm font-medium mb-2">Organization Name</label>
                   <input
                     type="text"
                     className="w-full px-4 py-2 border rounded-md"
@@ -65,9 +61,7 @@ export default function Settings() {
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium mb-2">
-                    Time Zone
-                  </label>
+                  <label className="block text-sm font-medium mb-2">Time Zone</label>
                   <select className="w-full px-4 py-2 border rounded-md">
                     <option>UTC-8 (Pacific Time)</option>
                     <option>UTC-7 (Mountain Time)</option>
@@ -76,9 +70,7 @@ export default function Settings() {
                   </select>
                 </div>
                 <div>
-                  <label className="block text-sm font-medium mb-2">
-                    Unit System
-                  </label>
+                  <label className="block text-sm font-medium mb-2">Unit System</label>
                   <select className="w-full px-4 py-2 border rounded-md">
                     <option>Metric (°C, meters)</option>
                     <option>Imperial (°F, feet)</option>
@@ -92,9 +84,7 @@ export default function Settings() {
               <h2 className="text-xl font-semibold mb-4">Temperature Thresholds</h2>
               <div className="space-y-4">
                 <div>
-                  <label className="block text-sm font-medium mb-2">
-                    Normal Temperature Range
-                  </label>
+                  <label className="block text-sm font-medium mb-2">Normal Temperature Range</label>
                   <div className="flex gap-2 items-center">
                     <input
                       type="number"
@@ -124,9 +114,7 @@ export default function Settings() {
                   </div>
                 </div>
                 <div>
-                  <label className="block text-sm font-medium mb-2">
-                    High Priority Threshold
-                  </label>
+                  <label className="block text-sm font-medium mb-2">High Priority Threshold</label>
                   <div className="flex gap-2 items-center">
                     <input
                       type="number"
@@ -137,9 +125,7 @@ export default function Settings() {
                   </div>
                 </div>
                 <div>
-                  <label className="block text-sm font-medium mb-2">
-                    Critical Alert Threshold
-                  </label>
+                  <label className="block text-sm font-medium mb-2">Critical Alert Threshold</label>
                   <div className="flex gap-2 items-center">
                     <input
                       type="number"

@@ -1,21 +1,15 @@
-import { CoordinatesType } from "./coordinate.type";
-import { RobotType } from "./robot.type";
+import { CoordinatesType } from './coordinate.type';
 
-/*
-  Questions: 
-    1) what are the red, orange, and blue coordinates?
-    2) what is a "process"?
-    3) what is averageTemperature? Average over how much time?
-  TODO:
-    - add some internal logic to determine what is a hotspot
-*/
 export interface MissionType {
+  missionID: number;
   missionName: string;
   progress: number;
   averageTemperature: number;
-  timePassed: number;
+  timePassed: number; // in minutes
   timeEstimated: number;
   areaCoordinates: CoordinatesType[] | undefined;
-  botID: number;
+  assignedBots?: number[];
+  timeStart?: string | null;
+  timeEnd?: string | null;
   hotspots?: CoordinatesType[];
 }

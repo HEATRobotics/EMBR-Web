@@ -1,13 +1,11 @@
-"use client";
+'use client';
 
-import Navigation from "@/components/Navigation";
+// Navigation is rendered in RootLayout; remove local render
 
 export default function Reports() {
   return (
-  <div className="bg-gray-100 min-h-full">
-      <Navigation />
-      
-      <main className="container mx-auto px-4 py-8">
+    <div className="bg-gray-100 min-h-full">
+      <main className="mb-16 container mx-auto px-4 py-8">
         <h1 className="text-3xl font-bold mb-6">Reports & Analytics</h1>
 
         {/* Date Range Selector */}
@@ -83,9 +81,7 @@ export default function Reports() {
 
         {/* Export Options */}
         <div className="mt-6 flex justify-end gap-2">
-          <button className="px-6 py-2 border rounded-md hover:bg-gray-100">
-            Export as CSV
-          </button>
+          <button className="px-6 py-2 border rounded-md hover:bg-gray-100">Export as CSV</button>
           <button className="px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700">
             Export as PDF
           </button>

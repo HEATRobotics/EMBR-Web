@@ -23,6 +23,8 @@ The database is managed using MySQL. Below is an overview of the key tables:
   - `areaCoordinates`: JSON field storing mission area coordinates.
   - `progress`: Decimal value indicating mission progress.
   - `avgTemp`: Average temperature recorded during the mission.
+  - `timeStart`: Time Stamp of when the mission is started 'null' if mission not started yet.
+  - `timeEnd`: Time Stamp since the mission is ended, 'null if the mission is not ended yet'.
   - `timePassed`: Time elapsed since the mission started.
   - `timeEstimated`: Estimated time for mission completion.
 
@@ -185,3 +187,12 @@ The server can handle both real and simulated MAVLink data:
 - **Simulated Data**: Uses `simulateMavlinkData` to generate simulated data for demonstration purposes.
 
 ---
+
+## **Further development**
+- Set up radio connection port to be modifiable through settings
+  - For windows, must setup wsl to enable serial passthrough (create setup script)
+- Add and remove bots
+- Add reports
+- Develop hotspot functionality
+- Send mission area, temp threshold, # of temp readings per hotspot to bot on mission start
+
