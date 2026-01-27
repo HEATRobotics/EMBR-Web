@@ -58,7 +58,7 @@ export async function getMissionByIdController(req, res) {
 		res.status(500).json({ error: error.message });
 	}
 }
-
+// call mavlink sendmission corrdinaytion in this method 
 export async function createMissionController(req, res) {
 	try {
 		const body = req.body || {};
