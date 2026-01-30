@@ -300,6 +300,26 @@ npm run lint:fix
 npm run format:check
 ```
 
+### Testing
+
+```bash
+# Run all tests
+cd client
+npm test
+
+# Run tests in watch mode (re-runs on file changes)
+npm run test:watch
+
+# Run tests with coverage report
+npm run test:coverage
+```
+
+**About the Tests:**
+- Unit tests are located in the same directory as the source files with `.test.ts` or `.test.tsx` extensions
+- Tests cover utility functions for area calculations, time conversions, and date/time formatting
+- Coverage reports are generated in `client/coverage/` directory
+- All tests must pass before merging a PR (enforced by GitHub Actions CI)
+
 ---
 
 ## Debugging Guide

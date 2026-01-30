@@ -3,6 +3,7 @@
 /client/.next
 /client/.idea
 /client/next-env.d.ts
+/client/coverage
 
 /server/node_modules
 /server/docker/mysql

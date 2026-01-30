@@ -33,6 +33,11 @@ Select all that apply:
 Describe how this change was tested.  
 Include commands or steps used, and confirm successful results.
 
+**Required:**
+- [ ] All existing tests pass (`cd client && npm test`)
+- [ ] New tests added for new functionality (if applicable)
+- [ ] Tests run successfully in CI/CD pipeline
+
 ---
 
 ## Image of GUI change (if applicable)
