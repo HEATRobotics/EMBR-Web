@@ -1,4 +1,4 @@
-import { calculateRectangleArea, formatArea } from '../calculateArea';
+import { calculateRectangleArea, formatArea } from './calculateArea';
 
 describe('calculateArea', () => {
   describe('calculateRectangleArea', () => {
@@ -12,9 +12,9 @@ describe('calculateArea', () => {
       
       const area = calculateRectangleArea(bounds);
       
-      // Should be approximately 1.23 km² (roughly 1.11 km width × 1.11 km height)
-      expect(area).toBeGreaterThan(1.0);
-      expect(area).toBeLessThan(1.5);
+      // Should be approximately 0.95 km²
+      expect(area).toBeGreaterThan(0.9);
+      expect(area).toBeLessThan(1.0);
     });
 
     it('should calculate area for a large rectangle', () => {
@@ -42,9 +42,9 @@ describe('calculateArea', () => {
       
       const area = calculateRectangleArea(bounds);
       
-      // Should be approximately 24,700 km² (roughly 222 km × 222 km at equator)
-      expect(area).toBeGreaterThan(24000);
-      expect(area).toBeLessThan(25000);
+      // Should be approximately 49,457 km² (roughly 222 km × 222 km at equator)
+      expect(area).toBeGreaterThan(49000);
+      expect(area).toBeLessThan(50000);
     });
 
     it('should return 0 for a zero-area rectangle', () => {

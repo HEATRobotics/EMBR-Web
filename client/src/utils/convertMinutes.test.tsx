@@ -1,4 +1,4 @@
-import { convertMinutes } from '../convertMinutes';
+import { convertMinutes } from './convertMinutes';
 
 describe('convertMinutes', () => {
   it('should convert minutes to min format when less than an hour', () => {

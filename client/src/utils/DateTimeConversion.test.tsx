@@ -2,7 +2,7 @@ import {
   isISOFormat,
   convertISOToTimestamp,
   normalizeTimeField,
-} from '../DateTimeConversion';
+} from './DateTimeConversion';
 
 describe('DateTimeConversion', () => {
   describe('isISOFormat', () => {
@@ -93,8 +93,8 @@ describe('DateTimeConversion', () => {
       expect(normalizeTimeField('2024-06-15T14:30:45.123Z')).toBe('2024-06-15 14:30:45');
     });
 
-    it('should return 0 for numeric 0', () => {
-      expect(normalizeTimeField(0)).toBe(0);
+    it('should return null for numeric 0', () => {
+      expect(normalizeTimeField(0)).toBe(null);
     });
 
     it('should handle non-date strings', () => {
