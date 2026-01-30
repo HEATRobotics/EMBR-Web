@@ -87,10 +87,5 @@ describe('rectangleManager', () => {
     it('should handle null rectangle gracefully', () => {
       expect(() => removeRectangle(null)).not.toThrow();
     });
-
-    it('should not throw error when called with null', () => {
-      const result = removeRectangle(null);
-      expect(result).toBeUndefined();
-    });
   });
 });

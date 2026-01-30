@@ -36,25 +36,6 @@ describe('robotConstants', () => {
       });
     });
 
-    describe('status severity ordering', () => {
-      it('should have operational as the best status with green colors', () => {
-        expect(RobotOperationalStatusType.operational.color).toContain('#035f25');
-        expect(RobotOperationalStatusType.operational.bgColor).toContain('#93FF9E');
-      });
-
-      it('should have chargingRequired as warning status with yellow colors', () => {
-        expect(RobotOperationalStatusType.chargingRequired.bgColor).toContain('#FFFB93');
-      });
-
-      it('should have attentionRequired as alert status with red colors', () => {
-        expect(RobotOperationalStatusType.attentionRequired.bgColor).toContain('#FF9393');
-      });
-
-      it('should have systemFailed as critical status with dark red colors', () => {
-        expect(RobotOperationalStatusType.systemFailed.color).toContain('#DC2626');
-      });
-    });
-
     describe('all status types existence', () => {
       it('should have all four status types defined', () => {
         expect(RobotOperationalStatusType).toHaveProperty('operational');

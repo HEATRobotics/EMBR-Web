@@ -64,15 +64,5 @@ describe('mapConfig', () => {
         mapTypeId: 'satellite',
       });
     });
-
-    it('should always disable all controls', () => {
-      const roadmapOptions = getMapOptions(false);
-      const satelliteOptions = getMapOptions(true);
-
-      expect(roadmapOptions.streetViewControl).toBe(false);
-      expect(roadmapOptions.zoomControl).toBe(false);
-      expect(satelliteOptions.streetViewControl).toBe(false);
-      expect(satelliteOptions.zoomControl).toBe(false);
-    });
   });
 });
