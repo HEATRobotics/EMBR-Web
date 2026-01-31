@@ -23,7 +23,10 @@ export default defineConfig({
   ],
 
   webServer: {
-    command: 'cd client && npm run dev',
+    // Ensure nvm is loaded when Playwright spawns the dev server so the
+    // correct Node version is used even in non-interactive shells.
+    // This sources nvm and selects Node 20 before starting the dev server.
+    command: 'bash -lc "export NVM_DIR=\"$HOME/.nvm\" && . \"$NVM_DIR/nvm.sh\" && nvm use 20 >/dev/null 2>&1 || true && cd client && npm run dev"',
     url: 'http://localhost:3000',
     reuseExistingServer: !process.env.CI,
     timeout: 120000,
