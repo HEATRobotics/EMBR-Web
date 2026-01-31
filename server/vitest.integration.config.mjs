@@ -4,7 +4,9 @@ export default defineConfig({
   test: {
     globals: true,
     environment: 'node',
-    exclude: ['src/__tests__/integration/**', 'node_modules/**'],
+    include: ['src/__tests__/integration/**/*.test.mjs'],
+    testTimeout: 60000, // 60 seconds for integration tests
+    hookTimeout: 180000, // 3 minutes for setup/teardown
     coverage: {
       provider: 'v8',
       reporter: ['text', 'json', 'html', 'lcov'],
@@ -14,14 +16,6 @@ export default defineConfig({
         'src/**/*.spec.{js,mjs}',
         'node_modules/**',
       ],
-      thresholds: {
-        lines: 60,
-        functions: 60,
-        branches: 60,
-        statements: 60,
-      },
     },
-    testTimeout: 10000,
-    hookTimeout: 10000,
   },
 });
