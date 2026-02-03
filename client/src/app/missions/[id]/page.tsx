@@ -12,6 +12,9 @@ import { useBotData, useMission } from '@/hooks';
 import type { RobotType } from '@/types';
 
 export default function MissionDetail() {
+  const handleEditMission = () => {
+  router.push(`/missions/${missionId}/edit`);
+};
   const params = useParams();
   const router = useRouter();
   const missionId = Number(params.id);
@@ -79,14 +82,25 @@ export default function MissionDetail() {
               showSearch={false}
             />
 
-            {/* Mission Controls Overlay */}
-            <div className="absolute top-4 left-4 bg-white rounded-lg shadow p-4 z-10">
-              <div className="mb-2">
-                <h2 className="text-xl font-bold">Mission #{missionId}</h2>
-                <p className="text-gray-600">{mission?.missionName || 'Loading...'}</p>
-              </div>
-            </div>
-          </div>
+           {/* Mission Controls Overlay */}
+<div className="absolute top-4 left-4 z-10 space-y-3">
+  {/* Mission Info Card */}
+  <div className="bg-gray-800 text-white rounded-lg shadow p-4">
+    <h2 className="text-xl font-bold">Mission #{missionId}</h2>
+    <p className="text-gray-300">{mission?.missionName || 'Loading...'}</p>
+  </div>
+
+  {/* Edit Mission Button (separate) */}
+  <button
+    onClick={handleEditMission}
+    className="w-full px-4 py-2 text-sm font-medium
+               bg-gray-800 text-white rounded-md shadow
+               hover:bg-gray-700 transition"
+  >
+    Edit Mission
+  </button>
+</div>
+</div>
 
           {/* Side Panel - Mission Details */}
           <div className="w-96 bg-white border-l overflow-y-auto">
