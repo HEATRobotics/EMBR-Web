@@ -55,15 +55,15 @@ export async function insertTemperatureData(data) {
 	let conn;
 	try {
 		conn = await pool.getConnection();
+		//TODO: add hotspotID when inserting temperature data
 		const query = `
 			INSERT INTO temperature
-				(botID, missionID, hotspotID, clockTime, temperature)
+				(botID, hotspotID, clockTime, temperature)
 			VALUES
-				(?, ?, ?, ?, ?)
+				(?, ?, ?, ?)
 		`;
 		const params = [
 			data.botID,
-			data.missionID ?? null,
 			data.hotspotID ?? null,
 			data.clockTime,
 			data.temperature,
@@ -145,7 +145,11 @@ export async function getTemperaturesByMission(missionID) {
 	try {
 		conn = await pool.getConnection();
 		const [rows] = await conn.execute(
-			`SELECT * FROM temperature WHERE missionID = ? ORDER BY clockTime ASC;`,
+			`SELECT t.*
+			FROM temperature t
+			JOIN hotspot h on t.hotspotID = h.id
+			WHERE h.missionID = ? 
+			ORDER BY t.clockTime ASC;`,
 			[missionID]
 		);
 		return rows;
@@ -494,9 +498,8 @@ export async function insertHotspotData(data){
     let conn; 
     try{
         const requiredFields = [
-            'botID',
-            'clockTimeMin',
-            'clockTimeMax',
+            'botID', 
+			'detectedAt',
             'latitude', 
             'longitude'
         ];
@@ -505,27 +508,37 @@ export async function insertHotspotData(data){
         });
         conn = await pool.getConnection();
 
-        const positionQuery = 
-        'SELECT id FROM position WHERE botID = ? AND clockTime BETWEEN ? AND ? ORDER BY clockTime ASC LIMIT 1';
+		//TODO: don't need to find position record as we will just directly insert lat and long and alt
+		//TODO: replace with query to find active mission ID
 
-        const[positionResults] = await conn.execute(positionQuery, [data.botID, data.clockTimeMin, data.clockTimeMax]);
-
-        if(positionResults.length === 0){
-            console.error("No position data found for this hotspot."); 
-            return false;
-        }
+		/*
+			SELECT DISTINCT m.missionID AS missionID
+			FROM mission m
+			JOIN bot_mission_assignment bma
+			ON m.missionID = bma.missionID
+			WHERE bma.botId = 1
+			AND m.timeStart IS NOT NULL
+			AND m.timeEnd IS NULL;
+		*/
+        
         const hotspotQuery = 
-        'INSERT INTO hotspot(botID, latitude, longitude) VALUES (?,?,?)';
+        'INSERT INTO hotspot(missionID, botID, detectedAt, latitude, longitude, altitude, notes) VALUES (?, ?, ?, ?, ?, ?, ?)';
 
-        const params = [
+        const params = [ // parameters for mySQL to insert into table
+            data.missionID ?? null,
             data.botID, 
+			data.detectedAt,
             data.latitude, 
-            data.longitude
+            data.longitude,
+			data.altitude ?? null,
+			data.notes ?? null,
+			
+
         ]; 
 
         const[hotspotResults] = await conn.execute(hotspotQuery, params);
 
-        return hotspotResults.affectedRows ===1;
+        return { success: hotspotResults.affectedRows === 1, hotspotID: hotspotResults.insertId };
 
 
     }catch(error){

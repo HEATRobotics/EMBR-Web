@@ -5,7 +5,8 @@ import {
     insertBatteryData,
     getAllBatteryData,
     getAllTemperatureData,
-    getLatestBotData
+    getLatestBotData,
+    insertHotspotData
 } from '../services/database.service.mjs';
 import { parseDateTime } from '../utils/dateTime.utils.mjs';
 
@@ -20,11 +21,15 @@ let latestMavlinkData = {
 */
 export async function storeMavlinkData(data, io) {
 
-    assert(data.type === 'global_position' || data.type === 'temp_data' || data.type === 'battery_data', "Invalid MAVLink data type");
+    assert(data.type === 'global_position' || data.type === 'temp_data' || data.type === 'battery_data'|| data.type === 'hotspot_data', "Invalid MAVLink data type");
 
     // Change date/time to a format that works with the database
-    data.clockTime = parseDateTime(data.clockTime);
-
+   if (data.clockTime) {
+        data.clockTime = parseDateTime(data.clockTime);
+    }
+    if (data.detectedAt) {
+        data.detectedAt = parseDateTime(data.detectedAt);
+    }
     if (data.type === 'global_position') {
         await insertPositionData(data);
         // Emit position update to all connected clients
@@ -35,12 +40,21 @@ export async function storeMavlinkData(data, io) {
         // Emit temperature update to all connected clients
         const allTemperatureData = await getAllTemperatureData();
         io.emit('temperature:update', allTemperatureData);
+    }else if(data.type === 'hotspot_data'){
+        const res = await insertHotspotData({
+            ...data, 
+            detectedAt: data.detectedAt ?? data.clockTime,
+        });
+        io.emit('hotspot.created', res);
+        return res; // this is what lets processTemperatureMessage know the hotspotID
+        
     }  else {
         await insertBatteryData(data);
         // Emit battery update to all connected clients
         const allBatteryData = await getAllBatteryData();
         io.emit('battery:update', allBatteryData);
     }
+    //TODO: insert hotspot data, don't worry about io.emit for now
 
     // Update the latestMavlinkData array with the newest data point
     latestMavlinkData = [];
