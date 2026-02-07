@@ -506,39 +506,38 @@ export async function insertHotspotData(data){
         requiredFields.forEach(field => {
             assert(data[field] !== undefined, `${field} is required`);
         });
-        conn = await pool.getConnection();
+		conn = await pool.getConnection();
 
-		//TODO: don't need to find position record as we will just directly insert lat and long and alt
-		//TODO: replace with query to find active mission ID
+		// If missionID not provided, try to find an active mission for this bot
+		let missionID = data.missionID ?? null;
+		if (!missionID) {
+			const [missionRows] = await conn.execute(
+				`SELECT DISTINCT m.missionID AS missionID
+				 FROM mission m
+				 JOIN bot_mission_assignment bma ON m.missionID = bma.missionID
+				 WHERE bma.botID = ? AND m.timeStart IS NOT NULL AND m.timeEnd IS NULL
+				 LIMIT 1`,
+				[data.botID]
+			);
+			missionID = missionRows[0] ? missionRows[0].missionID : null;
+		}
 
-		/*
-			SELECT DISTINCT m.missionID AS missionID
-			FROM mission m
-			JOIN bot_mission_assignment bma
-			ON m.missionID = bma.missionID
-			WHERE bma.botId = 1
-			AND m.timeStart IS NOT NULL
-			AND m.timeEnd IS NULL;
-		*/
-        
-        const hotspotQuery = 
-        'INSERT INTO hotspot(missionID, botID, detectedAt, latitude, longitude, altitude, notes) VALUES (?, ?, ?, ?, ?, ?, ?)';
+		const hotspotQuery =
+			'INSERT INTO hotspot (missionID, botID, detectedAt, latitude, longitude, altitude, notes) VALUES (?, ?, ?, ?, ?, ?, ?)';
 
-        const params = [ // parameters for mySQL to insert into table
-            data.missionID ?? null,
-            data.botID, 
+		const params = [
+			missionID,
+			data.botID,
 			data.detectedAt,
-            data.latitude, 
-            data.longitude,
+			data.latitude,
+			data.longitude,
 			data.altitude ?? null,
 			data.notes ?? null,
-			
+		];
 
-        ]; 
+		const [hotspotResults] = await conn.execute(hotspotQuery, params);
 
-        const[hotspotResults] = await conn.execute(hotspotQuery, params);
-
-        return { success: hotspotResults.affectedRows === 1, hotspotID: hotspotResults.insertId };
+		return { success: hotspotResults.affectedRows === 1, hotspotID: hotspotResults.insertId };
 
 
     }catch(error){
