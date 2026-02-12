@@ -521,6 +521,9 @@ export async function insertHotspotData(data){
 			);
 			missionID = missionRows[0] ? missionRows[0].missionID : null;
 		}
+		if (missionID == null) {
+            throw new Error(`missionID missing for hotspot from bot ${data.botID}`);
+        }
 
 		const hotspotQuery =
 			'INSERT INTO hotspot (missionID, botID, detectedAt, latitude, longitude, altitude, notes) VALUES (?, ?, ?, ?, ?, ?, ?)';
