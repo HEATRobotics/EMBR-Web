@@ -83,7 +83,11 @@ function handleMavlinkData() {
     
   NOTE: data format for simulated battery data is arbitrary; i.e. the keys do not correspond to actual incoming data, because battery percentage is new and I do not yet know the format in which battery % will be sent by the bot. Once format is finalized, function processBatteryMessage() as well as the 'battery' table in DB must both be changed, and the battery simulation part of the function will break unless also changed accordingly.
 */
+
+let simStarted = false;
 function simulateMavlinkData() {
+  if(simStarted) return; 
+  simStarted = true;
   //make it so that one temperature value is stored every second for each bot
   console.log("Simulating MAVLink data...");
   const NUM_SIMULATED_BOTS = 3;
@@ -122,43 +126,84 @@ function simulateMavlinkData() {
       value: 20 + Math.random() * 80,
     }
   }
-
+  let stationaryCounters = new Array(NUM_SIMULATED_BOTS).fill(0);
+  const STATIONARY_REQUIRED_SECONDS = 2; // seconds
 // simulate incoming position or temp data from all bots every second
-  setInterval(() => {
-    //TODO: ensure GPS data will occasionally have velocity zero for long enough to simulate temperature. Then, and only then, simulate temperature. 
-    //Instead of what you're doing currently which is just alternating every second regardless of GPS data.
-    // Randomly select a bot and update it's postion or temperature value
-    if(temperatureTick){
-      for(let botID = 0; botID < NUM_SIMULATED_BOTS; botID++){
-        let data = botTempData[botID];
-        
-        data.timeBootMs = new Date();
-        data.value += (Math.random() * 4);
-  
-        botTempData[botID] = data;
-        processTemperatureMessage(data);
-      }  
-    }else { 
-      for (let botId = 0; botId < NUM_SIMULATED_BOTS; botId++) {
-        let data = botPositionData[botId];
-        // Randomly update data relative to previous value
-        data.timeBootMs = new Date();
-        data.lat += (Math.random() * 400) - 200;
-        data.lon += (Math.random() * 800) - 400;
-        data.alt += (Math.random() * 100) - 50; 
-        data.relative_alt += (Math.random() * 10) - 5;
-        data.vx += (Math.random() * 10) - 5;
-        data.vy += (Math.random() * 10) - 5;
-        data.vz += (Math.random() * 10) - 5;
-        data.hdg += (Math.random() * 10) - 5;
-        
-        botPositionData[botId] = data;
-        processGlobalPositionMessage(data);            
-      }
-  }
-  temperatureTick = !temperatureTick;
 
-  }, 1000); // every second
+  const GPS_TICK_MS = 5000;          
+  const GPS_SEND_EVERY_MS = 12000;     
+  const TEMP_SEND_EVERY_MS = 10000;    
+
+let nextBotToUpdate = 0;
+
+// Per-bot “next allowed send time” so they don’t all send together
+const nextGpsSendAt = new Array(NUM_SIMULATED_BOTS).fill(0);
+const nextTempSendAt = new Array(NUM_SIMULATED_BOTS).fill(0);
+
+setInterval(() => {
+  const botID = nextBotToUpdate;
+  nextBotToUpdate = (nextBotToUpdate + 1) % NUM_SIMULATED_BOTS;
+
+  let posData = botPositionData[botID];
+  const now = Date.now();
+
+  // --- update the bot "state" every time it gets its turn ---
+  posData.timeBootMs = new Date();
+  posData.alt += (Math.random() * 100) - 50;
+  posData.relative_alt += (Math.random() * 10) - 5;
+
+  if (Math.random() < 0.5) {
+    posData.vx = 0;
+    posData.vy = 0;
+    posData.vz = 0;
+  } else {
+    posData.vx += (Math.random() * 10) - 5;
+    posData.vy += (Math.random() * 10) - 5;
+    posData.vz += (Math.random() * 10) - 5;
+  }
+
+  const stopped = (posData.vx === 0 && posData.vy === 0 && posData.vz === 0);
+  if (stopped) {
+    posData.lat += (Math.random() * 20) - 10;
+    posData.lon += (Math.random() * 20) - 10;
+  } else {
+    posData.lat += (Math.random() * 400) - 200;
+    posData.lon += (Math.random() * 800) - 400;
+  }
+  posData.hdg += (Math.random() * 10) - 5;
+
+  botPositionData[botID] = posData;
+
+  // send GPS only when this bot is “due”
+  if (now >= nextGpsSendAt[botID]) {
+    processGlobalPositionMessage(posData);
+
+    const jitter = Math.floor((Math.random() * 600) - 300); 
+    nextGpsSendAt[botID] = now + GPS_SEND_EVERY_MS + jitter;
+  }
+
+  // temp only if stopped for a few seconds
+  if (stopped) {
+    stationaryCounters[botID]++;
+
+    if (stationaryCounters[botID] >= STATIONARY_REQUIRED_SECONDS) {
+      if (now >= nextTempSendAt[botID]) {
+        let tempData = botTempData[botID];
+        tempData.timeBootMs = posData.timeBootMs;
+        tempData.value += (Math.random() * 0.6) - 0.2;
+        botTempData[botID] = tempData;
+
+        processTemperatureMessage(tempData);
+
+        const tempJitter = Math.floor((Math.random() * 300) - 150);
+        nextTempSendAt[botID] = now + TEMP_SEND_EVERY_MS + tempJitter;
+      }
+    }
+  } else {
+    stationaryCounters[botID] = 0;
+  }
+
+}, GPS_TICK_MS);
 
   // Simulate incoming battery data from all bots, every 15 seconds 
 
@@ -256,16 +301,6 @@ async function processTemperatureMessage(data) {
   }
 }
   
-  
-
-
-  
-
-    
-
-  
-  
-
 
 function processBatteryMessage(data) {
   
