@@ -3,10 +3,8 @@ import { Marker } from '@react-google-maps/api';
 import { RobotOperationalStatusType } from '@/constants/robotConstants';
 import { MissionType } from '@/types/mission.type';
 import { RobotType } from '@/types/robot.type';
-import type { useRouter } from 'next/navigation';
 
-type AppRouter = ReturnType<typeof useRouter>;
-//better to use this type of router for tsx files
+
 class MapDrawUtilsClass {
   static markers: google.maps.Marker[] = [];
   static missionAreas: google.maps.Rectangle[] = [];
@@ -17,10 +15,10 @@ class MapDrawUtilsClass {
     robots.forEach((robot: RobotType) => this.drawBot(robot, map));
   }
 
-  static drawMissionAreas(missions: MissionType[], map: google.maps.Map,  router?: AppRouter) {
+  static drawMissionAreas(missions: MissionType[], map: google.maps.Map) {
     this.removeOldMissionAreas();
     // Draw each mission area in the list
-    missions.forEach((mission) => this.drawMissionArea(mission, map, router));
+    missions.forEach((mission) => this.drawMissionArea(mission, map));
   }
 
   private static drawBot(robot: RobotType, map: google.maps.Map) {
@@ -46,7 +44,7 @@ class MapDrawUtilsClass {
     this.markers.push(marker);
   }
 
-  private static drawMissionArea(mission: MissionType, map: google.maps.Map, router? : ReturnType <typeof useRouter>) {
+  private static drawMissionArea(mission: MissionType, map: google.maps.Map) {
     if (!mission.areaCoordinates) return;
 
     //console.log(mission.areaCoordinates);

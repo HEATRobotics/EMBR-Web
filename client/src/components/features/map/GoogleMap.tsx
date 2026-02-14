@@ -126,7 +126,7 @@ const CustomGoogleMap: React.FC<CustomGoogleMapProps> = ({
 
   useEffect(() => {
     if (!map || !missionsData || missionsData.length === 0) return;
-    drawMissionAreas(missionsData, map); // Only drawing rectangle/dot here
+    drawMissionAreas(missionsData, map); // Only drawing rectangle areas, not clickable names, which are handled in the main component render
   }, [missionsData, map]);
 
   useEffect(() => {
@@ -191,6 +191,7 @@ const CustomGoogleMap: React.FC<CustomGoogleMapProps> = ({
         <button
           onClick={() => setSatelliteView(!satelliteView)}
           className="px-4 py-2 bg-white rounded-md shadow hover:bg-gray-100 flex items-center gap-2 transition-colors"
+        aria-label={satelliteView ? 'Switch to map view' : 'Switch to satellite view'}
         >
           {satelliteView ? (
             <>
