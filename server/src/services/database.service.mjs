@@ -11,7 +11,7 @@ const parseJSON = (value, fallback = null) => {
 	}
 };
 
-// Insert telemetry rows with optional mission context
+// Insert telemetry rows with mission context
 export async function insertPositionData(data) {
 	const required = ['botID', 'clockTime', 'latitude', 'longitude'];
 	required.forEach((field) => assert(data[field] !== undefined, `${field} is required`));
@@ -19,6 +19,11 @@ export async function insertPositionData(data) {
 	let conn;
 	try {
 		conn = await pool.getConnection();
+		//if missionID is missing, infer it from the bot's active mission
+		if (data.missionID==null){
+			const missionID =await getActiveMissionIdForBot(conn, data.botID);
+			data.missionID=missionID ??null; // if no active mission, set to null and let it be handled by the database constraints (if necessary) or just have position data without a mission association
+		}
 		const query = `
 			INSERT INTO \`position\`
 				(botID, missionID, clockTime, latitude, longitude, altitude, relativeAltitude, groundXSpeed, groundYSpeed, groundZSpeed, vehicleHeading)
@@ -27,7 +32,7 @@ export async function insertPositionData(data) {
 		`;
 		const params = [
 			data.botID,
-			data.missionID ?? null,
+			data.missionID,
 			data.clockTime,
 			data.latitude,
 			data.longitude,
@@ -85,6 +90,12 @@ export async function insertBatteryData(data) {
 	let conn;
 	try {
 		conn = await pool.getConnection();
+
+		//infer missionID from the bot if it is missing
+		if(data.missionID ==null){
+			const missionID =await getActiveMissionIdForBot(conn, data.botID);
+			data.missionID =missionID ??null; // if no active mission, set to null and let it be handled by the database constraints (if necessary) or just have battery data without a mission association
+		}
 		const query = `
 			INSERT INTO battery
 				(botID, missionID, clockTime, battery)
@@ -93,7 +104,7 @@ export async function insertBatteryData(data) {
 		`;
 		const params = [
 			data.botID,
-			data.missionID ?? null,
+			data.missionID,
 			data.clockTime,
 			data.battery,
 		];
@@ -553,4 +564,17 @@ export async function insertHotspotData(data){
         }
     }
 
+}
+async function getActiveMissionIdForBot(conn, botID) {
+    const [missionRows] = await conn.execute(
+        `SELECT DISTINCT m.missionID AS missionID
+         FROM mission m
+         JOIN bot_mission_assignment bma ON m.missionID = bma.missionID
+         WHERE bma.botID = ?
+           AND m.timeStart IS NOT NULL
+           AND m.timeEnd IS NULL
+         LIMIT 1`,
+        [botID]
+    );
+    return missionRows[0] ? missionRows[0].missionID : null;
 }
