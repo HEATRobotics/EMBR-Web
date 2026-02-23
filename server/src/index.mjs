@@ -61,11 +61,11 @@ app.post('/api/send-coordinates', async (req, res) => {
                 lon4: -1193964700
             };
         }
-
-        console.log("Website requested send-coordinates:");
+        botID = 1;
+        console.log("Website requested send-coordinates (botID = 1):");
         console.log(coords);
-
-        await sendMissionCoordinates(coords);
+        
+        await sendMissionCoordinates(botID, coords);
 
         return res.status(200).json({
             success: true,
