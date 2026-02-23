@@ -50,7 +50,7 @@ const REGISTRY = {
 };
 
 // --- START CHANGE: Reuse serial port for mission upload ---
-async function sendMissionCoordinates(coords) {
+async function sendMissionCoordinates(botID, coords) {
   const { lat1, lon1, lat2, lon2, lat3, lon3, lat4, lon4 } = coords;
 
   console.log("Sending mission coordinates to robot...");
@@ -59,22 +59,21 @@ async function sendMissionCoordinates(coords) {
 
   // Helper to send one waypoint
   const sendWp = (seq, lat, lon) => {
-    const wp = new common.MissionItemInt(
-      1,   // target system id
-      1,   // target component id
-      seq, // waypoint index
-      0,   // frame (0 = global)
-      16,  // command (16 = NAV_WAYPOINT)
-      0,   // current
-      1,   // autocontinue
-      0, 0, 0, 0,  
-      lat, // latitude * 1e7
-      lon, // longitude * 1e7
-      50   // altitude 50m
-    );
-
-    const buffer = mavEncoder.pack(wp);
-    port.write(buffer);
+    const wp = new common.MissionItemInt();
+      wp.target_system = 1;   // target system id
+      wp.target_componenet = 1;   // target component id
+      wp.seq = seq; // waypoint index
+      wp.frame = 0;   // frame (0 = global)
+      wp.command = 16;  // command (16 = NAV_WAYPOINT)
+      wp.current = 0;   // current
+      wp.autocontinue = 1;   // autocontinue
+      wp.param1 = botID; wp.param2 =  0; wp.param3 = 0; wp.param4 = 0;  
+      wp.x = lat * 1e7; // latitude * 1e7
+      wp.y = lon * 1e7; // longitude * 1e7
+      wp.z = 50.0;   // altitude 50m
+    
+      
+    send(port, wp, new MavLinkProtocolV2());
     console.log(`Sent WP ${seq}: lat=${lat}, lon=${lon}`);
   };
 
