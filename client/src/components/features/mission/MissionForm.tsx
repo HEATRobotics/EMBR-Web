@@ -28,22 +28,27 @@ export default function MissionForm({
   // STATE
   // ===============================
 
-  const [missionName, setMissionName] = useState(initialData?.missionName ?? '');
-  const [timeEstimated, setTimeEstimated] = useState(initialData?.timeEstimated ?? 60);
+  const [missionName, setMissionName] = useState(
+    initialData?.missionName ?? ''
+  );
+  const [timeEstimated, setTimeEstimated] = useState(
+    initialData?.timeEstimated ?? 60
+  );
   const [selectedBotIds, setSelectedBotIds] = useState<number[]>(
-    initialData?.assignedBots ?? [],
+    initialData?.assignedBots ?? []
   );
 
   const [northWest, setNorthWest] = useState<CoordinatesType | null>(
-    initialData?.areaCoordinates?.[0] ?? null,
+    initialData?.areaCoordinates?.[0] ?? null
   );
 
   const [southEast, setSouthEast] = useState<CoordinatesType | null>(
-    initialData?.areaCoordinates?.[1] ?? null,
+    initialData?.areaCoordinates?.[1] ?? null
   );
 
   const [drawingMode, setDrawingMode] = useState(false);
-  const [rectangle, setRectangle] = useState<google.maps.Rectangle | null>(null);
+  const [rectangle, setRectangle] =
+    useState<google.maps.Rectangle | null>(null);
 
   const { bots, botsLoading } = useBotData();
   const { missionsData: missions } = useMissions();
@@ -52,11 +57,26 @@ export default function MissionForm({
   // HANDLERS
   // ===============================
 
+  const handleRevert = () => {
+    if (!initialData) return;
+
+    const confirmed = window.confirm(
+      'Discard all unsaved changes?'
+    );
+    if (!confirmed) return;
+
+    setMissionName(initialData.missionName ?? '');
+    setTimeEstimated(initialData.timeEstimated ?? 60);
+    setSelectedBotIds(initialData.assignedBots ?? []);
+    setNorthWest(initialData.areaCoordinates?.[0] ?? null);
+    setSouthEast(initialData.areaCoordinates?.[1] ?? null);
+  };
+
   const handleToggleBot = (botId: number) => {
     setSelectedBotIds((prev) =>
       prev.includes(botId)
         ? prev.filter((id) => id !== botId)
-        : [...prev, botId],
+        : [...prev, botId]
     );
   };
 
@@ -69,15 +89,21 @@ export default function MissionForm({
   const handleCoordinateChange = (
     corner: 'nw' | 'se',
     field: 'lat' | 'lng',
-    value: string,
+    value: string
   ) => {
     const numValue = parseFloat(value);
     if (isNaN(numValue)) return;
 
     if (corner === 'nw') {
-      setNorthWest((prev) => ({ ...(prev || { lat: 0, lng: 0 }), [field]: numValue }));
+      setNorthWest((prev) => ({
+        ...(prev || { lat: 0, lng: 0 }),
+        [field]: numValue,
+      }));
     } else {
-      setSouthEast((prev) => ({ ...(prev || { lat: 0, lng: 0 }), [field]: numValue }));
+      setSouthEast((prev) => ({
+        ...(prev || { lat: 0, lng: 0 }),
+        [field]: numValue,
+      }));
     }
   };
 
@@ -91,11 +117,15 @@ export default function MissionForm({
       missionID: initialData?.missionID ?? 0,
       missionName: missionName.trim(),
       progress: initialData?.progress ?? 0,
-      averageTemperature: initialData?.averageTemperature ?? 0,
+      averageTemperature:
+        initialData?.averageTemperature ?? 0,
       timePassed: initialData?.timePassed ?? 0,
       timeEstimated,
       areaCoordinates: [northWest, southEast],
-      assignedBots: selectedBotIds.length ? selectedBotIds : undefined,
+      assignedBots:
+        selectedBotIds.length > 0
+          ? selectedBotIds
+          : undefined,
     };
 
     await onSubmit(mission);
@@ -107,9 +137,12 @@ export default function MissionForm({
 
   return (
     <div className="h-screen flex flex-col p-6">
+      {/* Header */}
       <div className="mb-4">
         <h1 className="text-3xl font-bold mb-2">
-          {mode === 'create' ? 'Create New Mission' : 'Edit Mission'}
+          {mode === 'create'
+            ? 'Create New Mission'
+            : 'Edit Mission'}
         </h1>
         <p className="text-gray-600">
           {mode === 'create'
@@ -119,17 +152,22 @@ export default function MissionForm({
       </div>
 
       <div className="flex-1 flex gap-6 overflow-hidden mb-12">
-
         {/* LEFT PANEL */}
         <div className="w-96 flex-shrink-0 bg-white rounded-lg shadow-lg p-6 overflow-y-auto">
-          <form onSubmit={handleSubmit} className="space-y-6">
-
+          <form
+            onSubmit={handleSubmit}
+            className="space-y-6"
+          >
             {/* Mission Name */}
             <div>
-              <label className="block text-sm font-medium mb-2">Mission Name *</label>
+              <label className="block text-sm font-medium mb-2">
+                Mission Name *
+              </label>
               <input
                 value={missionName}
-                onChange={(e) => setMissionName(e.target.value)}
+                onChange={(e) =>
+                  setMissionName(e.target.value)
+                }
                 className="w-full px-3 py-2 border bg-gray-100 rounded-md"
                 required
               />
@@ -143,7 +181,9 @@ export default function MissionForm({
               <input
                 type="number"
                 value={timeEstimated}
-                onChange={(e) => setTimeEstimated(Number(e.target.value))}
+                onChange={(e) =>
+                  setTimeEstimated(Number(e.target.value))
+                }
                 className="w-full px-3 py-2 bg-gray-100 border rounded-md"
                 min={1}
               />
@@ -152,11 +192,20 @@ export default function MissionForm({
             {/* Bot Assignment */}
             <div>
               <label className="block text-sm font-medium mb-2">
-                Assign Bots {selectedBotIds.length > 0 && `(${selectedBotIds.length} selected)`}
+                Assign Bots{' '}
+                {selectedBotIds.length > 0 &&
+                  `(${selectedBotIds.length} selected)`}
               </label>
 
+              <p className="text-xs text-gray-500 mb-2">
+                Select one or more bots to assign
+                to this mission.
+              </p>
+
               {botsLoading ? (
-                <div className="text-sm text-gray-500">Loading bots...</div>
+                <div className="text-sm text-gray-500">
+                  Loading bots...
+                </div>
               ) : bots.length === 0 ? (
                 <div className="p-3 bg-yellow-50 border border-yellow-200 rounded-md text-sm text-yellow-800">
                   No bots available.
@@ -170,12 +219,20 @@ export default function MissionForm({
                     >
                       <input
                         type="checkbox"
-                        checked={selectedBotIds.includes(bot.id)}
-                        onChange={() => handleToggleBot(bot.id)}
+                        checked={selectedBotIds.includes(
+                          bot.id
+                        )}
+                        onChange={() =>
+                          handleToggleBot(bot.id)
+                        }
                       />
                       <div className="flex-1 flex justify-between text-sm">
                         <span>{bot.name}</span>
-                        <span>{bot.battery ? `${bot.battery}%` : 'N/A'}</span>
+                        <span>
+                          {bot.battery
+                            ? `${bot.battery}%`
+                            : 'N/A'}
+                        </span>
                       </div>
                     </label>
                   ))}
@@ -185,53 +242,158 @@ export default function MissionForm({
 
             {/* Mission Area */}
             <div>
-              <h3 className="text-lg font-semibold mb-3">Mission Area</h3>
+              <h3 className="text-lg font-semibold mb-3">
+                Mission Area
+              </h3>
 
-              <button
-                type="button"
-                onClick={() => setDrawingMode(!drawingMode)}
-                className="w-full px-4 py-2 bg-blue-600 text-white rounded-md"
-              >
-                {drawingMode ? '✓ Drawing Mode Active' : 'Enable Drawing Mode'}
-              </button>
+              {mode === 'create' && (
+                <>
+                  <button
+                    type="button"
+                    onClick={() =>
+                      setDrawingMode(!drawingMode)
+                    }
+                    className="w-full px-4 py-2 bg-blue-600 text-white rounded-md"
+                  >
+                    {drawingMode
+                      ? '✓ Drawing Mode Active'
+                      : 'Enable Drawing Mode'}
+                  </button>
 
-              {drawingMode && (
+                  {drawingMode && (
+                    <button
+                      type="button"
+                      onClick={handleDeleteArea}
+                      className="w-full mt-2 px-4 py-2 bg-red-600 text-white rounded-md"
+                    >
+                      Delete Area
+                    </button>
+                  )}
+                </>
+              )}
+
+              <div className="mt-4 space-y-4">
+                {/* North-West */}
+                <div>
+                  <h4 className="font-medium mb-2">
+                    North-West Corner
+                  </h4>
+                  <div className="grid grid-cols-2 gap-2">
+                    <input
+                      type="number"
+                      step="any"
+                      placeholder="Latitude"
+                      value={northWest?.lat ?? ''}
+                      onChange={(e) =>
+                        handleCoordinateChange(
+                          'nw',
+                          'lat',
+                          e.target.value
+                        )
+                      }
+                      className="px-3 py-2 border rounded-md bg-gray-100"
+                    />
+                    <input
+                      type="number"
+                      step="any"
+                      placeholder="Longitude"
+                      value={northWest?.lng ?? ''}
+                      onChange={(e) =>
+                        handleCoordinateChange(
+                          'nw',
+                          'lng',
+                          e.target.value
+                        )
+                      }
+                      className="px-3 py-2 border rounded-md bg-gray-100"
+                    />
+                  </div>
+                </div>
+
+                {/* South-East */}
+                <div>
+                  <h4 className="font-medium mb-2">
+                    South-East Corner
+                  </h4>
+                  <div className="grid grid-cols-2 gap-2">
+                    <input
+                      type="number"
+                      step="any"
+                      placeholder="Latitude"
+                      value={southEast?.lat ?? ''}
+                      onChange={(e) =>
+                        handleCoordinateChange(
+                          'se',
+                          'lat',
+                          e.target.value
+                        )
+                      }
+                      className="px-3 py-2 border rounded-md bg-gray-100"
+                    />
+                    <input
+                      type="number"
+                      step="any"
+                      placeholder="Longitude"
+                      value={southEast?.lng ?? ''}
+                      onChange={(e) =>
+                        handleCoordinateChange(
+                          'se',
+                          'lng',
+                          e.target.value
+                        )
+                      }
+                      className="px-3 py-2 border rounded-md bg-gray-100"
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Buttons */}
+            <div className="pt-4 border-t">
+              <div className="flex gap-4">
+                {mode === 'edit' && (
+                  <button
+                    type="button"
+                    onClick={handleRevert}
+                    disabled={submitting}
+                    className="flex-1 px-4 py-2 bg-yellow-500 text-white rounded-md"
+                  >
+                    Revert Changes
+                  </button>
+                )}
+
                 <button
                   type="button"
-                  onClick={handleDeleteArea}
-                  className="w-full mt-2 px-4 py-2 bg-red-600 text-white rounded-md"
+                  onClick={() =>
+                    router.push('/missions')
+                  }
+                  disabled={submitting}
+                  className="flex-1 px-4 py-2 border rounded-md"
                 >
-                  Delete Area
+                  Cancel
                 </button>
-              )}
-            </div>
 
-            {/* Submit */}
-            <div className="flex gap-3 pt-4 border-t">
-              <button
-                type="button"
-                onClick={() => router.push('/missions')}
-                className="flex-1 px-4 py-2 border rounded-md"
-                disabled={submitting}
-              >
-                Cancel
-              </button>
-
-              <button
-                type="submit"
-                disabled={submitting || !missionName.trim() || !northWest || !southEast}
-                className="flex-1 bg-green-600 text-white py-2 rounded-md"
-              >
-                {submitting
-                  ? mode === 'create'
-                    ? 'Creating...'
-                    : 'Saving...'
-                  : mode === 'create'
+                <button
+                  type="submit"
+                  disabled={
+                    submitting ||
+                    !missionName.trim() ||
+                    !northWest ||
+                    !southEast
+                  }
+                  className="flex-1 px-4 py-2 bg-green-600 text-white rounded-md"
+                >
+                  {submitting
+                    ? mode === 'create'
+                      ? 'Creating...'
+                      : 'Saving...'
+                    : mode === 'create'
                     ? 'Create Mission'
                     : 'Save Mission'}
-              </button>
+                </button>
+              </div>
             </div>
-
           </form>
         </div>
 
@@ -241,12 +403,18 @@ export default function MissionForm({
             bots={[]}
             missionsData={missions ?? []}
             drawingMode={drawingMode}
-            currentRectangle={northWest && southEast ? { northWest, southEast } : null}
+            currentRectangle={
+              northWest && southEast
+                ? { northWest, southEast }
+                : null
+            }
             onRectangleChange={(nw, se) => {
               setNorthWest(nw);
               setSouthEast(se);
             }}
-            onRectangleSet={(rect) => setRectangle(rect)}
+            onRectangleSet={(rect) =>
+              setRectangle(rect)
+            }
           />
         </div>
       </div>
