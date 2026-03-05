@@ -19,20 +19,14 @@ export async function insertPositionData(data) {
 	let conn;
 	try {
 		conn = await pool.getConnection();
-		//if missionID is missing, infer it from the bot's active mission
-		if (data.missionID==null){
-			const missionID =await getActiveMissionIdForBot(conn, data.botID);
-			data.missionID=missionID ??null; // if no active mission, set to null and let it be handled by the database constraints (if necessary) or just have position data without a mission association
-		}
 		const query = `
 			INSERT INTO \`position\`
-				(botID, missionID, clockTime, latitude, longitude, altitude, relativeAltitude, groundXSpeed, groundYSpeed, groundZSpeed, vehicleHeading)
+				(botID, clockTime, latitude, longitude, altitude, relativeAltitude, groundXSpeed, groundYSpeed, groundZSpeed, vehicleHeading)
 			VALUES
-				(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+				(?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
 		`;
 		const params = [
 			data.botID,
-			data.missionID,
 			data.clockTime,
 			data.latitude,
 			data.longitude,
@@ -90,21 +84,14 @@ export async function insertBatteryData(data) {
 	let conn;
 	try {
 		conn = await pool.getConnection();
-
-		//infer missionID from the bot if it is missing
-		if(data.missionID ==null){
-			const missionID =await getActiveMissionIdForBot(conn, data.botID);
-			data.missionID =missionID ??null; // if no active mission, set to null and let it be handled by the database constraints (if necessary) or just have battery data without a mission association
-		}
 		const query = `
 			INSERT INTO battery
-				(botID, missionID, clockTime, battery)
+				(botID, clockTime, battery)
 			VALUES
-				(?, ?, ?, ?)
+				(?, ?, ?)
 		`;
 		const params = [
 			data.botID,
-			data.missionID,
 			data.clockTime,
 			data.battery,
 		];
@@ -522,15 +509,7 @@ export async function insertHotspotData(data){
 		// If missionID not provided, try to find an active mission for this bot
 		let missionID = data.missionID ?? null;
 		if (!missionID) {
-			const [missionRows] = await conn.execute(
-				`SELECT DISTINCT m.missionID AS missionID
-				 FROM mission m
-				 JOIN bot_mission_assignment bma ON m.missionID = bma.missionID
-				 WHERE bma.botID = ? AND m.timeStart IS NOT NULL AND m.timeEnd IS NULL
-				 LIMIT 1`,
-				[data.botID]
-			);
-			missionID = missionRows[0] ? missionRows[0].missionID : null;
+			missionID=await getActiveMissionIdForBot(conn,data.botID);
 		}
 		if (missionID == null) {
             throw new Error(`missionID missing for hotspot from bot ${data.botID}`);
@@ -546,7 +525,7 @@ export async function insertHotspotData(data){
 			data.latitude,
 			data.longitude,
 			data.altitude ?? null,
-			data.notes ?? null,
+			null,
 		];
 
 		const [hotspotResults] = await conn.execute(hotspotQuery, params);

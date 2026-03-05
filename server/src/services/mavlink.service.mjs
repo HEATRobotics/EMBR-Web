@@ -16,8 +16,6 @@ const {
   common,
   ardupilotmega,
 } = mavlink;
-const latestGPS = {};
-const tempVals = {};
 
 
 //create a registry of mappings between msg id and data
@@ -84,10 +82,7 @@ function handleMavlinkData() {
   NOTE: data format for simulated battery data is arbitrary; i.e. the keys do not correspond to actual incoming data, because battery percentage is new and I do not yet know the format in which battery % will be sent by the bot. Once format is finalized, function processBatteryMessage() as well as the 'battery' table in DB must both be changed, and the battery simulation part of the function will break unless also changed accordingly.
 */
 
-let simStarted = false;
 function simulateMavlinkData() {
-  if(simStarted) return; 
-  simStarted = true;
   //make it so that one temperature value is stored every second for each bot
   console.log("Simulating MAVLink data...");
   const NUM_SIMULATED_BOTS = 3;
@@ -96,7 +91,6 @@ function simulateMavlinkData() {
   let botPositionData = [];
   let botTempData = [];
 
-  let temperatureTick = false; //start with GPS so latestGPS is populated before temp data
 
   for (let i = 0; i < NUM_SIMULATED_BOTS; i++) { //to initialize data for each bot
     
@@ -253,8 +247,6 @@ const currentHotspotID = {};
 
 async function processTemperatureMessage(data) {
    const botID = data.id ?? 1;
-  // TODO: If counter == 0, create hotspot and remember its ID for future temp data points 
-  //TODO: Add hotspotID when creating temperature data object first temp
   if (tempCounters[botID] == null) tempCounters[botID] = 0;
   if (currentHotspotID[botID] == null) currentHotspotID[botID] = null;
   const gps = latestGPS[botID];

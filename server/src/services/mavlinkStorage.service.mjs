@@ -54,7 +54,7 @@ export async function storeMavlinkData(data, io) {
         const allBatteryData = await getAllBatteryData();
         io.emit('battery:update', allBatteryData);
     }
-    //TODO: insert hotspot data, don't worry about io.emit for now
+    
 
     // Update the latestMavlinkData array with the newest data point
     latestMavlinkData = [];
