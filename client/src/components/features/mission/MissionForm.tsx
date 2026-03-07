@@ -52,7 +52,19 @@ export default function MissionForm({
 
   const { bots, botsLoading } = useBotData();
   const { missionsData: missions } = useMissions();
-
+const missionsToDisplay =
+  mode === 'edit' && initialData
+    ? [
+        {
+          ...(initialData as MissionType),
+          areaCoordinates:
+            initialData.areaCoordinates ??
+            (northWest && southEast
+              ? [northWest, southEast]
+              : []),
+        },
+      ]
+    : missions ?? [];
   // ===============================
   // HANDLERS
   // ===============================
@@ -389,7 +401,7 @@ export default function MissionForm({
         <div className="flex-1 bg-white rounded-lg shadow-lg overflow-hidden">
           <CustomGoogleMap
             bots={[]}
-            missionsData={missions ?? []}
+            missionsData={missionsToDisplay}
             drawingMode={drawingMode}
             currentRectangle={
               northWest && southEast

@@ -12,18 +12,6 @@ import { useBotData, useMission } from '@/hooks';
 import type { RobotType } from '@/types';
 
 export default function MissionDetail() {
-  
-  const handleEditMission = () => {
-  if (!canEditMission) {
-    alert(
-      "This mission cannot be edited because it has already been started or completed."
-    );
-    return;
-  }
-
-  router.push(`/missions/${missionId}/edit`);
-};
-
   const params = useParams();
   const router = useRouter();
   const missionId = Number(params.id);
@@ -34,6 +22,12 @@ export default function MissionDetail() {
   const mission = missionData;
   const assignedBot = bots.find((b) => mission?.assignedBots?.includes(b.id));
   const canEditMission = mission && !mission.timeStart && !mission.timeEnd;
+
+  const handleEditMission = () => {
+    if (!canEditMission) return;
+    router.push(`/missions/${missionId}/edit`);
+  };
+
   const handleStartEndMission = async (id: number, start: boolean, time: string) => {
     console.log('Updating mission:', id);
 
@@ -100,18 +94,27 @@ export default function MissionDetail() {
   </div>
 
   {/* Edit Mission Button (separate) */}
+  <div className="relative group w-full">
   <button
-  onClick={handleEditMission}
-  className={`w-full px-4 py-2 text-sm font-medium rounded-md shadow transition
-    ${
-      canEditMission
-        ? "bg-gray-800 text-white hover:bg-gray-700"
-        : "bg-gray-500 text-gray-200 cursor-not-allowed"
-    }
-  `}
->
-  Edit Mission
-</button>
+    onClick={handleEditMission}
+    className={`w-full px-4 py-2 text-sm font-medium rounded-md shadow transition
+      ${
+        canEditMission
+          ? "bg-gray-800 text-white hover:bg-gray-700"
+          : "bg-gray-500 text-gray-200 cursor-not-allowed"
+      }
+    `}
+  >
+    Edit Mission
+  </button>
+
+  {!canEditMission && (
+    <div className="absolute left-0 mt-2 hidden group-hover:block
+                  bg-gray-800/80 text-white text-xs px-3 py-1 rounded shadow-lg backdrop-blur-sm whitespace-nowrap">
+      Cannot edit after mission has been started/ended
+    </div>
+  )}
+</div>
 </div>
 </div>
 
@@ -156,5 +159,5 @@ export default function MissionDetail() {
         </div>
       </main>
     </div>
-  );
+);
 }
