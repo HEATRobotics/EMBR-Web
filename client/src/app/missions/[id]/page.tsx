@@ -12,9 +12,18 @@ import { useBotData, useMission } from '@/hooks';
 import type { RobotType } from '@/types';
 
 export default function MissionDetail() {
+  
   const handleEditMission = () => {
+  if (!canEditMission) {
+    alert(
+      "This mission cannot be edited because it has already been started or completed."
+    );
+    return;
+  }
+
   router.push(`/missions/${missionId}/edit`);
 };
+
   const params = useParams();
   const router = useRouter();
   const missionId = Number(params.id);
@@ -24,7 +33,7 @@ export default function MissionDetail() {
 
   const mission = missionData;
   const assignedBot = bots.find((b) => mission?.assignedBots?.includes(b.id));
-
+  const canEditMission = mission && !mission.timeStart && !mission.timeEnd;
   const handleStartEndMission = async (id: number, start: boolean, time: string) => {
     console.log('Updating mission:', id);
 
@@ -92,13 +101,17 @@ export default function MissionDetail() {
 
   {/* Edit Mission Button (separate) */}
   <button
-    onClick={handleEditMission}
-    className="w-full px-4 py-2 text-sm font-medium
-               bg-gray-800 text-white rounded-md shadow
-               hover:bg-gray-700 transition"
-  >
-    Edit Mission
-  </button>
+  onClick={handleEditMission}
+  className={`w-full px-4 py-2 text-sm font-medium rounded-md shadow transition
+    ${
+      canEditMission
+        ? "bg-gray-800 text-white hover:bg-gray-700"
+        : "bg-gray-500 text-gray-200 cursor-not-allowed"
+    }
+  `}
+>
+  Edit Mission
+</button>
 </div>
 </div>
 

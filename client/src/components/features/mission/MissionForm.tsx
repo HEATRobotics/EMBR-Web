@@ -46,7 +46,7 @@ export default function MissionForm({
     initialData?.areaCoordinates?.[1] ?? null
   );
 
-  const [drawingMode, setDrawingMode] = useState(false);
+  const [drawingMode] = useState(true);
   const [rectangle, setRectangle] =
     useState<google.maps.Rectangle | null>(null);
 
@@ -246,31 +246,19 @@ export default function MissionForm({
                 Mission Area
               </h3>
 
-              {mode === 'create' && (
-                <>
-                  <button
-                    type="button"
-                    onClick={() =>
-                      setDrawingMode(!drawingMode)
-                    }
-                    className="w-full px-4 py-2 bg-blue-600 text-white rounded-md"
-                  >
-                    {drawingMode
-                      ? '✓ Drawing Mode Active'
-                      : 'Enable Drawing Mode'}
-                  </button>
+              <div className="space-y-2 mb-4">
+  <p className="text-sm text-gray-600">
+    Click anywhere on the map to define a mission area.
+  </p>
 
-                  {drawingMode && (
-                    <button
-                      type="button"
-                      onClick={handleDeleteArea}
-                      className="w-full mt-2 px-4 py-2 bg-red-600 text-white rounded-md"
-                    >
-                      Delete Area
-                    </button>
-                  )}
-                </>
-              )}
+  <button
+    type="button"
+    onClick={handleDeleteArea}
+    className="w-full px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700"
+  >
+    Delete Area
+  </button>
+</div>
 
               <div className="mt-4 space-y-4">
                 {/* North-West */}
