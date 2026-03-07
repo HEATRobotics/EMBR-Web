@@ -26,6 +26,22 @@ export default function MissionDetail() {
     console.log('Updating mission:', id);
 
     if (start) {
+
+      try {
+        // Push update to the database
+        const response = start 
+            ? await startMission(missionId, time) 
+            : await endMission(missionId, time);
+
+      if (response.status == 200) {
+          console.log("mission " + missionId + " sent: " + response.data.message);
+      }
+
+    } catch (error) {
+      alert(`Mission failed to start: ${error.response?.data?.error || error.message}`);
+      return;
+    }
+
       mission!.timeStart = time;
     } else if (!start) {
       mission!.timeEnd = time;
@@ -49,9 +65,6 @@ export default function MissionDetail() {
     }
     setMission(mission!);
 
-    // Push update to the database
-    const response = await (start ? startMission(missionId, time) : endMission(missionId, time));
-    console.log(`Mission ${start ? 'started' : 'ended'}:`, response);
   };
 
   const handleDelete = async (missionId: number, missionName: string) => {
