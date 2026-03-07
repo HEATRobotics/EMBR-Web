@@ -40,12 +40,20 @@ export async function storeMavlinkData(data, io) {
         // Emit temperature update to all connected clients
         const allTemperatureData = await getAllTemperatureData();
         io.emit('temperature:update', allTemperatureData);
+
+        if(data.finalize && data.hotspotID){
+            const hotspot = await getHotspotByID(data.hotspotID);
+            const temperature = await getTemperatureByHotspotID(data.hotspotID);
+            if(temperature && temperature.length == 10){
+                io.emit('hotspot.created', { ...hotspot, temperatures: temperature });
+            }
+
+        }
     }else if(data.type === 'hotspot_data'){
         const res = await insertHotspotData({
             ...data, 
             detectedAt: data.detectedAt ?? data.clockTime,
         });
-        io.emit('hotspot.created', res);
         return res; // this is what lets processTemperatureMessage know the hotspotID
         
     }  else {
@@ -54,7 +62,7 @@ export async function storeMavlinkData(data, io) {
         const allBatteryData = await getAllBatteryData();
         io.emit('battery:update', allBatteryData);
     }
-    //TODO: insert hotspot data, don't worry about io.emit for now
+   
 
     // Update the latestMavlinkData array with the newest data point
     latestMavlinkData = [];

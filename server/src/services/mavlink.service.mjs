@@ -252,9 +252,7 @@ const tempCounters = {};
 const currentHotspotID = {}; 
 
 async function processTemperatureMessage(data) {
-   const botID = data.id ?? 1;
-  // TODO: If counter == 0, create hotspot and remember its ID for future temp data points 
-  //TODO: Add hotspotID when creating temperature data object first temp
+  const botID = data.id ?? 1;
   if (tempCounters[botID] == null) tempCounters[botID] = 0;
   if (currentHotspotID[botID] == null) currentHotspotID[botID] = null;
   const gps = latestGPS[botID];
@@ -275,11 +273,20 @@ async function processTemperatureMessage(data) {
      
 
     };
-    if(storeMavlinkDataCallback){
+    try { 
       const res = await storeMavlinkDataCallback(hotspotData);
       currentHotspotID[botID] = (res && (res.id ?? res.hotspotID)) || null;
+
+    }catch (error){
+      console.error("Hotspot creation threw for bot", botID, err);
+      currentHotspotID[botID] = null;
+      return;
     }
+
+    
   }
+  
+  const lastTempHotspot = (tempCounters[botID] === 9);
    
     const temperatureData = {
     type: "temp_data",
@@ -289,9 +296,16 @@ async function processTemperatureMessage(data) {
     temperature: data.value,
   };
 
-  if (storeMavlinkDataCallback) {
+  try { 
     await storeMavlinkDataCallback(temperatureData);
+
+  }catch (error) { 
+    console.error("Storing temperature data threw for bot", botID, error);
+    currentHotspotID[botID] = null;
+
   }
+    
+
   tempCounters[botID] = (tempCounters[botID] + 1) % 10;
 
   //After 10 temperature readings, reset hotspot so next temperature reading creates a new hotspot

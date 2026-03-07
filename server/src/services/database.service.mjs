@@ -487,6 +487,33 @@ export async function assignBotsToMission(missionID, botIds = []) {
 		if (conn) await conn.release();
 	}
 }
+export async function getHotspotByID(hotspotID) {
+  let conn;
+  try {
+    conn = await pool.getConnection();
+    const [rows] = await conn.execute(
+      `SELECT * FROM hotspot WHERE id = ? LIMIT 1`,
+      [hotspotID]
+    );
+    return rows?.[0] ?? null;
+  } finally {
+    if (conn) await conn.release();
+  }
+}
+
+export async function getTemperatureByHotspotID(hotspotID) {
+  let conn;
+  try {
+    conn = await pool.getConnection();
+    const [rows] = await conn.execute(
+      `SELECT * FROM temperature WHERE hotspotID = ? ORDER BY clockTime ASC`,
+      [hotspotID]
+    );
+    return rows;
+  } finally {
+    if (conn) await conn.release();
+  }
+}
 
 export async function getAssignmentsForMission(missionID) {
 	let conn;
@@ -510,31 +537,37 @@ export async function insertHotspotData(data){
     try{
         const requiredFields = [
             'botID', 
+			'missionID',
 			'detectedAt',
             'latitude', 
-            'longitude'
+            'longitude',
+            'altitude'
         ];
         requiredFields.forEach(field => {
             assert(data[field] !== undefined, `${field} is required`);
         });
 		conn = await pool.getConnection();
+		//resolve missionID from DB
+		const [missionRows] = await conn.execute(
+			 `
+			 SELECT m.missionID
+			 FROM mission m
+			 JOIN bot_mission_assignment bma ON bma.missionID = m.missionID
+			 WHERE bma.botID = ?
+			 AND m.timeStart IS NOT NULL
+			 AND m.timeEnd IS NULL
+			 ORDER BY m.timeStart DESC
+			 LIMIT 1
+			 `, 
+			 [data.botID]
 
-		// If missionID not provided, try to find an active mission for this bot
-		let missionID = data.missionID ?? null;
-		if (!missionID) {
-			const [missionRows] = await conn.execute(
-				`SELECT DISTINCT m.missionID AS missionID
-				 FROM mission m
-				 JOIN bot_mission_assignment bma ON m.missionID = bma.missionID
-				 WHERE bma.botID = ? AND m.timeStart IS NOT NULL AND m.timeEnd IS NULL
-				 LIMIT 1`,
-				[data.botID]
-			);
-			missionID = missionRows[0] ? missionRows[0].missionID : null;
+		); 
+		const missionID = missionRows?.[0]?.missionID ?? null; 
+		if (missionID === null) {
+			throw new Error(`No active mission found for hotspot from bot ${data.botID}`);
 		}
-		if (missionID == null) {
-            throw new Error(`missionID missing for hotspot from bot ${data.botID}`);
-        }
+		
+		
 
 		const hotspotQuery =
 			'INSERT INTO hotspot (missionID, botID, detectedAt, latitude, longitude, altitude, notes) VALUES (?, ?, ?, ?, ?, ?, ?)';

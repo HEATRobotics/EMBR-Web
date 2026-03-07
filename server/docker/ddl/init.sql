@@ -113,7 +113,7 @@ VALUES (
 );
 
 -- Assign bot 1 to mission 1
-INSERT INTO bot_mission_assignment (botID, missionID) VALUES (1, 1);
+INSERT INTO bot_mission_assignment (botID, missionID) VALUES (1, 1), (2, 1), (3, 1);
 
 -- Telemetry tagged with missionID
 INSERT INTO position (botID, missionID, clockTime, latitude, longitude, altitude, relativeAltitude, groundXSpeed, groundYSpeed, groundZSpeed, vehicleHeading) VALUES
