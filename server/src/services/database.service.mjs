@@ -1,5 +1,6 @@
 import { pool } from '../config/database.config.mjs';
 import assert from 'assert';
+import { sendMissionCoordinates } from "./mavlink.service.mjs";
 
 // Helper to parse JSON columns safely
 const parseJSON = (value, fallback = null) => {
@@ -378,6 +379,40 @@ export async function startMission(missionId, startTime, bots) {
 			`UPDATE bot SET assignmentStatus = 'active' WHERE botID IN (${bots.map(() => '?').join(',')})`,
 			bots
 		);
+
+		// 1. Get the assigned botID
+		const botIDs = getAssignmentsForMission(missionID);
+			// for now let's check to see if botID contains 1.
+			//If so then proceed to the next steps, otherwise skip 2-4.
+
+		// 2. Query the database for mission coordinates using missionId
+		const mission = await getMissionByID(missionId);
+			// mission is a json object.
+			// Inspect the 'areaCoordinates' field it will look like 'areaCoordinates: { east: , west: , north: , south: }'
+			//in the console.log below.
+			console.log(mission)
+			// Store the areaCoordinates in a seperate variable
+
+		// 3. Create a coords object using the variable
+			// Now the areaCoordinates has 2 (lat, lon) pairs that point to 
+			//the top-left corner and bottom-right corner of the area(square).
+			// The top-left corner mapping is (north, west)
+			// The top-right corner mapping is (north, east)
+			// The bottom-right corner mapping is (south, east)
+			// The bottom-right corner mapping is (south, west)
+
+			// Use the information above to construct the object coords below:
+
+	/*const coords = {
+			lat1 ; lon1; 
+			lat2 ; lon2; 
+			lat3; lon3; 
+			lat4; lon4;
+		} */
+
+
+		// 4. send coords with botID using the sendMissionCoordinates function you defined.
+		
 		return { success: true };
 	} catch (error) {
 		console.error('Error starting mission:', error);
