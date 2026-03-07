@@ -2,7 +2,7 @@ import express from 'express';
 import cors from 'cors';
 import { createServer } from 'http';
 import { Server } from 'socket.io';
-import { sendMissionCoordinates } from "./services/mavlink.service.mjs";
+import { sendMissionCoordinates, handleMavlinkData } from "./services/mavlink.service.mjs";
 import { serverConfig } from './config/server.config.mjs';
 import missionRoutes from './routes/mission.routes.js';
 import botRoutes from './routes/bot.routes.mjs';
@@ -88,8 +88,9 @@ setupSocketHandlers(io);
 setStoreMavlinkDataCallback((data) => storeMavlinkData(data, io));
 
 // Start MAVLink data simulation
-// handleMavlinkData();      // for real data
-simulateMavlinkData();       // for simulated data
+handleMavlinkData();      // for real data
+// simulateMavlinkData();       // for simulated data
+
 
 // Start server
 httpServer.listen(serverConfig.port, () => {
@@ -97,3 +98,5 @@ httpServer.listen(serverConfig.port, () => {
     console.log(`WebSocket server ready`);
     console.log(`Environment: ${serverConfig.environment}`);
 });
+
+    
