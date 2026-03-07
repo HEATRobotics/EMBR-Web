@@ -1,6 +1,7 @@
 // mavlinkHandler.mjs
 import { SerialPort } from "serialport";
 import mavlink from "node-mavlink";
+import { MavLinkProtocolV2, send} from 'node-mavlink';
 import fetch from "node-fetch";
 
 let storeMavlinkDataCallback = null;
@@ -49,41 +50,90 @@ const REGISTRY = {
   ...ardupilotmega.REGISTRY,
 };
 
-// --- START CHANGE: Reuse serial port for mission upload ---
-async function sendMissionCoordinates(botID, coords) {
+///
+function encodeMissionData(numTempReadings , coords) {
+
   const { lat1, lon1, lat2, lon2, lat3, lon3, lat4, lon4 } = coords;
 
-  console.log("Sending mission coordinates to robot...");
+  const lats = [lat1,lat2,lat3,lat4];
+  const lons = [lon1,lon2,lon3,lon4];
 
-  const port = getSerialPort(); // <-- REUSED SINGLETON
+  // Create a buffer for the full MAVLink payload (249 bytes)
+  const buffer = Buffer.alloc(249);
+  let offset = 0;
 
-  // Helper to send one waypoint
-  const sendWp = (seq, lat, lon) => {
-    const wp = new common.MissionItemInt();
-      wp.target_system = 1;   // target system id
-      wp.target_componenet = 1;   // target component id
-      wp.seq = seq; // waypoint index
-      wp.frame = 0;   // frame (0 = global)
-      wp.command = 16;  // command (16 = NAV_WAYPOINT)
-      wp.current = 0;   // current
-      wp.autocontinue = 1;   // autocontinue
-      wp.param1 = botID; wp.param2 =  0; wp.param3 = 0; wp.param4 = 0;  
-      wp.x = lat * 1e7; // latitude * 1e7
-      wp.y = lon * 1e7; // longitude * 1e7
-      wp.z = 50.0;   // altitude 50m
-    
-      
-    send(port, wp, new MavLinkProtocolV2());
-    console.log(`Sent WP ${seq}: lat=${lat}, lon=${lon}`);
-  };
+  // Pack number of temperature readings
+  buffer.writeInt32LE(numTempReadings, offset);
+  offset += 4;
 
-  // Send 4 mission points
-  sendWp(0, lat1, lon1);
-  sendWp(1, lat2, lon2);
-  sendWp(2, lat3, lon3);
-  sendWp(3, lat4, lon4);
+  // Pack Latitudes (Int32, Little Endian)
+  lats.forEach(lat => {
+      buffer.writeInt32LE((lat*1e7), offset);
+      offset += 4;
+  });
 
-  console.log("All mission coordinates sent.");
+  // Pack Longitudes (Int32, Little Endian)
+  lons.forEach(lon => {
+      buffer.writeInt32LE(lon*1e7, offset);
+      offset += 4;
+  });
+
+  // Return the 249-byte array ready for MAVLink
+  return Array.from(buffer);
+}
+///
+
+// --- START CHANGE: Reuse serial port for mission upload ---
+let receivedAck = false;
+
+function sleep(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+async function sendMissionCoordinates(botId, numTempReadings , coords) {
+///
+  const payload = encodeMissionData(numTempReadings , coords);
+  
+  const msg = new common.LoggingDataAcked();
+    msg.target_system = botId;
+    msg.target_component = 0;
+    msg.seq = 0;
+    msg.length = 249;
+    msg.first_message_offset = 0;
+    msg.data = payload;
+
+  console.log("Sending mission data to bot " + botId + "...");
+
+  const port = getSerialPort();
+
+  await send(port, msg, new MavLinkProtocolV2());
+
+  let timer = 0;
+  const timeLimit = 5;  // maximum wait time(in seconds) to receive acknowledgement
+  let countSend = 1;
+  const sendLimit = 3;  // limit of amount time for data to be sent until acknowledgement is received
+  while(receivedAck == false && countSend <= sendLimit) {
+    while(receivedAck == false && timer <= timeLimit) {
+      await sleep(1000);
+      timer++;
+    }
+    timer = 0; // reset the timer
+
+    if (receivedAck == true) {
+      console.log("Received acknowledgement from bot", botId);
+    }
+    else {
+      console.error("Did not receive acknowledgement from bot", botId);
+      console.log("Trying again...");
+      await send(port, msg, new MavLinkProtocolV2());
+    }
+    countSend++;
+  }
+  if(receivedAck == false) {
+    throw new Error("Failed to receive acknowledgement from bot " + botId + 
+      " after trying " + sendLimit + " times");
+  }
+  receivedAck = false;
 }
 // --- END CHANGE: Reuse serial port for mission upload ---
 
@@ -111,6 +161,10 @@ function handleMavlinkData() {
         case "NAMED_VALUE_FLOAT":
           console.log("NAMED_VALUE_FLOAT received");
           processTemperatureMessage(data);
+          break;
+        case "LOGGING_ACK":
+          console.log("LOGGING_ACK received");
+          receivedAck = true;
           break;
         default:
           console.log("Unknown message type:", clazz.MSG_NAME);
