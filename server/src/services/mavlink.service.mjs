@@ -81,9 +81,10 @@ function handleMavlinkData() {
     
   NOTE: data format for simulated battery data is arbitrary; i.e. the keys do not correspond to actual incoming data, because battery percentage is new and I do not yet know the format in which battery % will be sent by the bot. Once format is finalized, function processBatteryMessage() as well as the 'battery' table in DB must both be changed, and the battery simulation part of the function will break unless also changed accordingly.
 */
-
+const currentMissionID = 1;
 function simulateMavlinkData() {
   //make it so that one temperature value is stored every second for each bot
+ 
   console.log("Simulating MAVLink data...");
   const NUM_SIMULATED_BOTS = 3;
 
@@ -111,6 +112,7 @@ function simulateMavlinkData() {
       vz: Math.random() * 100,
       hdg: Math.random() * 36000, // (in centidegrees)
     };
+    
 
     // Initialize Temp Data for bot
     botTempData[i] = {
@@ -119,9 +121,15 @@ function simulateMavlinkData() {
       name: "temp",
       value: 20 + Math.random() * 80,
     }
+
+  
+  }
+
+  for (let i = 0; i < NUM_SIMULATED_BOTS; i++) {
+    processGlobalPositionMessage(botPositionData[i]);
   }
   let stationaryCounters = new Array(NUM_SIMULATED_BOTS).fill(0);
-  const STATIONARY_REQUIRED_SECONDS = 2; // seconds
+  const STATIONARY_REQUIRED_SECONDS = 1; // seconds
 // simulate incoming position or temp data from all bots every second
 
   const GPS_TICK_MS = 5000;          
@@ -233,6 +241,7 @@ function processGlobalPositionMessage(data) {
     groundZSpeed: data.vz,
     vehicleHeading: data.hdg / 100.0,
   };
+
   latestGPS[globalPositionData.botID] = {latitude: globalPositionData.latitude, 
     longitude: globalPositionData.longitude, altitude: globalPositionData.altitude, clockTime: globalPositionData.clockTime}; // store latest GPS for the specified bot which in this case is BOtID 1
   console.log("GPS stored for bot", botID, latestGPS[botID]);
@@ -244,7 +253,8 @@ function processGlobalPositionMessage(data) {
 }
 const tempCounters = {};
 const currentHotspotID = {}; 
-
+const latestGPS = {};
+// declare constant gps data
 async function processTemperatureMessage(data) {
    const botID = data.id ?? 1;
 
@@ -260,6 +270,7 @@ async function processTemperatureMessage(data) {
     const hotspotData = {
       type : "hotspot_data",
       botID, 
+      missionID: currentMissionID,
       detectedAt: data.timeBootMs,
       latitude : latestGPS[botID].latitude, 
       longitude : latestGPS[botID].longitude, 
@@ -273,7 +284,7 @@ async function processTemperatureMessage(data) {
       currentHotspotID[botID] = (res && (res.id ?? res.hotspotID)) || null;
 
     }catch (error){
-      console.error("Hotspot creation threw for bot", botID, err);
+      console.error("Hotspot creation threw for bot", botID, error);
       currentHotspotID[botID] = null;
       return;
     }
@@ -289,6 +300,7 @@ async function processTemperatureMessage(data) {
     hotspotID: currentHotspotID[botID],
     clockTime: data.timeBootMs,
     temperature: data.value,
+    finalize : lastTempHotspot,
   };
 
   try { 
