@@ -435,6 +435,20 @@ export async function deleteMission(missionId) {
 		if (conn) await conn.release();
 	}
 }
+//hotspots
+export async function getAllHotspots() {
+	let conn;
+	try {
+		conn = await pool.getConnection();
+		const [rows] = await conn.execute(`SELECT * FROM hotspot ORDER BY detectedAt DESC;`);
+		return rows;
+	} catch (error) {
+		console.error('Error fetching all hotspots:', error);
+		return false;
+	} finally {
+		if (conn) await conn.release();
+	}
+}
 
 // Assignments
 export async function assignBotsToMission(missionID, botIds = []) {

@@ -33,6 +33,7 @@ app.use(express.json());
 app.use('/api/missions', missionRoutes);
 app.use('/api/bots', botRoutes);
 app.use('/api/temperature', temperatureRoutes);
+app.use('/api/hotspots', hotspotRoutes);
 
 // Setup Socket.IO handlers
 setupSocketHandlers(io);

@@ -64,7 +64,7 @@ export async function storeMavlinkData(data, io) {
 
   // Emit so clients can see it instantly
         if (res?.hotspotID) {
-            io.emit('hotspot:created', { ...newHotspotData, hotspotID: res.hotspotID });
+            io.emit('hotspot:created', { ...newHotspotData, id: res.hotspotID,hotspotID: res.hotspotID });
         } else {
             io.emit('hotspot:create_failed', { ...newHotspotData, result: res });
         }
