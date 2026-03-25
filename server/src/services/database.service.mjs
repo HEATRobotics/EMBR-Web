@@ -380,38 +380,41 @@ export async function startMission(missionId, startTime, bots) {
 			bots
 		);
 
-		// 1. Get the assigned botID
-		const botIDs = getAssignmentsForMission(missionID);
-			// for now let's check to see if botID contains 1.
-			//If so then proceed to the next steps, otherwise skip 2-4.
-
-		// 2. Query the database for mission coordinates using missionId
-		const mission = await getMissionByID(missionId);
-			// mission is a json object.
-			// Inspect the 'areaCoordinates' field it will look like 'areaCoordinates: { east: , west: , north: , south: }'
-			//in the console.log below.
-			console.log(mission)
-			// Store the areaCoordinates in a seperate variable
-
-		// 3. Create a coords object using the variable
-			// Now the areaCoordinates has 2 (lat, lon) pairs that point to 
-			//the top-left corner and bottom-right corner of the area(square).
-			// The top-left corner mapping is (north, west)
-			// The top-right corner mapping is (north, east)
-			// The bottom-right corner mapping is (south, east)
-			// The bottom-right corner mapping is (south, west)
-
-			// Use the information above to construct the object coords below:
-
-	/*const coords = {
-			lat1 ; lon1; 
-			lat2 ; lon2; 
-			lat3; lon3; 
-			lat4; lon4;
-		} */
+	// 1. Get the assigned botIDs
+const botIDs = await getAssignmentsForMission(missionId);
 
 
-		// 4. send coords with botID using the sendMissionCoordinates function you defined.
+if (!botIDs || botIDs.length === 0) {
+    return { success: true }; // nothing to send
+}
+
+// 2. Get mission data
+const missionResult = await getMissionByID(missionId);
+if (!missionResult.success) {
+    throw new Error("Mission not found");
+}
+
+const mission = missionResult.data;
+
+// Parse coordinates safely
+const area = parseJSON(mission.areaCoordinates);
+
+if (!area) {
+    throw new Error("Invalid areaCoordinates");
+}
+
+// 3. Construct coords object (4 corners)
+const coords = {
+    lat1: area.north, lon1: area.west,  // top-left
+    lat2: area.north, lon2: area.east,  // top-right
+    lat3: area.south, lon3: area.east,  // bottom-right
+    lat4: area.south, lon4: area.west   // bottom-left
+};
+
+// 4. Send to each bot
+for (const botID of botIDs) {
+    await sendMissionCoordinates(botID, coords);
+}
 		
 		return { success: true };
 	} catch (error) {
