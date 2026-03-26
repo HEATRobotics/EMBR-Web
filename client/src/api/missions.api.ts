@@ -1,11 +1,23 @@
 import axios from 'axios';
 
 import { MissionType } from '@/types/mission.type';
+import { HotspotType } from '@/types/hotspot.type';
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL ?? 'http://localhost:3100/api';
 
 type AreaDto = { north: number; south: number; east: number; west: number } | null;
 
+
+type HotspotDto = {
+  id: number;
+  botID: number;
+  missionId: number |null;
+  detectedAt: number;
+  latitude?: number | string;
+  longitude?: number | string;
+  altitude?: number | string |null;
+
+}
 type MissionDto = {
   missionID: number;
   missionName: string;
@@ -17,7 +29,18 @@ type MissionDto = {
   timeEnd: string | null;
   areaCoordinates: AreaDto | string;
   assignedBots?: number[];
+  hotspots?: HotspotDto[];
 };
+
+const mapHotspotDtoToHotspot= (hotspot: HotspotDto): HotspotType =>({
+  id: hotspot.id,
+  botID: hotspot.botID,
+  missionID: hotspot.missionId,
+  detectedAt: hotspot.detectedAt,
+  latitude: Number(hotspot.latitude ?? 0),
+  longitude: Number(hotspot.longitude ?? 0),
+  altitude: Number(hotspot.altitude ?? 0),
+})
 
 const parseArea = (area: AreaDto | string): AreaDto => {
   if (!area) return null;
@@ -53,7 +76,7 @@ const toFrontend = (dto: MissionDto): MissionType => {
     timeEnd: dto.timeEnd,
     areaCoordinates: coords,
     assignedBots: assigned,
-    hotspots: [],
+    hotspots: (dto.hotspots ?? []).map(mapHotspotDtoToHotspot),
   };
 };
 

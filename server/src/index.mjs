@@ -6,6 +6,7 @@ import { Server } from 'socket.io';
 import { serverConfig } from './config/server.config.mjs';
 import missionRoutes from './routes/mission.routes.js';
 import botRoutes from './routes/bot.routes.mjs';
+import hotspotRoutes from './routes/hotspot.routes.mjs';
 import temperatureRoutes from './routes/temperature.routes.mjs';
 import { setupSocketHandlers } from './sockets/socket.handlers.mjs';
 import { simulateMavlinkData, setStoreMavlinkDataCallback } from './services/mavlink.service.mjs';

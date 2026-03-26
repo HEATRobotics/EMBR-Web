@@ -1,5 +1,5 @@
 import { CoordinatesType } from './coordinate.type';
-
+import { HotspotType } from './hotspot.type';
 export interface MissionType {
   missionID: number;
   missionName: string;
@@ -11,5 +11,5 @@ export interface MissionType {
   assignedBots?: number[];
   timeStart?: string | null;
   timeEnd?: string | null;
-  hotspots?: CoordinatesType[];
+  hotspots?: HotspotType[];
 }

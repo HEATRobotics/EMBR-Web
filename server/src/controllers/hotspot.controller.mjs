@@ -1,6 +1,6 @@
 import {
     getAllHotspots,
-    getHotspotsByID,
+    getHotspotByID,
 } from '../services/database.service.mjs';
 
 export async function fetchAllHotspots(req, res){
@@ -15,10 +15,10 @@ export async function fetchAllHotspots(req, res){
     }
 }
 
-export async function getHotspotsByID(req, res){
+export async function fetchHotspotsByID(req, res){
     try{
         const{id}=req.params;
-        const hotspot = await getHotspotsByID(id);
+        const hotspot = await getHotspotByID(id);
         if (!hotspot) return res.status(404).json({ error: 'Hotspot not found' });
         res.json(hotspot);
     } catch (error) {

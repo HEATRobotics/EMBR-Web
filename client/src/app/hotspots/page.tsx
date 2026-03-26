@@ -3,24 +3,47 @@
 // Navigation is rendered in RootLayout; remove local render
 import Link from 'next/link';
 import { useState } from 'react';
-
+import {HotspotType} from '@/types/hotspot.type';
 import { useMissions } from '@/hooks/useMissions';
+
 
 export default function Hotspots() {
   const { missionsData } = useMissions();
-  const [viewMode, setViewMode] = useState<'list' | 'map'>('list');
+  const [viewMode, setViewMode] = useState<'map' | 'list'>('map');
+
+  //UI fields added to HotspotType for display purposes
+  type HotspotListItem = HotspotType & {
+  missionName: string;
+  missionIdx: number;
+  hotspotIdx: number;
+  displayName: string;
+  averageTemperature: string;
+  displayDate: string;
+  displayTime: string;
+};
 
   // Collect all hotspots from all missions
   const allHotspots =
     missionsData?.flatMap(
       (mission, missionIdx) =>
-        mission.hotspots?.map((hotspot, hotspotIdx) => ({
+        mission.hotspots?.map((hotspot, hotspotIdx) => {
+          const detectedDate = new Date(hotspot.detectedAt);  
+
+        return {
           ...hotspot,
           missionName: mission.missionName,
           missionIdx,
           hotspotIdx,
-        })) || [],
-    ) || [];
+          displayName: `Hotspot #${hotspot.id}`,
+          averageTemperature: 'N/A',
+          displayDate: detectedDate.toLocaleDateString(),
+          displayTime: detectedDate.toLocaleTimeString([], {
+            hour: '2-digit',
+            minute: '2-digit',
+          }),
+        };
+        }) || [],
+      )|| [];
 
   const totalHotspots = allHotspots.length;
 
@@ -30,20 +53,16 @@ export default function Hotspots() {
         <h1 className="text-3xl font-bold mb-6">Hotspot Management</h1>
 
         {/* Priority Stats */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mb-8">
           <div className="bg-white p-6 rounded-lg shadow">
             <h3 className="text-gray-600 text-sm">Total Hotspots</h3>
             <p className="text-3xl font-bold mt-2">{totalHotspots}</p>
           </div>
-          <div className="bg-white p-6 rounded-lg shadow border-l-4">
-            <h3 className="text-gray-600 text-sm">Critical</h3>
+          <div className="bg-white p-6 rounded-lg shadow border-l-3">
+            <h3 className="text-gray-600 text-sm">UnResolved</h3>
             <p className="text-3xl font-bold mt-2 text-red-600">0</p>
           </div>
-          <div className="bg-white p-6 rounded-lg shadow border-l-4">
-            <h3 className="text-gray-600 text-sm">High</h3>
-            <p className="text-3xl font-bold mt-2">0</p>
-          </div>
-          <div className="bg-white p-6 rounded-lg shadow border-l-4">
+          <div className="bg-white p-6 rounded-lg shadow border-l-3">
             <h3 className="text-gray-600 text-sm">Resolved</h3>
             <p className="text-3xl font-bold mt-2 text-green-600">0</p>
           </div>
@@ -52,6 +71,14 @@ export default function Hotspots() {
         {/* View Toggle */}
         <div className="bg-white rounded-lg shadow mb-6 p-4">
           <div className="flex gap-2">
+            <button
+              onClick={() => setViewMode('map')}
+              className={`px-4 py-2 rounded-md ${
+                viewMode === 'map' ? 'bg-brand-orange text-brand-white' : 'border hover:bg-gray-100'
+              }`}
+            >
+              Map View
+            </button>
             <button
               onClick={() => setViewMode('list')}
               className={`px-4 py-2 rounded-md ${
@@ -62,14 +89,6 @@ export default function Hotspots() {
             >
               List View
             </button>
-            <button
-              onClick={() => setViewMode('map')}
-              className={`px-4 py-2 rounded-md ${
-                viewMode === 'map' ? 'bg-brand-orange text-brand-white' : 'border hover:bg-gray-100'
-              }`}
-            >
-              Map View
-            </button>
           </div>
         </div>
 
@@ -77,8 +96,7 @@ export default function Hotspots() {
         <div className="bg-white rounded-lg shadow mb-6">
           <div className="flex border-b">
             <button className="px-6 py-3 border-b-2 border-orange-600 font-semibold">All</button>
-            <button className="px-6 py-3 text-gray-600 hover:text-gray-900">New</button>
-            <button className="px-6 py-3 text-gray-600 hover:text-gray-900">Investigating</button>
+            <button className="px-6 py-3 text-gray-600 hover:text-gray-900">Unresolved</button>
             <button className="px-6 py-3 text-gray-600 hover:text-gray-900">Resolved</button>
           </div>
         </div>
@@ -99,11 +117,11 @@ export default function Hotspots() {
                 <table className="w-full">
                   <thead className="bg-gray-50">
                     <tr>
-                      <th className="px-4 py-3 text-left text-sm font-semibold">Priority</th>
-                      <th className="px-4 py-3 text-left text-sm font-semibold">Location (GPS)</th>
-                      <th className="px-4 py-3 text-left text-sm font-semibold">Mission</th>
-                      <th className="px-4 py-3 text-left text-sm font-semibold">Status</th>
-                      <th className="px-4 py-3 text-left text-sm font-semibold">Actions</th>
+                      <th className="px-4 py-3 text-left text-sm font-semibold">Name</th>
+                      <th className="px-4 py-3 text-left text-sm font-semibold">Average Temperature (°F)</th>
+                      <th className="px-4 py-3 text-left text-sm font-semibold">Mission Name</th>
+                      <th className="px-4 py-3 text-left text-sm font-semibold">Date</th>
+                      <th className="px-4 py-3 text-left text-sm font-semibold">Time</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -114,24 +132,15 @@ export default function Hotspots() {
                         </td>
                       </tr>
                     ) : (
-                      allHotspots.map((hotspot, idx) => (
-                        <tr key={idx} className="border-t hover:bg-gray-50">
-                          <td className="px-4 py-3">
-                            <span className="px-2 py-1 bg-orange-100 text-orange-800 text-xs rounded font-semibold">
-                              High
-                            </span>
-                          </td>
-                          <td className="px-4 py-3 font-mono text-sm">
-                            {hotspot.lat.toFixed(4)}, {hotspot.lng.toFixed(4)}
-                          </td>
+                      allHotspots.map((hotspot) => (
+                        <tr key={hotspot.id} className="border-t hover:bg-gray-50">
+                          <td className="px-4 py-3 font-medium">{hotspot.displayName}</td>
+                          <td className="px-4 py-3">{hotspot.averageTemperature}</td>
                           <td className="px-4 py-3">{hotspot.missionName}</td>
+                          <td className="px-4 py-3">{hotspot.displayDate}</td>
+                          <td className="px-4 py-3">{hotspot.displayTime}</td>
                           <td className="px-4 py-3">
-                            <span className="px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded">
-                              New
-                            </span>
-                          </td>
-                          <td className="px-4 py-3">
-                            <Link href={`/hotspots/${idx + 1}`}>
+                            <Link href={`/hotspots/${hotspot.id}`}>
                               <button className="px-3 py-1 bg-blue-600 text-white rounded text-sm hover:bg-blue-700">
                                 View
                               </button>
