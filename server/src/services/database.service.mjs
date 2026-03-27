@@ -535,22 +535,27 @@ export async function insertHotspotData(data){
         });
 		conn = await pool.getConnection();
 
-		// If missionID not provided, try to find an active mission for this bot
-		let missionID = data.missionID ?? null;
-		if (!missionID) {
-			const [missionRows] = await conn.execute(
-				`SELECT DISTINCT m.missionID AS missionID
-				 FROM mission m
-				 JOIN bot_mission_assignment bma ON m.missionID = bma.missionID
-				 WHERE bma.botID = ? AND m.timeStart IS NOT NULL AND m.timeEnd IS NULL
-				 LIMIT 1`,
-				[data.botID]
-			);
-			missionID = missionRows[0] ? missionRows[0].missionID : null;
-		}
-		
-		
+		const [missionRows] = await conn.execute(
+			` 
+			SELECT m.missionID
+			FROM mission m 
+			JOIN bot_mission_assignment bma ON bma.missionID = m.missionID 
+			WHERE bma.botID = ? 
+			AND m.timeStart IS NOT NULL 
+			AND m.timeEnd is NULL 
+			ORDER BY m.timeStart DESC 
+			LIMIT 1 
+			`, 
+			[data.botID]
 
+		);
+		const missionID = missionRows?.[0]?.missionID ?? null; 
+		if(missionID === null){
+			throw new Error(`No active mission found for hotspot from bot ${data.botID}
+			`);
+		}
+
+		
 		const hotspotQuery =
 			'INSERT INTO hotspot (missionID, botID, detectedAt, latitude, longitude, altitude, notes) VALUES (?, ?, ?, ?, ?, ?, ?)';
 
@@ -586,10 +591,10 @@ async function getActiveMissionIdForBot(conn, botID) {
          FROM mission m
          JOIN bot_mission_assignment bma ON m.missionID = bma.missionID
          WHERE bma.botID = ?
-           AND m.timeStart IS NOT NULL
-           AND m.timeEnd IS NULL
+		 AND m.timeStart IS NOT NULL
+		 AND m.timeEnd IS NULL
          LIMIT 1`,
-        [botID]
+        [data.botID]
     );
     return missionRows[0] ? missionRows[0].missionID : null;
 }
