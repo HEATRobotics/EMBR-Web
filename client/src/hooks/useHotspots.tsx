@@ -54,4 +54,12 @@ export function useHotspots() {
       socket.off('hotspot:created', handleHotspotUpdate);
     };
   }, [socket]);
+
+   return {
+    hotspots,
+    setHotspots,
+    hotspotsLoading,
+    hotspotError,
+    isConnected,
+   };
 };

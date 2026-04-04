@@ -1,7 +1,19 @@
 import {
     getAllHotspots,
     getHotspotByID,
+    getTemperatureByHotspotID
 } from '../services/database.service.mjs';
+
+export async function fetchTemperaturesByHotspotID(req, res){
+    try{
+        const {id} = req.params;
+        const temperatures = await getTemperatureByHotspotID(id);
+        if (!temperatures) return res.status(500).json({ error: 'Failed to fetch temperatures' });
+        res.json(temperatures);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+}
 
 export async function fetchAllHotspots(req, res){
     try{

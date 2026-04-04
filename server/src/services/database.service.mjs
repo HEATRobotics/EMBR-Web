@@ -440,7 +440,30 @@ export async function getAllHotspots() {
 	let conn;
 	try {
 		conn = await pool.getConnection();
-		const [rows] = await conn.execute(`SELECT * FROM hotspot ORDER BY detectedAt DESC;`);
+		const [rows] = await conn.execute(`
+			SELECT
+				h.id,
+				h.botID,
+				h.missionID,
+				h.detectedAt,
+				h.latitude,
+				h.longitude,
+				h.altitude,
+				AVG(t.temperature) AS averageTemperature
+			FROM hotspot h
+			LEFT JOIN temperature t
+				ON t.hotspotID=h.id
+			GROUP BY
+				h.id,
+				h.botID,
+				h.missionID,
+				h.detectedAt,
+				h.latitude,
+				h.longitude,
+				h.altitude
+			ORDER BY h.detectedAt DESC
+			`);
+		
 		return rows;
 	} catch (error) {
 		console.error('Error fetching all hotspots:', error);

@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 import { MissionType } from '@/types/mission.type';
-import { HotspotType } from '@/types/hotspot.type';
+import { HotspotTemperature, HotspotType } from '@/types/hotspot.type';
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL ?? 'http://localhost:3100/api';
 
@@ -16,6 +16,8 @@ type HotspotDto = {
   latitude?: number | string;
   longitude?: number | string;
   altitude?: number | string |null;
+  temperatures?: HotspotTemperature[] | null;
+  averageTemperature?: number | string | null;
 
 }
 type MissionDto = {
@@ -40,6 +42,8 @@ const mapHotspotDtoToHotspot= (hotspot: HotspotDto): HotspotType =>({
   latitude: Number(hotspot.latitude ?? 0),
   longitude: Number(hotspot.longitude ?? 0),
   altitude: Number(hotspot.altitude ?? 0),
+  temperatures: hotspot.temperatures?.map((t) => ({ ...t })) || [],
+  averageTemperature: hotspot.averageTemperature == null ? null : Number(hotspot.averageTemperature),
 })
 
 const parseArea = (area: AreaDto | string): AreaDto => {

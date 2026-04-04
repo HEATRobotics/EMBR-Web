@@ -6,6 +6,8 @@ import { RobotType } from '@/types/robot.type';
 
 import StatusCard from './StatusCard';
 import MissionStatusCard from '../mission/MissionStatusCard';
+import { useHotspots } from '@/hooks/useHotspots';
+import Link from 'antd/es/typography/Link';
 
 interface DashboardSidebarProps {
   bots: RobotType[];
@@ -36,10 +38,8 @@ export default function DashboardSidebar({
   const onlineBots = bots.filter((b) => b.operationalStatus === 'operational').length;
   const activeBots = bots.filter((b) => b.assignmentStatus === 'active').length;
   const totalBots = bots.length;
-  const totalHotspots =
-    missionsData?.reduce((acc, mission) => {
-      return acc + (mission.hotspots?.length || 0);
-    }, 0) || 0;
+  const { hotspots } = useHotspots();
+  const totalHotspots = hotspots.length;
 
   return (
     <div
@@ -155,8 +155,12 @@ export default function DashboardSidebar({
                 />
                 <StatusCard label="Operational Bots" value={onlineBots} color="green" icon="🤖" />
                 <StatusCard label="Active Bots" value={activeBots} color="blue" icon="⚡" />
-                <StatusCard label="Total Hotspots" value={totalHotspots} color="orange" icon="🔥" />
-
+                <Link href="/hotspots">
+                  <div className="cursor-pointer">
+                    <StatusCard label="Total Hotspots" value={totalHotspots} color="orange" icon="🔥" />
+                  </div>
+                </Link>
+                
                 {/* Quick Actions */}
                 <div className="pt-4 space-y-2 border-t border-gray-200">
                   <button

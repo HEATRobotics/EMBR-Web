@@ -5,46 +5,46 @@ import Link from 'next/link';
 import { useState } from 'react';
 import {HotspotType} from '@/types/hotspot.type';
 import { useMissions } from '@/hooks/useMissions';
+import { useHotspots } from '@/hooks/useHotspots';
 
 
 export default function Hotspots() {
-  const { missionsData } = useMissions();
   const [viewMode, setViewMode] = useState<'map' | 'list'>('map');
 
   //UI fields added to HotspotType for display purposes
   type HotspotListItem = HotspotType & {
   missionName: string;
-  missionIdx: number;
-  hotspotIdx: number;
   displayName: string;
-  averageTemperature: string;
+  averageTemperature: number | null | string;
   displayDate: string;
   displayTime: string;
 };
 
   // Collect all hotspots from all missions
-  const allHotspots =
-    missionsData?.flatMap(
-      (mission, missionIdx) =>
-        mission.hotspots?.map((hotspot, hotspotIdx) => {
-          const detectedDate = new Date(hotspot.detectedAt);  
+  const { hotspots, hotspotsLoading, hotspotError } = useHotspots();
+  const { missionsData } = useMissions();
+  const allHotspots: HotspotListItem[] = hotspots.map((hotspot)=>{
+    const detectedDate = new Date(hotspot.detectedAt);
+  
+   
+
+  const missionName =
+    missionsData?.find(
+      (mission)=>mission.missionID===hotspot.missionID
+    )?.missionName ?? 'N/A';
 
         return {
           ...hotspot,
-          missionName: mission.missionName,
-          missionIdx,
-          hotspotIdx,
+          missionName,
           displayName: `Hotspot #${hotspot.id}`,
-          averageTemperature: 'N/A',
+          averageTemperature: hotspot.averageTemperature != null ? hotspot.averageTemperature : 'N/A',
           displayDate: detectedDate.toLocaleDateString(),
           displayTime: detectedDate.toLocaleTimeString([], {
             hour: '2-digit',
             minute: '2-digit',
           }),
         };
-        }) || [],
-      )|| [];
-
+        });
   const totalHotspots = allHotspots.length;
 
   return (
@@ -59,7 +59,7 @@ export default function Hotspots() {
             <p className="text-3xl font-bold mt-2">{totalHotspots}</p>
           </div>
           <div className="bg-white p-6 rounded-lg shadow border-l-3">
-            <h3 className="text-gray-600 text-sm">UnResolved</h3>
+            <h3 className="text-gray-600 text-sm">Unresolved</h3>
             <p className="text-3xl font-bold mt-2 text-red-600">0</p>
           </div>
           <div className="bg-white p-6 rounded-lg shadow border-l-3">
@@ -122,6 +122,7 @@ export default function Hotspots() {
                       <th className="px-4 py-3 text-left text-sm font-semibold">Mission Name</th>
                       <th className="px-4 py-3 text-left text-sm font-semibold">Date</th>
                       <th className="px-4 py-3 text-left text-sm font-semibold">Time</th>
+                      <th className="px-4 py-3 text-left text-sm font-semibold">View</th>
                     </tr>
                   </thead>
                   <tbody>
