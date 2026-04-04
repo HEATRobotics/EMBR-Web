@@ -23,7 +23,7 @@ import { CoordinatesType } from '@/types/coordinate.type';
 
 interface CustomGoogleMapProps {
   bots?: RobotType[];
-  missionsData?: MissionType[];
+  missionsData?: MissionType[] | null;
   drawingMode?: boolean;
   currentRectangle?: { northWest: CoordinatesType; southEast: CoordinatesType } | null;
   onRectangleChange?: (northWest: CoordinatesType, southEast: CoordinatesType) => void;

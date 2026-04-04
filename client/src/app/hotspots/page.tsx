@@ -1,9 +1,12 @@
 'use client';
 
+
 // Navigation is rendered in RootLayout; remove local render
 import Link from 'next/link';
 import { useState } from 'react';
 import {HotspotType} from '@/types/hotspot.type';
+import CustomGoogleMap from '@/components/features/map/GoogleMap'; 
+
 import { useMissions } from '@/hooks/useMissions';
 import { useHotspots } from '@/hooks/useHotspots';
 
@@ -69,7 +72,6 @@ export default function Hotspots() {
         </div>
 
         {/* View Toggle */}
-        <div className="bg-white rounded-lg shadow mb-6 p-4">
           <div className="flex gap-2">
             <button
               onClick={() => setViewMode('map')}
@@ -82,15 +84,12 @@ export default function Hotspots() {
             <button
               onClick={() => setViewMode('list')}
               className={`px-4 py-2 rounded-md ${
-                viewMode === 'list'
-                  ? 'bg-brand-orange text-brand-white'
-                  : 'border hover:bg-gray-100'
+                viewMode === 'list' ? 'bg-brand-orange text-brand-white' : 'border hover:bg-gray-100'
               }`}
             >
               List View
             </button>
           </div>
-        </div>
 
         {/* Filters */}
         <div className="bg-white rounded-lg shadow mb-6">
@@ -107,10 +106,13 @@ export default function Hotspots() {
             <h2 className="text-xl font-semibold mb-4">Detected Hotspots</h2>
 
             {viewMode === 'map' ? (
-              <div className="bg-gray-100 h-96 rounded flex items-center justify-center">
-                <p className="text-gray-500">
-                  Map view showing all hotspots (integrate with GoogleMap component)
-                </p>
+              <div className="h-96 rounded overflow-hidden">
+                <CustomGoogleMap
+                  bots = {[]}
+                  missionsData= {missionsData}
+                  drawingMode = {false}
+                  showSearch = {false}
+                />
               </div>
             ) : (
               <div className="overflow-x-auto">
@@ -134,7 +136,7 @@ export default function Hotspots() {
                       </tr>
                     ) : (
                       allHotspots.map((hotspot) => (
-                        <tr key={hotspot.id} className="border-t hover:bg-gray-50">
+                        <tr key={`${hotspot.missionIdx}-${hotspot.hotspotIdx}`} className="border-t hover:bg-gray-50">
                           <td className="px-4 py-3 font-medium">{hotspot.displayName}</td>
                           <td className="px-4 py-3">{hotspot.averageTemperature}</td>
                           <td className="px-4 py-3">{hotspot.missionName}</td>
