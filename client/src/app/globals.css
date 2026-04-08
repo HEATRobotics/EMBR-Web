@@ -2,75 +2,82 @@
 @tailwind components;
 @tailwind utilities;
 
-
 :root {
-    /* Brand-driven CSS variables */
-    --foreground-rgb: 244, 244, 244;      /* #F4F4F4 brand white */
-    --background-start-rgb: 44, 44, 44;   /* #2C2C2C brand black */
-    --background-end-rgb: 44, 44, 44;     /* unify background */
-    --card-bg: 44, 44, 44;                /* card background matches brand black */
-    --card-border: 60, 60, 60;            /* slightly lighter border */
-    --accent: 238, 44, 36;                /* #EE2C24 brand orange-red */
-    --nav-height: 64px;                   /* height of the fixed navbar (h-16) */
+  /* Brand-driven CSS variables */
+  --foreground-rgb: 244, 244, 244; /* #F4F4F4 brand white */
+  --background-start-rgb: 44, 44, 44; /* #2C2C2C brand black */
+  --background-end-rgb: 44, 44, 44; /* unify background */
+  --card-bg: 44, 44, 44; /* card background matches brand black */
+  --card-border: 60, 60, 60; /* slightly lighter border */
+  --accent: 238, 44, 36; /* #EE2C24 brand orange-red */
+  --nav-height: 64px; /* height of the fixed navbar (h-16) */
 }
 
 body {
-    background: rgb(var(--background-end-rgb));
-    color: rgb(var(--foreground-rgb));
+  background: rgb(var(--background-end-rgb));
+  color: rgb(var(--foreground-rgb));
 }
 
-.card, .bg-white {
-    background: rgb(var(--card-bg)) !important;
-    color: rgb(var(--foreground-rgb)) !important;
-    border: 1px solid rgb(var(--card-border));
+.card,
+.bg-white {
+  background: rgb(var(--card-bg)) !important;
+  color: rgb(var(--foreground-rgb)) !important;
+  border: 1px solid rgb(var(--card-border));
 }
 
 .shadow {
-    box-shadow: 0 2px 8px 0 rgba(0,0,0,0.25);
+  box-shadow: 0 2px 8px 0 rgba(0, 0, 0, 0.25);
 }
 
-.text-gray-600, .text-gray-500, .text-gray-800, .text-gray-900 {
-    color: #d1d5db !important;
+.text-gray-600,
+.text-gray-500,
+.text-gray-800,
+.text-gray-900 {
+  color: #d1d5db !important;
 }
 
 .border-gray-800 {
-    border-color: #262626 !important;
+  border-color: #262626 !important;
 }
 
-.bg-gray-100, .bg-gray-200, .bg-gray-50 {
-    background: #18181b !important;
+.bg-gray-100,
+.bg-gray-200,
+.bg-gray-50 {
+  background: #18181b !important;
 }
 
-.hover\:bg-gray-100:hover, .hover\:bg-gray-200:hover, .hover\:bg-gray-800:hover {
-    background: #262626 !important;
+.hover\:bg-gray-100:hover,
+.hover\:bg-gray-200:hover,
+.hover\:bg-gray-800:hover {
+  background: #262626 !important;
 }
 
 @layer utilities {
-    .text-balance {
-        text-wrap: balance;
-    }
+  .text-balance {
+    text-wrap: balance;
+  }
 }
 
 .gm-bundled-control {
-    margin: 0 !important;
-    margin-right: 35px !important;
-    margin-bottom: 30px !important;
+  margin: 0 !important;
+  margin-right: 35px !important;
+  margin-bottom: 30px !important;
 }
 
 .gm-style-mtc-bbw {
-    margin-right: 35px !important;
-    margin-bottom: 8px !important;
-    flex-direction: column !important;
-    align-items: end !important;
+  margin-right: 35px !important;
+  margin-bottom: 8px !important;
+  flex-direction: column !important;
+  align-items: end !important;
 }
 
 .ant-dropdown-menu-item {
-    width: fit-content !important;
-    padding: 2px 0px !important;
-    background-color: transparent !important;
+  width: fit-content !important;
+  padding: 2px 0px !important;
+  background-color: transparent !important;
 }
 
 .ant-dropdown-menu {
-    border-radius: 22px !important;
-    padding: 10px 8px !important;
+  border-radius: 22px !important;
+  padding: 10px 8px !important;
 }

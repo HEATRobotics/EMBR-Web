@@ -1,9 +1,5 @@
-import GoogleMap from '@/components/GoogleMap';
+import Dashboard from './dashboard/page';
 
 export default function Home() {
-    return (
-        <main>
-            <GoogleMap />
-        </main>
-    );
+  return <Dashboard />;
 }

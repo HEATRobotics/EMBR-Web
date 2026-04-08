@@ -1,25 +1,35 @@
-"use client";
+'use client';
 
-import Navigation from "@/components/Navigation";
-import { useBotData } from "@/hooks/useBotData";
-import { useMissions } from "@/hooks/useMissions";
-import Link from "next/link";
-import { RobotOperationalStatusType } from "@/constants/robotConstants";
-import Operation from "antd/es/transfer/operation";
+import { useRouter } from 'next/navigation';
+
+import BotOverviewCard from '@/components/features/bot/BotOverviewCard';
+import { useBotData } from '@/hooks/useBotData';
+import { useMissions } from '@/hooks/useMissions';
 
 export default function Bots() {
-  const { bots, botsLoading } = useBotData();
-  const { missionsData } = useMissions();
+  const { bots, botsLoading, botError } = useBotData();
+  const { missionsData, missionsLoading } = useMissions();
+  const router = useRouter();
 
   const totalBots = bots.length;
-  const onlineBots = bots.filter((b) => b.operationalStatus === "operational").length;
-  const onMission = bots.filter((b) => b.assignmentStatus === "assigned").length;
+  const onlineBots = bots.filter((b) => b.operationalStatus === 'operational').length;
+  const onMission = bots.filter((b) => b.assignmentStatus === 'active').length;
+
+  if (botsLoading || missionsLoading) {
+    return (
+      <div className="bg-gray-100 min-h-full">
+        <main className="mb-16 container mx-auto px-4 py-8">
+          <div className="flex justify-center items-center py-12">
+            <div className="text-gray-600">Loading bots...</div>
+          </div>
+        </main>
+      </div>
+    );
+  }
 
   return (
-  <div className="bg-gray-100 min-h-full">
-      <Navigation />
-      
-      <main className="container mx-auto px-4 py-8">
+    <div className="bg-gray-100 min-h-full">
+      <main className="mb-16 container mx-auto px-4 py-8">
         <div className="flex justify-between items-center mb-6">
           <h1 className="text-3xl font-bold">Bot Management</h1>
           <button className="px-6 py-3 bg-brand-blue text-white rounded-md hover:bg-brand-blue/90">
@@ -48,50 +58,23 @@ export default function Bots() {
           <div className="p-6">
             <div className="flex justify-between items-center mb-4">
               <h2 className="text-xl font-semibold">All Bots</h2>
-              <div className="flex gap-2">
-                <button className="px-4 py-2 border rounded-md hover:bg-gray-100">
-                  Grid View
-                </button>
-                <button className="px-4 py-2 border rounded-md hover:bg-gray-100">
-                  List View
-                </button>
-              </div>
             </div>
-            
-            {botsLoading ? (
-              <div className="text-gray-500 text-center py-8">Loading bots...</div>
+
+            {botError ? (
+              <div className="text-red-600 text-center py-8">{botError}</div>
             ) : bots.length === 0 ? (
               <div className="text-gray-500 text-center py-8">No bots available</div>
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 {bots.map((bot) => {
-                  const botMission = missionsData?.find((m) => m.botID === Number(bot.id));
-                  
                   return (
-                    <div key={bot.id} className="border rounded-lg p-4 hover:shadow-lg transition-shadow">
-                      <div className="flex justify-between items-start mb-2">
-                        <h3 className="font-semibold">{bot.name}</h3>
-                        <span className={`px-2 py-1 text-xs rounded ${
-                          bot.operationalStatus === "operational"
-                            ? "bg-green-100 text-green-800"
-                            : bot.operationalStatus === "chargingRequired"
-                            ? "bg-yellow-100 text-yellow-800"
-                            : "bg-red-100 text-red-800"
-                        }`}>
-                          {RobotOperationalStatusType[bot.operationalStatus].text}
-                        </span>
-                      </div>
-                      <div className="space-y-1 text-sm">
-                        <p><span className="text-gray-600">Temperature:</span> {bot.temperature.toFixed(1)}°C</p>
-                        <p><span className="text-gray-600">Status:</span> {bot.assignmentStatus}</p>
-                        <p><span className="text-gray-600">Mission:</span> {botMission?.missionName || "None"}</p>
-                      </div>
-                      <Link href={`/bots/${bot.id}`}>
-                        <button className="mt-3 w-full px-4 py-2 bg-brand-blue text-white rounded-md hover:bg-brand-blue/90 text-sm">
-                          View Details
-                        </button>
-                      </Link>
-                    </div>
+                    <BotOverviewCard
+                      key={bot.id}
+                      bot={bot}
+                      onClick={() => {
+                        router.push(`/bots/${bot.id}`);
+                      }}
+                    />
                   );
                 })}
               </div>
