@@ -1,7 +1,7 @@
 'use client';
 
 // Navigation is rendered in RootLayout; remove local render
-
+import { useState } from 'react';
 import GeneralPanel from "./components/GeneralPanel";
 import DetectionThresholdsPanel from "./components/DetectionThresholdsPanel";
 import AlertsPanel from "./components/AlertsPanel";
