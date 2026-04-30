@@ -101,8 +101,7 @@ export async function startMissionController(req, res) {
             return res.status(400).json({ error: 'Start time is required' });
         }
 
-        const bots = await getAssignmentsForMission(missionId);
-        const result = await startMission(missionId, time, bots);
+        const result = await startMission(missionId, time);
 		if (!result.success) return res.status(500).json({ error: result.error || 'Failed to start mission' });
 		res.status(200).json({ message: 'Mission started successfully' });
 	} catch (error) {
