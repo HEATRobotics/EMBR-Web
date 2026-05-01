@@ -535,21 +535,12 @@ export async function insertHotspotData(data){
         });
 		conn = await pool.getConnection();
 
-		const [missionRows] = await conn.execute(
-			` 
-			SELECT m.missionID
-			FROM mission m 
-			JOIN bot_mission_assignment bma ON bma.missionID = m.missionID 
-			WHERE bma.botID = ? 
-			AND m.timeStart IS NOT NULL 
-			AND m.timeEnd is NULL 
-			ORDER BY m.timeStart DESC 
-			LIMIT 1 
-			`, 
-			[data.botID]
+		let missionID = data.missionID ?? null; 
 
-		);
-		const missionID = missionRows?.[0]?.missionID ?? null; 
+		if(!missionID){ 
+			missionID = await getActiveMissionIDForBot(conn, data.botID);
+		}
+
 		if(missionID === null){
 			throw new Error(`No active mission found for hotspot from bot ${data.botID}
 			`);
