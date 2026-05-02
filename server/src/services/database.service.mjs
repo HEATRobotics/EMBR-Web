@@ -12,7 +12,7 @@ const parseJSON = (value, fallback = null) => {
 	}
 };
 
-// Insert telemetry rows with optional mission context
+// Insert telemetry rows with mission context
 export async function insertPositionData(data) {
 	const required = ['botID', 'clockTime', 'latitude', 'longitude'];
 	required.forEach((field) => assert(data[field] !== undefined, `${field} is required`));
@@ -22,13 +22,12 @@ export async function insertPositionData(data) {
 		conn = await pool.getConnection();
 		const query = `
 			INSERT INTO \`position\`
-				(botID, missionID, clockTime, latitude, longitude, altitude, relativeAltitude, groundXSpeed, groundYSpeed, groundZSpeed, vehicleHeading)
+				(botID, clockTime, latitude, longitude, altitude, relativeAltitude, groundXSpeed, groundYSpeed, groundZSpeed, vehicleHeading)
 			VALUES
-				(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+				(?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
 		`;
 		const params = [
 			data.botID,
-			data.missionID ?? null,
 			data.clockTime,
 			data.latitude,
 			data.longitude,
@@ -56,15 +55,15 @@ export async function insertTemperatureData(data) {
 	let conn;
 	try {
 		conn = await pool.getConnection();
+		//TODO: add hotspotID when inserting temperature data
 		const query = `
 			INSERT INTO temperature
-				(botID, missionID, hotspotID, clockTime, temperature)
+				(botID, hotspotID, clockTime, temperature)
 			VALUES
-				(?, ?, ?, ?, ?)
+				(?, ?, ?, ?)
 		`;
 		const params = [
 			data.botID,
-			data.missionID ?? null,
 			data.hotspotID ?? null,
 			data.clockTime,
 			data.temperature,
@@ -88,13 +87,12 @@ export async function insertBatteryData(data) {
 		conn = await pool.getConnection();
 		const query = `
 			INSERT INTO battery
-				(botID, missionID, clockTime, battery)
+				(botID, clockTime, battery)
 			VALUES
-				(?, ?, ?, ?)
+				(?, ?, ?)
 		`;
 		const params = [
 			data.botID,
-			data.missionID ?? null,
 			data.clockTime,
 			data.battery,
 		];
@@ -146,7 +144,11 @@ export async function getTemperaturesByMission(missionID) {
 	try {
 		conn = await pool.getConnection();
 		const [rows] = await conn.execute(
-			`SELECT * FROM temperature WHERE missionID = ? ORDER BY clockTime ASC;`,
+			`SELECT t.*
+			FROM temperature t
+			JOIN hotspot h on t.hotspotID = h.id
+			WHERE h.missionID = ? 
+			ORDER BY t.clockTime ASC;`,
 			[missionID]
 		);
 		return rows;
@@ -501,6 +503,33 @@ export async function assignBotsToMission(missionID, botIds = []) {
 		if (conn) await conn.release();
 	}
 }
+export async function getHotspotByID(hotspotID) {
+  let conn;
+  try {
+    conn = await pool.getConnection();
+    const [rows] = await conn.execute(
+      `SELECT * FROM hotspot WHERE id = ? LIMIT 1`,
+      [hotspotID]
+    );
+    return rows?.[0] ?? null;
+  } finally {
+    if (conn) await conn.release();
+  }
+}
+
+export async function getTemperatureByHotspotID(hotspotID) {
+  let conn;
+  try {
+    conn = await pool.getConnection();
+    const [rows] = await conn.execute(
+      `SELECT * FROM temperature WHERE hotspotID = ? ORDER BY clockTime ASC`,
+      [hotspotID]
+    );
+    return rows;
+  } finally {
+    if (conn) await conn.release();
+  }
+}
 
 export async function getAssignmentsForMission(missionID) {
 	let conn;
@@ -519,3 +548,70 @@ export async function getAssignmentsForMission(missionID) {
 	}
 }
 
+export async function insertHotspotData(data){
+    let conn; 
+    try{
+		if(!data){
+			throw new Error(`No data for hotspot creation`)
+		}
+        const requiredFields = [
+            'botID', 
+			'detectedAt',
+            'latitude', 
+            'longitude',
+            'altitude'
+        ];
+        requiredFields.forEach(field => {
+            assert(data[field] !== undefined, `${field} is required`);
+        });
+		conn = await pool.getConnection();
+
+		let missionID = await getActiveMissionIdForBot(conn, data.botID);
+
+		if(missionID === null){
+			throw new Error(`No active mission found for hotspot from bot ${data.botID}`);
+		}
+
+		
+		const hotspotQuery =
+			'INSERT INTO hotspot (missionID, botID, detectedAt, latitude, longitude, altitude, notes) VALUES (?, ?, ?, ?, ?, ?, ?)';
+
+		const params = [
+			missionID,
+			data.botID,
+			data.detectedAt,
+			data.latitude,
+			data.longitude,
+			data.altitude ?? null,
+			null,
+		];
+
+		const [hotspotResults] = await conn.execute(hotspotQuery, params);
+
+		return { success: hotspotResults.affectedRows === 1, hotspotID: hotspotResults.insertId };
+
+
+    }catch(error){
+        console.error("Error inserting hotspot data into the database:", error);
+        console.log(data);
+        return false;
+    }finally {
+        if(conn){
+            await conn.release();
+        }
+    }
+
+}
+async function getActiveMissionIdForBot(conn, botID) {
+    const [missionRows] = await conn.execute(
+        `SELECT DISTINCT m.missionID AS missionID
+         FROM mission m
+         JOIN bot_mission_assignment bma ON m.missionID = bma.missionID
+         WHERE bma.botID = ?
+		 AND m.timeStart IS NOT NULL
+		 AND m.timeEnd IS NULL
+         LIMIT 1`,
+        [botID]
+    );
+    return missionRows[0] ? missionRows[0].missionID : null;
+}

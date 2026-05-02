@@ -70,7 +70,7 @@ CREATE TABLE hotspot (
   detectedAt DATETIME NOT NULL,
   latitude DECIMAL(9,7) NOT NULL,
   longitude DECIMAL(10,7) NOT NULL,
-  altitude FLOAT NULL,
+  altitude FLOAT NOT NULL,
   notes VARCHAR(255) NULL,
   FOREIGN KEY (missionID) REFERENCES mission(missionID) ON DELETE SET NULL,
   FOREIGN KEY (botID) REFERENCES bot(botID) ON DELETE CASCADE,
@@ -81,15 +81,12 @@ CREATE TABLE hotspot (
 CREATE TABLE temperature (
   id INT AUTO_INCREMENT PRIMARY KEY,
   botID INT NOT NULL,
-  missionID INT NULL,
   hotspotID INT NULL,
   clockTime DATETIME NOT NULL,
   temperature FLOAT NOT NULL,
   FOREIGN KEY (botID) REFERENCES bot(botID) ON DELETE CASCADE,
-  FOREIGN KEY (missionID) REFERENCES mission(missionID) ON DELETE SET NULL,
   FOREIGN KEY (hotspotID) REFERENCES hotspot(id) ON DELETE SET NULL,
   INDEX idx_temp_bot_time (botID, clockTime),
-  INDEX idx_temp_mission_time (missionID, clockTime),
   INDEX idx_temp_hotspot (hotspotID)
 ) ENGINE=InnoDB;
 
@@ -116,7 +113,7 @@ VALUES (
 );
 
 -- Assign bot 1 to mission 1
-INSERT INTO bot_mission_assignment (botID, missionID) VALUES (1, 1);
+INSERT INTO bot_mission_assignment (botID, missionID) VALUES (1, 1), (2, 1), (3, 1);
 
 -- Telemetry tagged with missionID
 INSERT INTO position (botID, missionID, clockTime, latitude, longitude, altitude, relativeAltitude, groundXSpeed, groundYSpeed, groundZSpeed, vehicleHeading) VALUES
@@ -125,20 +122,20 @@ INSERT INTO position (botID, missionID, clockTime, latitude, longitude, altitude
   (1, 1, '2025-04-26 02:00:00', 51.5076, -0.1276, 12.0, 1.2, 0.2, 1.7, 0.4, 92.0);
 
 -- Hotspot and its 10 temperature samples
-INSERT INTO hotspot (missionID, botID, detectedAt, latitude, longitude) VALUES (1, 1, '2025-04-26 01:05:00', 51.5075, -0.1277);
+INSERT INTO hotspot (missionID, botID, detectedAt, latitude, longitude, altitude) VALUES (1, 1, '2025-04-26 01:05:00', 51.5075, -0.1277, 10.0);
 SET @hotspotId = LAST_INSERT_ID();
 
-INSERT INTO temperature (botID, missionID, hotspotID, clockTime, temperature) VALUES
-  (1, 1, @hotspotId, '2025-04-26 01:05:01', 82.1),
-  (1, 1, @hotspotId, '2025-04-26 01:05:02', 83.0),
-  (1, 1, @hotspotId, '2025-04-26 01:05:03', 84.2),
-  (1, 1, @hotspotId, '2025-04-26 01:05:04', 85.0),
-  (1, 1, @hotspotId, '2025-04-26 01:05:05', 84.7),
-  (1, 1, @hotspotId, '2025-04-26 01:05:06', 83.9),
-  (1, 1, @hotspotId, '2025-04-26 01:05:07', 82.8),
-  (1, 1, @hotspotId, '2025-04-26 01:05:08', 81.6),
-  (1, 1, @hotspotId, '2025-04-26 01:05:09', 80.9),
-  (1, 1, @hotspotId, '2025-04-26 01:05:10', 80.2);
+INSERT INTO temperature (botID, hotspotID, clockTime, temperature) VALUES
+  (1,  @hotspotId, '2025-04-26 01:05:01', 82.1),
+  (1,  @hotspotId, '2025-04-26 01:05:02', 83.0),
+  (1,  @hotspotId, '2025-04-26 01:05:03', 84.2),
+  (1,  @hotspotId, '2025-04-26 01:05:04', 85.0),
+  (1,  @hotspotId, '2025-04-26 01:05:05', 84.7),
+  (1,  @hotspotId, '2025-04-26 01:05:06', 83.9),
+  (1,  @hotspotId, '2025-04-26 01:05:07', 82.8),
+  (1, @hotspotId, '2025-04-26 01:05:08', 81.6),
+  (1, @hotspotId, '2025-04-26 01:05:09', 80.9),
+  (1, @hotspotId, '2025-04-26 01:05:10', 80.2);
 
 INSERT INTO battery (botID, missionID, clockTime, battery) VALUES
   (1, 1, '2025-04-26 00:00:00', 97),

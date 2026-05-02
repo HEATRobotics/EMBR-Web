@@ -180,6 +180,8 @@ function handleMavlinkData() {
 
 // Simulate data (unchanged)
 function simulateMavlinkData() {
+  //make it so that one temperature value is stored every second for each bot
+ 
   console.log("Simulating MAVLink data...");
   const NUM_SIMULATED_BOTS = 3;
 
@@ -187,7 +189,8 @@ function simulateMavlinkData() {
   let botPositionData = [];
   let botTempData = [];
 
-  for (let i = 0; i < NUM_SIMULATED_BOTS; i++) {
+
+  for (let i = 0; i < NUM_SIMULATED_BOTS; i++) { //to initialize data for each bot
     
     // UBCO location:
     // Lat: 49.939434 -> 499394340
@@ -206,50 +209,100 @@ function simulateMavlinkData() {
       vz: Math.random() * 100,
       hdg: Math.random() * 36000, // (in centidegrees)
     };
+    
 
     // Initialize Temp Data for bot
     botTempData[i] = {
       timeBootMs: new Date(),
-      id: i+1,
+      id: i + 1,
       name: "temp",
-      value: Math.random() * 100,
+      value: 20 + Math.random() * 80,
     }
+
+  
   }
 
+  for (let i = 0; i < NUM_SIMULATED_BOTS; i++) {
+    processGlobalPositionMessage(botPositionData[i]);
+  }
+  let stationaryCounters = new Array(NUM_SIMULATED_BOTS).fill(0);
+  const STATIONARY_REQUIRED_SECONDS = 1; // seconds
+// simulate incoming position or temp data from all bots every second
 
-  setInterval(() => {
-    // Randomly select a bot and update it's postion or temperature value
-    const messageType = Math.random() > 0.5 ? "GLOBAL_POSITION_INT" : "NAMED_VALUE_FLOAT";
-    for (let botId = 0; botId < NUM_SIMULATED_BOTS; botId++) {
-      if (messageType === "GLOBAL_POSITION_INT") {
-        let data = botPositionData[botId];
-        // Randomly update data relative to previous value
-        data.timeBootMs = new Date();
-        data.lat += (Math.random() * 400) - 200;
-        data.lon += (Math.random() * 800) - 400;
-        data.alt += (Math.random() * 100) - 50; 
-        data.relative_alt += (Math.random() * 10) - 5;
-        data.vx += (Math.random() * 10) - 5;
-        data.vy += (Math.random() * 10) - 5;
-        data.vz += (Math.random() * 10) - 5;
-        data.hdg += (Math.random() * 10) - 5;
-        
-        botPositionData[botId] = data;
-        processGlobalPositionMessage(data);
-  
-      } else if (messageType === "NAMED_VALUE_FLOAT") {
-        let data = botTempData[botId]
-        
-        data.timeBootMs = new Date();
-        data.value += (Math.random() * 4);
+  const GPS_TICK_MS = 5000;          
+  const GPS_SEND_EVERY_MS = 12000;     
+  const TEMP_SEND_EVERY_MS = 10000;    
 
-        botTempData[botId] = data;
-        processTemperatureMessage(data);
+let nextBotToUpdate = 0;
+
+// Per-bot “next allowed send time” so they don’t all send together
+const nextGpsSendAt = new Array(NUM_SIMULATED_BOTS).fill(0);
+const nextTempSendAt = new Array(NUM_SIMULATED_BOTS).fill(0);
+
+setInterval(() => {
+  const botID = nextBotToUpdate;
+  nextBotToUpdate = (nextBotToUpdate + 1) % NUM_SIMULATED_BOTS;
+
+  let posData = botPositionData[botID];
+  const now = Date.now();
+
+  // --- update the bot "state" every time it gets its turn ---
+  posData.timeBootMs = new Date();
+  posData.alt += (Math.random() * 100) - 50;
+  posData.relative_alt += (Math.random() * 10) - 5;
+
+  if (Math.random() < 0.5) {
+    posData.vx = 0;
+    posData.vy = 0;
+    posData.vz = 0;
+  } else {
+    posData.vx += (Math.random() * 10) - 5;
+    posData.vy += (Math.random() * 10) - 5;
+    posData.vz += (Math.random() * 10) - 5;
+  }
+
+  const stopped = (posData.vx === 0 && posData.vy === 0 && posData.vz === 0);
+  if (stopped) {
+    posData.lat += (Math.random() * 20) - 10;
+    posData.lon += (Math.random() * 20) - 10;
+  } else {
+    posData.lat += (Math.random() * 400) - 200;
+    posData.lon += (Math.random() * 800) - 400;
+  }
+  posData.hdg += (Math.random() * 10) - 5;
+
+  botPositionData[botID] = posData;
+
+  // send GPS only when this bot is “due”
+  if (now >= nextGpsSendAt[botID]) {
+    processGlobalPositionMessage(posData);
+
+    const jitter = Math.floor((Math.random() * 600) - 300); 
+    nextGpsSendAt[botID] = now + GPS_SEND_EVERY_MS + jitter;
+  }
+
+  // temp only if stopped for a few seconds
+  if (stopped) {
+    stationaryCounters[botID]++;
+
+    if (stationaryCounters[botID] >= STATIONARY_REQUIRED_SECONDS) {
+      if (now >= nextTempSendAt[botID]) {
+        let tempData = botTempData[botID];
+        tempData.timeBootMs = posData.timeBootMs;
+        tempData.value += (Math.random() * 0.6) - 0.2;
+        botTempData[botID] = tempData;
+
+        processTemperatureMessage(tempData);
+
+        const tempJitter = Math.floor((Math.random() * 300) - 150);
+        nextTempSendAt[botID] = now + TEMP_SEND_EVERY_MS + tempJitter;
       }
     }
-    
+  } else {
+    stationaryCounters[botID] = 0;
+  }
 
-  }, 5000); // 5 second timer
+}, GPS_TICK_MS);
 
   // Simulate incoming battery data from all bots, every 15 seconds 
 
@@ -271,9 +324,10 @@ function simulateMavlinkData() {
 
 //process gps coordinates and send to server
 function processGlobalPositionMessage(data) {
+  const botID = data.id ?? 1;
   const globalPositionData = {
     type: "global_position",
-    botID: 1,
+    botID, 
     clockTime: data.timeBootMs,
     latitude: data.lat / 1.0e7,
     longitude: data.lon / 1.0e7,
@@ -285,24 +339,86 @@ function processGlobalPositionMessage(data) {
     vehicleHeading: data.hdg / 100.0,
   };
 
+  latestGPS[globalPositionData.botID] = {latitude: globalPositionData.latitude, 
+    longitude: globalPositionData.longitude, altitude: globalPositionData.altitude, clockTime: globalPositionData.clockTime}; // store latest GPS for the specified bot which in this case is BOtID 1
+  console.log("GPS stored for bot", botID, latestGPS[botID]);
+
+
   if (storeMavlinkDataCallback) {
     storeMavlinkDataCallback(globalPositionData);
   }
 }
+const tempCounters = {};
+const currentHotspotID = {}; 
+const latestGPS = {};
+// declare constant gps data
+async function processTemperatureMessage(data) {
+   const botID = data.id ?? 1;
 
-function processTemperatureMessage(data) {
+  if (tempCounters[botID] == null) tempCounters[botID] = 0;
+  if (currentHotspotID[botID] == null) currentHotspotID[botID] = null;
+  const gps = latestGPS[botID];
+  if(!gps){
+    console.log("No GPS data for botID ", botID, " cannot process temperature message");
+    return; // Stop processing if no GPS data
+  }
+
+  if(tempCounters[botID] === 0){
+    const hotspotData = {
+      type : "hotspot_data",
+      botID, 
+      missionID: currentMissionID,
+      detectedAt: data.timeBootMs,
+      latitude : latestGPS[botID].latitude, 
+      longitude : latestGPS[botID].longitude, 
+      altitude : latestGPS[botID].altitude ?? null, 
+      // notes : null ?
+     
+
+    };
+    try { 
+      const res = await storeMavlinkDataCallback(hotspotData);
+      currentHotspotID[botID] = (res && (res.id ?? res.hotspotID)) || null;
+
+    }catch (error){
+      console.error("Hotspot creation threw for bot", botID, error);
+      currentHotspotID[botID] = null;
+      return;
+    }
+
+    
+  }
   
-  const temperatureData = {
+  const lastTempHotspot = (tempCounters[botID] === 9);
+   
+    const temperatureData = {
     type: "temp_data",
-    botID: 1,
+    botID,
+    hotspotID: currentHotspotID[botID],
     clockTime: data.timeBootMs,
     temperature: data.value,
+    finalize : lastTempHotspot,
   };
 
-  if (storeMavlinkDataCallback) {
-    storeMavlinkDataCallback(temperatureData);
+  try { 
+    await storeMavlinkDataCallback(temperatureData);
+
+  }catch (error) { 
+    console.error("Storing temperature data threw for bot", botID, error);
+    currentHotspotID[botID] = null;
+
+  }
+    
+
+  tempCounters[botID] = (tempCounters[botID] + 1) % 10;
+
+  //After 10 temperature readings, reset hotspot so next temperature reading creates a new hotspot
+     if (tempCounters[botID] === 0) {
+      currentHotspotID[botID] = null;
+    
   }
 }
+  
 
 function processBatteryMessage(data) {
   
