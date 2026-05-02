@@ -4,6 +4,7 @@ import { RobotOperationalStatusType } from '@/constants/robotConstants';
 import { MissionType } from '@/types/mission.type';
 import { RobotType } from '@/types/robot.type';
 
+
 class MapDrawUtilsClass {
   static markers: google.maps.Marker[] = [];
   static missionAreas: google.maps.Rectangle[] = [];
@@ -58,29 +59,12 @@ class MapDrawUtilsClass {
     const rectangle = new google.maps.Rectangle({
       bounds,
       map,
-      strokeColor: mission.timeEnd ? '#00FF00' : mission.timeStart ? '#FFFF00' : '#686363',
+      strokeColor: mission.timeEnd ? '#00FF00' : mission.timeStart ? '#FFFF00' : '#262626',
       strokeOpacity: 0.8,
       strokeWeight: 2,
-      fillColor: mission.timeEnd ? '#00FF00' : mission.timeStart ? '#FFFF00' : '#686363',
+      fillColor: mission.timeEnd ? '#00FF00' : mission.timeStart ? '#FFFF00' : '#262626',
       fillOpacity: 0.35,
-    });
-
-    const labelPosition = {
-      lat: bounds.north - 0.0005,
-      lng: (bounds.west + bounds.east) / 2,
-    };
-
-    //Text for the label
-    const labelMarker = new google.maps.Marker({
-      position: labelPosition,
-      map: map,
-      icon: { path: google.maps.SymbolPath.CIRCLE, scale: 0 }, // invisible icon
-      label: {
-        text: mission.missionName || 'Unnamed Mission',
-        color: 'black',
-        fontSize: '14px',
-        fontWeight: 'bold',
-      },
+      clickable: false,
     });
 
     this.missionAreas.push(rectangle);

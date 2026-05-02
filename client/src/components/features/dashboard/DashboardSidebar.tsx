@@ -43,7 +43,7 @@ export default function DashboardSidebar({
 
   return (
     <div
-      className={`bg-white border-l border-gray-200 flex flex-col transition-all duration-300 overflow-hidden ${
+      className={`bg-white border-l border-gray-200 flex flex-col transition-all duration-300 overflow-hidden mb-16 ${
         isCollapsed ? 'w-16' : 'w-96'
       }`}
     >
