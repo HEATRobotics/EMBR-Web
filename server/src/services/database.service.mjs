@@ -522,9 +522,11 @@ export async function getAssignmentsForMission(missionID) {
 export async function insertHotspotData(data){
     let conn; 
     try{
+		if(!data){
+			throw new Error(`No data for hotspot creation`)
+		}
         const requiredFields = [
             'botID', 
-			'missionID',
 			'detectedAt',
             'latitude', 
             'longitude',
@@ -535,15 +537,10 @@ export async function insertHotspotData(data){
         });
 		conn = await pool.getConnection();
 
-		let missionID = data.missionID ?? null; 
-
-		if(!missionID){ 
-			missionID = await getActiveMissionIDForBot(conn, data.botID);
-		}
+		let missionID = await getActiveMissionIdForBot(conn, data.botID);
 
 		if(missionID === null){
-			throw new Error(`No active mission found for hotspot from bot ${data.botID}
-			`);
+			throw new Error(`No active mission found for hotspot from bot ${data.botID}`);
 		}
 
 		
@@ -585,7 +582,7 @@ async function getActiveMissionIdForBot(conn, botID) {
 		 AND m.timeStart IS NOT NULL
 		 AND m.timeEnd IS NULL
          LIMIT 1`,
-        [data.botID]
+        [botID]
     );
     return missionRows[0] ? missionRows[0].missionID : null;
 }

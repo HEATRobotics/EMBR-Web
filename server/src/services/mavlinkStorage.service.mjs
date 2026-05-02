@@ -66,7 +66,7 @@ export async function storeMavlinkData(data, io) {
         if (res?.hotspotID) {
             io.emit('hotspot:created', { ...newHotspotData, hotspotID: res.hotspotID });
         } else {
-            console.error('hotspot:create_failed', { ...newHotspotData, result: res });
+            console.error('ERROR: hotspot:create_failed', { ...newHotspotData, result: res });
         }
 
   // Return so processTemperatureMessage can attach temperatures to this hotspot
