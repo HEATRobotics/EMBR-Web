@@ -1,63 +1,17 @@
 'use client'; 
 
 import { useParams } from 'next/navigation';
-<<<<<<< Updated upstream
-import { useEffect, useState } from 'react'; 
-import CustomGoogleMap from '@/components/features/map/GoogleMap';
-import {fetchHotspots, fetchTemperaturesByHotspotID} from '@/api/hotspots.api'
-import {HotspotType} from '@/types/hotspot.type';
-fetchTemperaturesByHotspotID
-=======
 import {useEffect, useState} from 'react';
+import CustomGoogleMap from '@/components/features/map/GoogleMap';
 import {fetchHotspots, updateHotspotStatus} from '@/api/hotspots.api';
 import {HotspotType} from '@/types/hotspot.type';
->>>>>>> Stashed changes
 
 
 export default function HotspotDetail() {
   const params = useParams();
   const hotspotId = params.id;
-<<<<<<< Updated upstream
-  const [hotspotName, setHotspotName] = useState(`Hotspot #${hotspotId}`); 
-  const [isNameSaved, setIsNameSaved] = useState(false); 
-  const [hotspot, setHotspot] = useState<HotspotType | null>(null);
-
-
- 
-
-  useEffect(() => {
-    const savedName = localStorage.getItem(`hotspot-name-${hotspotId}`);
-    if (savedName) {
-      setHotspotName(savedName);
-    }
-  }, [hotspotId]);
-
-  useEffect(() => {
-    const loadHotspot = async () => {
-      const hotspots = await fetchHotspots(); 
-
-
-      const matchingHotspot = hotspots.find(
-        (hotspot) => hotspot.id === Number(hotspotId)
-      ); 
-
-      if (matchingHotspot) { 
-        setHotspot(matchingHotspot);
-      }
-    };
-    loadHotspot();
-
-  }, [hotspotId]);
-  
-  const handleSaveName = () => {
-    localStorage.setItem(`hotspot-name-${hotspotId}`, hotspotName);
-    setIsNameSaved(true);
-    console.log('Saving hotspot name:', hotspotName);
-  };
-=======
   const [hotspot,setHotspot] = useState<HotspotType | null>(null);
   const[isUpdating,setIsUpdating] = useState(false);
->>>>>>> Stashed changes
 
   useEffect(()=> {
     const loadHotspot = async () => {
@@ -89,36 +43,6 @@ export default function HotspotDetail() {
       <main className="mb-16 container mx-auto px-4 py-8">
         <div className="flex justify-between items-center mb-6">
           <div>
-<<<<<<< Updated upstream
-            <input 
-            type = "text"
-            value= {hotspotName}
-            onChange={(e) => {
-              setHotspotName(e.target.value); 
-              setIsNameSaved(false);
-            }}
-            className="w-full text-3xl font-bold bg-transparent border-b border-transparent focus:outline-none focus:border-blue-500"
-            />
-            <div className="mt-2"> 
-              <button
-                onClick={handleSaveName}
-                className={`px-4 py-2 rounded-md border ${
-                  isNameSaved ?'bg-white text-gray-700 border-gray-300' : 'bg-blue-600 text-white hover:bg-blue-700'
-                }`}
-              >
-                {isNameSaved ? 'Saved' : 'Save name'}
-
-                </button>
-            </div>
-            <p className="text-gray-600">Detected: N/A</p>
-          </div>
-          <div className="flex gap-2">
-            <button className="px-4 py-2 bg-yellow-600 text-white rounded-md hover:bg-yellow-700">
-              Mark as Unresolved
-            </button>
-            <button className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700">
-              Mark as Resolved
-=======
             <h1 className="text-3xl font-bold">Hotspot #{hotspotId}</h1>
             <p className="text-gray-600">Detected: {detectedDate}</p>
           </div>
@@ -136,7 +60,6 @@ export default function HotspotDetail() {
             {hotspot.status === 'unresolved'
               ? `Mark as resolved`
               : `Mark as unresolved`}
->>>>>>> Stashed changes
             </button>
           </div>
         </div>

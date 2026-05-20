@@ -24,12 +24,7 @@ export default function Hotspots() {
 };
 
   // Collect all hotspots from all missions
-<<<<<<< Updated upstream
- //const { hotspots, hotspotsLoading, hotspotError } = useHotspots();
   const { hotspots, hotspotsLoading, hotspotError} = useHotspots(); 
-=======
-  const { hotspots, setHotspots} = useHotspots();
->>>>>>> Stashed changes
   const { missionsData } = useMissions();
  const allHotspots: HotspotListItem[] = hotspots.map((hotspot)=>{
     const detectedDate = new Date(hotspot.detectedAt);
