@@ -54,7 +54,6 @@ export async function insertTemperatureData(data) {
 	let conn;
 	try {
 		conn = await pool.getConnection();
-		//TODO: add hotspotID when inserting temperature data
 		const query = `
 			INSERT INTO temperature
 				(botID, hotspotID, clockTime, temperature)
@@ -449,6 +448,7 @@ export async function getAllHotspots() {
 				h.latitude,
 				h.longitude,
 				h.altitude,
+				h.status,
 				AVG(t.temperature) AS averageTemperature
 			FROM hotspot h
 			LEFT JOIN temperature t
@@ -460,7 +460,8 @@ export async function getAllHotspots() {
 				h.detectedAt,
 				h.latitude,
 				h.longitude,
-				h.altitude
+				h.altitude,
+				h.status
 			ORDER BY h.detectedAt DESC
 			`);
 		
@@ -516,7 +517,29 @@ export async function getHotspotByID(hotspotID) {
   try {
     conn = await pool.getConnection();
     const [rows] = await conn.execute(
-      `SELECT * FROM hotspot WHERE id = ? LIMIT 1`,
+      `SELECT
+		h.id,
+		h.botID,
+		h.missionID,
+		h.detectedAt,
+		h.latitude,
+		h.longitude,
+		h.altitude,
+		h.status,
+		AVG(t.temperature) AS averageTemperature
+		FROM hotspot h
+		LEFT JOIN temperature t ON t.hotspotID = h.id
+		WHERE h.id = ?
+		GROUP BY
+		h.id,
+		h.botID,
+		h.missionID,
+		h.detectedAt,
+		h.latitude,
+		h.longitude,
+		h.altitude,
+		h.status
+		LIMIT 1`,
       [hotspotID]
     );
     return rows?.[0] ?? null;
@@ -524,6 +547,23 @@ export async function getHotspotByID(hotspotID) {
     if (conn) await conn.release();
   }
 }
+
+export async function updateHotspotStatus(hotspotID, status) {
+	let conn;
+	try {
+		conn = await pool.getConnection();
+		const [result] = await conn.execute(	
+			`UPDATE hotspot SET status = ? WHERE id = ?`,
+			[status, hotspotID]
+		);
+		return result.affectedRows === 1;
+	} catch (error) {
+		console.error('Error updating hotspot status:', error);
+		return false;
+	} finally {
+		if (conn) await conn.release();
+	}
+	}
 
 export async function getTemperatureByHotspotID(hotspotID) {
   let conn;

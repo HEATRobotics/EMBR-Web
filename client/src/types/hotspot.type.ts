@@ -5,6 +5,7 @@ export interface HotspotTemperature {
   clockTime:number | string;
 }
 
+export type HotspotStatus= 'unresolved' |'resolved';
 export interface HotspotType {
   id: number;
  botID: number;
@@ -15,6 +16,7 @@ export interface HotspotType {
   altitude: number;
   temperatures: HotspotTemperature[];
   averageTemperature?: number |string | null;
+  status: HotspotStatus;
   
 };
 

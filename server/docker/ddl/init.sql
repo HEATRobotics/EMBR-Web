@@ -72,6 +72,7 @@ CREATE TABLE hotspot (
   longitude DECIMAL(10,7) NOT NULL,
   altitude FLOAT NOT NULL,
   notes VARCHAR(255) NULL,
+  status ENUM('unresolved','resolved') NOT NULL DEFAULT 'unresolved',
   FOREIGN KEY (missionID) REFERENCES mission(missionID) ON DELETE SET NULL,
   FOREIGN KEY (botID) REFERENCES bot(botID) ON DELETE CASCADE,
   INDEX idx_hotspot_mission (missionID, detectedAt),

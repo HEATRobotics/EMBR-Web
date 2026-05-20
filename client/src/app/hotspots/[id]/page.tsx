@@ -1,16 +1,23 @@
 'use client'; 
 
 import { useParams } from 'next/navigation';
+<<<<<<< Updated upstream
 import { useEffect, useState } from 'react'; 
 import CustomGoogleMap from '@/components/features/map/GoogleMap';
 import {fetchHotspots, fetchTemperaturesByHotspotID} from '@/api/hotspots.api'
 import {HotspotType} from '@/types/hotspot.type';
 fetchTemperaturesByHotspotID
+=======
+import {useEffect, useState} from 'react';
+import {fetchHotspots, updateHotspotStatus} from '@/api/hotspots.api';
+import {HotspotType} from '@/types/hotspot.type';
+>>>>>>> Stashed changes
 
 
 export default function HotspotDetail() {
   const params = useParams();
   const hotspotId = params.id;
+<<<<<<< Updated upstream
   const [hotspotName, setHotspotName] = useState(`Hotspot #${hotspotId}`); 
   const [isNameSaved, setIsNameSaved] = useState(false); 
   const [hotspot, setHotspot] = useState<HotspotType | null>(null);
@@ -47,12 +54,42 @@ export default function HotspotDetail() {
     setIsNameSaved(true);
     console.log('Saving hotspot name:', hotspotName);
   };
+=======
+  const [hotspot,setHotspot] = useState<HotspotType | null>(null);
+  const[isUpdating,setIsUpdating] = useState(false);
+>>>>>>> Stashed changes
 
+  useEffect(()=> {
+    const loadHotspot = async () => {
+      const hotspots =await fetchHotspots();
+      const found = hotspots.find(h => h.id === Number(hotspotId));
+      setHotspot(found || null);
+    };
+    loadHotspot();
+    }, [hotspotId]);
+
+    if (!hotspot) return <div>Loading...</div>;
+  
+    const detectedDate=new Date(hotspot.detectedAt).toLocaleString();//format date for display
+    const handleToggleStatus = async () => {
+      if (!hotspot) return;
+      const nextStatus: HotspotType[`status`]=
+      hotspot.status === `unresolved` ? `resolved` : `unresolved`;
+
+      try{
+        setIsUpdating(true);
+        const updatedStatus = await updateHotspotStatus(hotspot.id, nextStatus);
+        setHotspot({ ...hotspot, status: updatedStatus });
+      }finally{
+        setIsUpdating(false);
+      }
+  };
   return (
     <div className="bg-gray-100 min-h-screen pt-20">
       <main className="mb-16 container mx-auto px-4 py-8">
         <div className="flex justify-between items-center mb-6">
           <div>
+<<<<<<< Updated upstream
             <input 
             type = "text"
             value= {hotspotName}
@@ -81,6 +118,25 @@ export default function HotspotDetail() {
             </button>
             <button className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700">
               Mark as Resolved
+=======
+            <h1 className="text-3xl font-bold">Hotspot #{hotspotId}</h1>
+            <p className="text-gray-600">Detected: {detectedDate}</p>
+          </div>
+          <div className="flex gap-1">
+            <button
+              type="button"
+              onClick= {handleToggleStatus}
+              disabled={isUpdating}
+              className={`px-4 py-2 bg-green-600 text-white rounded-md ${
+                hotspot.status === `unresolved`
+              ? `bg-green-600 hover:bg-green-700`
+              : `bg-yellow-600 hover:bg-yellow-700`
+            } ${isUpdating ? `opacity-60 cursor-not-allowed` : ``}`}
+          >
+            {hotspot.status === 'unresolved'
+              ? `Mark as resolved`
+              : `Mark as unresolved`}
+>>>>>>> Stashed changes
             </button>
           </div>
         </div>
