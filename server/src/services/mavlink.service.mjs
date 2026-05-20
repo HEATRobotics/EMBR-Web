@@ -103,8 +103,8 @@ function simulateMavlinkData() {
     botPositionData[i] = {
       timeBootMs: new Date(),
       id: i+1,
-      lat: 499394340 + Math.floor(Math.random() * 4000) - 2000, // 1 represents ~1cm
-      lon: -1193964270 + Math.floor(Math.random() * 4000) - 2000,
+      lat: 499394340 + Math.floor(Math.random() * 200000) - 100000, // 1 represents ~1cm
+      lon: -1193964270 + Math.floor(Math.random() * 200000) - 100000,
       alt: Math.random() * 10000,
       relative_alt: Math.random() * 5000,
       vx: Math.random() * 100,

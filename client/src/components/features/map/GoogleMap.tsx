@@ -1,8 +1,9 @@
 'use client';
 
 import { useJsApiLoader, GoogleMap } from '@react-google-maps/api';
-import { Map, Satellite } from 'lucide-react';
 import React, { useCallback, useEffect, useState, useRef } from 'react';
+import { Map, Satellite } from 'lucide-react'; // or wherever your icons are from
+
 
 import {
   createRectangle,
@@ -19,6 +20,7 @@ import Search from '@/components/features/map/MapTools/search';
 import { MissionType, RobotType } from '@/types';
 import { CoordinatesType } from '@/types/coordinate.type';
 
+
 // ========== COMPONENT ==========
 
 interface CustomGoogleMapProps {
@@ -29,6 +31,11 @@ interface CustomGoogleMapProps {
   onRectangleChange?: (northWest: CoordinatesType, southEast: CoordinatesType) => void;
   onRectangleSet?: (rectangle: google.maps.Rectangle | null) => void;
   showSearch?: boolean;
+
+  center?: google.maps.LatLngLiteral;
+  zoom?: number;
+  // above two lines allows to pass hotspot location into map
+  hotspotLocation ?: google.maps.LatLngLiteral; 
 }
 
 const CustomGoogleMap: React.FC<CustomGoogleMapProps> = ({
@@ -39,6 +46,9 @@ const CustomGoogleMap: React.FC<CustomGoogleMapProps> = ({
   onRectangleChange,
   onRectangleSet,
   showSearch = true,
+  center, 
+  zoom = 18,
+  hotspotLocation,
 }) => {
   // Map State
   const [map, setMap] = useState<google.maps.Map | null>(null);
@@ -89,6 +99,27 @@ const CustomGoogleMap: React.FC<CustomGoogleMapProps> = ({
     };
   }, [map, drawingMode, currentRectangle, onRectangleChange]);
 
+  useEffect(() => {
+    if(!map || !hotspotLocation) return; 
+
+    const marker = new google.maps.Marker({
+      position: hotspotLocation, 
+      map, 
+      title: 'Hotspot', 
+      label: {
+        text: '🔥',
+        fontSize: '40px', 
+
+      }
+
+    });
+
+    return () => {
+      marker.setMap(null);
+    }; 
+
+  }, [map, hotspotLocation]);
+
   // Create or update the editable rectangle
   useEffect(() => {
     if (!map || !drawingMode) return;
@@ -132,6 +163,13 @@ const CustomGoogleMap: React.FC<CustomGoogleMapProps> = ({
   useEffect(() => {
     if (!map || hasInitialized) return;
 
+    if(center) {
+      map.setCenter(center); 
+      map.setZoom(zoom);
+      setHasInitialized(true);
+      return;
+    }
+
     const hasBots = bots && bots.length > 0;
     const hasMissions = missionsData && missionsData.length > 0;
 
@@ -140,10 +178,10 @@ const CustomGoogleMap: React.FC<CustomGoogleMapProps> = ({
       return;
     }
 
-    initializeMapView(map, bots, missionsData);
+    initializeMapView(map, bots, missionsData ?? undefined);
 
     setHasInitialized(true);
-  }, [map, bots, missionsData, hasInitialized]);
+  }, [map, bots, missionsData, hasInitialized, center, zoom]);
 
   // Update bot markers on map
   useEffect(() => {
@@ -179,8 +217,11 @@ const CustomGoogleMap: React.FC<CustomGoogleMapProps> = ({
       <GoogleMap
         options={mapOptions}
         mapContainerClassName="h-full w-full"
+        center = {center}
+        zoom = {zoom}
         onLoad={onLoad}
         onUnmount={onUnmount}
+
       />
 
       {/* Search Box */}

@@ -24,12 +24,12 @@ export default function Hotspots() {
 };
 
   // Collect all hotspots from all missions
-  const { hotspots, hotspotsLoading, hotspotError } = useHotspots();
+ //const { hotspots, hotspotsLoading, hotspotError } = useHotspots();
+  const { hotspots, hotspotsLoading, hotspotError} = useHotspots(); 
   const { missionsData } = useMissions();
-  const allHotspots: HotspotListItem[] = hotspots.map((hotspot)=>{
+ const allHotspots: HotspotListItem[] = hotspots.map((hotspot)=>{
     const detectedDate = new Date(hotspot.detectedAt);
   
-   
 
   const missionName =
     missionsData?.find(
@@ -39,7 +39,10 @@ export default function Hotspots() {
         return {
           ...hotspot,
           missionName,
-          displayName: `Hotspot #${hotspot.id}`,
+          displayName:
+          typeof window !== 'undefined'
+          ? localStorage.getItem(`hotspot-name-${hotspot.id}`) ?? `Hotspot #${hotspot.id}`
+          : `Hotspot #${hotspot.id}`,
           averageTemperature: hotspot.averageTemperature != null ? hotspot.averageTemperature : 'N/A',
           displayDate: detectedDate.toLocaleDateString(),
           displayTime: detectedDate.toLocaleTimeString([], {
@@ -51,7 +54,7 @@ export default function Hotspots() {
   const totalHotspots = allHotspots.length;
 
   return (
-    <div className="bg-gray-100 min-h-full">
+    <div className="bg-gray-100 min-h-screen pt-10">
       <main className="mb-16 container mx-auto px-4 py-8">
         <h1 className="text-3xl font-bold mb-6">Hotspot Management</h1>
 

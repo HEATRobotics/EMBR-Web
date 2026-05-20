@@ -1,22 +1,83 @@
 'use client'; 
 
 import { useParams } from 'next/navigation';
+import { useEffect, useState } from 'react'; 
+import CustomGoogleMap from '@/components/features/map/GoogleMap';
+import {fetchHotspots, fetchTemperaturesByHotspotID} from '@/api/hotspots.api'
+import {HotspotType} from '@/types/hotspot.type';
+fetchTemperaturesByHotspotID
+
 
 export default function HotspotDetail() {
   const params = useParams();
   const hotspotId = params.id;
+  const [hotspotName, setHotspotName] = useState(`Hotspot #${hotspotId}`); 
+  const [isNameSaved, setIsNameSaved] = useState(false); 
+  const [hotspot, setHotspot] = useState<HotspotType | null>(null);
+
+
+ 
+
+  useEffect(() => {
+    const savedName = localStorage.getItem(`hotspot-name-${hotspotId}`);
+    if (savedName) {
+      setHotspotName(savedName);
+    }
+  }, [hotspotId]);
+
+  useEffect(() => {
+    const loadHotspot = async () => {
+      const hotspots = await fetchHotspots(); 
+
+
+      const matchingHotspot = hotspots.find(
+        (hotspot) => hotspot.id === Number(hotspotId)
+      ); 
+
+      if (matchingHotspot) { 
+        setHotspot(matchingHotspot);
+      }
+    };
+    loadHotspot();
+
+  }, [hotspotId]);
+  
+  const handleSaveName = () => {
+    localStorage.setItem(`hotspot-name-${hotspotId}`, hotspotName);
+    setIsNameSaved(true);
+    console.log('Saving hotspot name:', hotspotName);
+  };
 
   return (
-    <div className="bg-gray-100 min-h-full">
+    <div className="bg-gray-100 min-h-screen pt-20">
       <main className="mb-16 container mx-auto px-4 py-8">
         <div className="flex justify-between items-center mb-6">
           <div>
-            <h1 className="text-3xl font-bold">Hotspot #{hotspotId}</h1>
+            <input 
+            type = "text"
+            value= {hotspotName}
+            onChange={(e) => {
+              setHotspotName(e.target.value); 
+              setIsNameSaved(false);
+            }}
+            className="w-full text-3xl font-bold bg-transparent border-b border-transparent focus:outline-none focus:border-blue-500"
+            />
+            <div className="mt-2"> 
+              <button
+                onClick={handleSaveName}
+                className={`px-4 py-2 rounded-md border ${
+                  isNameSaved ?'bg-white text-gray-700 border-gray-300' : 'bg-blue-600 text-white hover:bg-blue-700'
+                }`}
+              >
+                {isNameSaved ? 'Saved' : 'Save name'}
+
+                </button>
+            </div>
             <p className="text-gray-600">Detected: N/A</p>
           </div>
           <div className="flex gap-2">
             <button className="px-4 py-2 bg-yellow-600 text-white rounded-md hover:bg-yellow-700">
-              Mark as Investigating
+              Mark as Unresolved
             </button>
             <button className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700">
               Mark as Resolved
@@ -29,17 +90,36 @@ export default function HotspotDetail() {
           <div className="lg:col-span-2 space-y-6">
             <div className="bg-white rounded-lg shadow p-6">
               <h2 className="text-xl font-semibold mb-4">Location</h2>
-              <div className="bg-gray-200 h-96 rounded flex items-center justify-center">
-                <p className="text-gray-500">Map showing hotspot location</p>
+              <div className="h-96 rounded overflow-hidden">
+                {hotspot ? (
+                  <CustomGoogleMap
+                    bots={[]}
+                    missionsData={[]}
+                    drawingMode={false}
+                    showSearch={false}
+                    center={{ lat: hotspot.latitude, lng: hotspot.longitude }}
+                    zoom={18}
+                    hotspotLocation={{ lat: hotspot.latitude, lng: hotspot.longitude }}
+                  />
+                ) : (
+                  <div className="flex h-full items-center justify-center">
+                    Loading hotspot map... 
+                  </div>
+                )}
+
               </div>
               <div className="mt-4 grid grid-cols-2 gap-4">
                 <div>
                   <p className="text-sm text-gray-600">GPS Coordinates</p>
-                  <p className="font-mono">N/A</p>
+                  <p className="font-mono">
+                    {hotspot ? `${hotspot.latitude.toFixed(2)}, ${hotspot.longitude.toFixed(2)}` : `N/A`}
+                  </p>
                 </div>
                 <div>
                   <p className="text-sm text-gray-600">Altitude</p>
-                  <p className="font-mono">N/A</p>
+                  <p className="font-mono">
+                    {hotspot ? `${hotspot.altitude.toFixed(2)}` : `N/A`}
+                  </p>
                 </div>
               </div>
             </div>
@@ -52,18 +132,6 @@ export default function HotspotDetail() {
               </div>
             </div>
 
-            {/* Images/Thermal Data */}
-            <div className="bg-white rounded-lg shadow p-6">
-              <h2 className="text-xl font-semibold mb-4">Thermal Images</h2>
-              <div className="grid grid-cols-2 gap-4">
-                <div className="bg-gray-200 h-48 rounded flex items-center justify-center">
-                  <p className="text-gray-500">Thermal image</p>
-                </div>
-                <div className="bg-gray-200 h-48 rounded flex items-center justify-center">
-                  <p className="text-gray-500">Visual image</p>
-                </div>
-              </div>
-            </div>
           </div>
 
           {/* Side Panel */}
@@ -130,7 +198,7 @@ export default function HotspotDetail() {
             <div className="bg-white rounded-lg shadow p-6">
               <h2 className="text-xl font-semibold mb-4">Notes</h2>
               <textarea
-                className="w-full px-4 py-2 border rounded-md"
+                className="w-full px-4 py-2 text-black border rounded-md"
                 rows={4}
                 placeholder="Add notes about this hotspot..."
               />
