@@ -155,7 +155,7 @@ export const startMission = async (id: number, time: string) => {
       headers: { 'Content-Type': 'application/json' },
     },
   );
-  return response.data as { message: string };
+  return response;
 };
 
 export const endMission = async (id: number, time: string) => {

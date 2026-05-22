@@ -1,12 +1,10 @@
+// mavlinkHandler.mjs
 import { SerialPort } from "serialport";
 import mavlink from "node-mavlink";
+import { MavLinkProtocolV2, send} from 'node-mavlink';
 import fetch from "node-fetch";
 
 let storeMavlinkDataCallback = null;
-
-export function setStoreMavlinkDataCallback(callback) {
-    storeMavlinkDataCallback = callback;
-}
 
 const {
   MavLinkPacketSplitter,
@@ -17,49 +15,156 @@ const {
   ardupilotmega,
 } = mavlink;
 
+export function setStoreMavlinkDataCallback(callback) {
+    storeMavlinkDataCallback = callback;
+}
 
-//create a registry of mappings between msg id and data
+// --- START CHANGE: Singleton Serial Port Setup ---
+let serialPort = null;
+
+function getSerialPort() {
+  if (!serialPort) {
+    serialPort = new SerialPort({
+      path: "/dev/ttyUSB0",  // <-- Change this if you use by-id path
+      baudRate: 57600,
+    });
+
+    serialPort.on("open", () => {
+      console.log("Serial port open.");
+    });
+
+    serialPort.on("error", (err) => {
+      console.error("Serial port error:", err);
+    });
+  }
+  return serialPort;
+}
+// --- END CHANGE: Singleton Serial Port Setup ---
+
+
+
+// Registry for message parsing
 const REGISTRY = {
   ...minimal.REGISTRY,
   ...common.REGISTRY,
   ...ardupilotmega.REGISTRY,
 };
 
-// substitute /dev/ttyACM0 with your serial port!
+///
+function encodeMissionData(numTempReadings , coords) {
 
-function handleMavlinkData() {
+  const { lat1, lon1, lat2, lon2, lat3, lon3, lat4, lon4 } = coords;
 
-  //serialPort.close();
-  const portSerialNumber = "/dev/ttyUSB0";
+  const lats = [lat1,lat2,lat3,lat4];
+  const lons = [lon1,lon2,lon3,lon4];
 
-  const serialPort = new SerialPort({
-    path: portSerialNumber,
-    baudRate: 57600,
+  // Create a buffer for the full MAVLink payload (249 bytes)
+  const buffer = Buffer.alloc(249);
+  let offset = 0;
+
+  // Pack number of temperature readings
+  buffer.writeInt32LE(numTempReadings, offset);
+  offset += 4;
+
+  // Pack Latitudes (Int32, Little Endian)
+  lats.forEach(lat => {
+      buffer.writeInt32LE((lat*1e7), offset);
+      offset += 4;
   });
 
-  //constructing a reader that will emit each packet separately
-  const mavlinkRead = serialPort
-    .pipe(new MavLinkPacketSplitter())
-    .pipe(new MavLinkPacketParser());
-  console.log("hello from mavlink");
-  //storeMavlinkData(1);
+  // Pack Longitudes (Int32, Little Endian)
+  lons.forEach(lon => {
+      buffer.writeInt32LE(lon*1e7, offset);
+      offset += 4;
+  });
 
-  //setup mavlink to listen for packets
-  mavlinkRead.on("data", async (packet) => {
-    console.log("Packet received");
+  // Return the 249-byte array ready for MAVLink
+  return Array.from(buffer);
+}
+///
+
+// --- START CHANGE: Reuse serial port for mission upload ---
+let receivedAck = false;
+
+function sleep(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+async function sendMissionCoordinates(botId, numTempReadings , coords) {
+///
+  const payload = encodeMissionData(numTempReadings , coords);
+  
+  const msg = new common.LoggingDataAcked();
+    msg.target_system = botId;
+    msg.target_component = 0;
+    msg.seq = 0;
+    msg.length = 249;
+    msg.first_message_offset = 0;
+    msg.data = payload;
+
+  console.log("Sending mission data to bot " + botId + "...");
+
+  const port = getSerialPort();
+
+  await send(port, msg, new MavLinkProtocolV2());
+
+  let timer = 0;
+  const timeLimit = 5;  // maximum wait time(in seconds) to receive acknowledgement
+  let countSend = 1;
+  const sendLimit = 3;  // limit of amount time for data to be sent until acknowledgement is received
+  while(receivedAck == false && countSend <= sendLimit) {
+    while(receivedAck == false && timer <= timeLimit) {
+      await sleep(1000);
+      timer++;
+    }
+    timer = 0; // reset the timer
+
+    if (receivedAck == true) {
+      console.log("Received acknowledgement from bot", botId);
+    }
+    else {
+      console.error("Did not receive acknowledgement from bot", botId);
+      console.log("Trying again...");
+      await send(port, msg, new MavLinkProtocolV2());
+    }
+    countSend++;
+  }
+  if(receivedAck == false) {
+    throw new Error("Failed to receive acknowledgement from bot " + botId + 
+      " after trying " + sendLimit + " times");
+  }
+  receivedAck = false;
+}
+// --- END CHANGE: Reuse serial port for mission upload ---
+
+// --- START CHANGE: Reuse serial port for reading MAVLink ---
+function handleMavlinkData() {
+  const port = getSerialPort(); // <-- REUSED SINGLETON
+
+  // constructing a reader that will emit each packet separately
+  const mavlinkRead = port
+    .pipe(new mavlink.MavLinkPacketSplitter())
+    .pipe(new mavlink.MavLinkPacketParser());
+
+  console.log("MAVLink reader initialized.");
+
+  mavlinkRead.on("data", (packet) => {
     const clazz = REGISTRY[packet.header.msgid];
     if (clazz) {
       const data = packet.protocol.data(packet.payload, clazz);
       data.timeBootMs = new Date();
-      //process the parsed data based on type
       switch (clazz.MSG_NAME) {
         case "GLOBAL_POSITION_INT":
-          console.log("GLOBAL_POSITION_INT");
+          console.log("GLOBAL_POSITION_INT received");
           processGlobalPositionMessage(data);
           break;
         case "NAMED_VALUE_FLOAT":
-          console.log("NAMED_VALUE_FLOAT");
+          console.log("NAMED_VALUE_FLOAT received");
           processTemperatureMessage(data);
+          break;
+        case "LOGGING_ACK":
+          console.log("LOGGING_ACK received");
+          receivedAck = true;
           break;
         default:
           console.log("Unknown message type:", clazz.MSG_NAME);
@@ -67,21 +172,13 @@ function handleMavlinkData() {
     }
   });
 
-  mavlinkRead.on("error", (error) => {
-    console.error("Error reading Mavlink data:", error);
+  mavlinkRead.on("error", (err) => {
+    console.error("Error reading MAVLink:", err);
   });
 }
+// --- END CHANGE: Reuse serial port for reading MAVLink ---
 
-/*
-  Function to simulate incoming temp/position/battery data, trying to copy the format of data objects that previous devs were processing in below functions (processTemperatureMessage and processGlobalPositionMessage, which I have mostly not touched since then). I assumed that the data format for temp and position data will stay the same as Apr 2024, because I was told that this code worked during the demo last year.
-
-  This function simulates 
-    1) Every 5 seconds, either position or temperature data with a 50/50 chance, coming in from a bot with random ID between 1-5    
-    2) Every 15 seconds, data for percentage battery remaining for all 5 bots. 
-    
-  NOTE: data format for simulated battery data is arbitrary; i.e. the keys do not correspond to actual incoming data, because battery percentage is new and I do not yet know the format in which battery % will be sent by the bot. Once format is finalized, function processBatteryMessage() as well as the 'battery' table in DB must both be changed, and the battery simulation part of the function will break unless also changed accordingly.
-*/
-const currentMissionID = 1;
+// Simulate data (unchanged)
 function simulateMavlinkData() {
   //make it so that one temperature value is stored every second for each bot
  
@@ -339,5 +436,4 @@ function processBatteryMessage(data) {
   // storeMavlinkData(batteryData);
 }
 
-
-export { handleMavlinkData, simulateMavlinkData };
+export { handleMavlinkData, simulateMavlinkData, sendMissionCoordinates };

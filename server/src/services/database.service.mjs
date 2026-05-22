@@ -1,5 +1,6 @@
 import { pool } from '../config/database.config.mjs';
 import assert from 'assert';
+import { sendMissionCoordinates} from "./mavlink.service.mjs";
 
 // Helper to parse JSON columns safely
 const parseJSON = (value, fallback = null) => {
@@ -367,18 +368,46 @@ export async function updateMission(missionId, missionData) {
 	}
 }
 
-export async function startMission(missionId, startTime, bots) {
+export async function startMission(missionId, startTime) {
 	let conn;
 	try {
+		const botIDs = await getAssignmentsForMission(missionId);
+		if (!botIDs || botIDs.length === 0) {
+			throw new Error("No assignments for mission");
+		}
+
+		/* We assume we have only one working bot assigned 'bot 1', so
+		we ignore sending mission coordinates to other bots*/
+		if(botIDs.includes(1)) {
+			const mission = await getMissionByID(missionId);
+			console.log(mission.data.areaCoordinates);
+			const {east, west, north, south} = mission.data.areaCoordinates;
+
+			const coords = {
+				lat1 : north, lon1 : west, 
+				lat2 : north, lon2 : east, 
+				lat3 : south, lon3 : east, 
+				lat4 : south, lon4 : west
+			}
+			
+			const botID = 1;
+
+			// to do: retrieve numTempReading from userSetting in database (not implemented yet)
+			const numTempReadings = 10;
+
+			await sendMissionCoordinates(botID, numTempReadings, coords);
+		}
+
 		conn = await pool.getConnection();
 		await conn.execute(
 			`UPDATE mission SET timeStart = ? WHERE missionID = ?`,
 			[startTime, missionId]
 		);
 		await conn.execute(
-			`UPDATE bot SET assignmentStatus = 'active' WHERE botID IN (${bots.map(() => '?').join(',')})`,
-			bots
+			`UPDATE bot SET assignmentStatus = 'active' WHERE botID IN (${botIDs.map(() => '?').join(',')})`,
+			botIDs
 		);
+
 		return { success: true };
 	} catch (error) {
 		console.error('Error starting mission:', error);
@@ -599,9 +628,11 @@ export async function getAssignmentsForMission(missionID) {
 export async function insertHotspotData(data){
     let conn; 
     try{
+		if(!data){
+			throw new Error(`No data for hotspot creation`)
+		}
         const requiredFields = [
             'botID', 
-			'missionID',
 			'detectedAt',
             'latitude', 
             'longitude',
@@ -612,22 +643,13 @@ export async function insertHotspotData(data){
         });
 		conn = await pool.getConnection();
 
-		// If missionID not provided, try to find an active mission for this bot
-		let missionID = data.missionID ?? null;
-		if (!missionID) {
-			const [missionRows] = await conn.execute(
-				`SELECT DISTINCT m.missionID AS missionID
-				 FROM mission m
-				 JOIN bot_mission_assignment bma ON m.missionID = bma.missionID
-				 WHERE bma.botID = ? AND m.timeStart IS NOT NULL AND m.timeEnd IS NULL
-				 LIMIT 1`,
-				[data.botID]
-			);
-			missionID = missionRows[0] ? missionRows[0].missionID : null;
-		}
-		
-		
+		let missionID = await getActiveMissionIdForBot(conn, data.botID);
 
+		if(missionID === null){
+			throw new Error(`No active mission found for hotspot from bot ${data.botID}`);
+		}
+
+		
 		const hotspotQuery =
 			'INSERT INTO hotspot (missionID, botID, detectedAt, latitude, longitude, altitude, notes) VALUES (?, ?, ?, ?, ?, ?, ?)';
 
@@ -663,8 +685,8 @@ async function getActiveMissionIdForBot(conn, botID) {
          FROM mission m
          JOIN bot_mission_assignment bma ON m.missionID = bma.missionID
          WHERE bma.botID = ?
-           AND m.timeStart IS NOT NULL
-           AND m.timeEnd IS NULL
+		 AND m.timeStart IS NOT NULL
+		 AND m.timeEnd IS NULL
          LIMIT 1`,
         [botID]
     );
