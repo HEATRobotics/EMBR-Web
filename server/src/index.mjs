@@ -17,7 +17,7 @@ const httpServer = createServer(app);
 const io = new Server(httpServer, {
     cors: {
         origin: serverConfig.corsOrigin,
-        methods: ['GET', 'POST', 'DELETE', 'PUT'],
+        methods: ['GET', 'POST', 'DELETE', 'PUT', 'PATCH'],
         credentials: true
     }
 });
@@ -25,7 +25,7 @@ const io = new Server(httpServer, {
 // Middleware
 app.use(cors({
     origin: serverConfig.corsOrigin,
-    methods: 'GET,POST,DELETE,PUT',
+    methods: 'GET,POST,DELETE,PUT,PATCH',
     credentials: true
 }));
 app.use(express.json()); 

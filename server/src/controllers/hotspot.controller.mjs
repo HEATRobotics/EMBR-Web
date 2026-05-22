@@ -1,7 +1,8 @@
 import {
     getAllHotspots,
     getHotspotByID,
-    getTemperatureByHotspotID
+    getTemperatureByHotspotID,
+    updateHotspotStatus
 } from '../services/database.service.mjs';
 
 export async function fetchTemperaturesByHotspotID(req, res){
@@ -33,6 +34,20 @@ export async function fetchHotspotsByID(req, res){
         const hotspot = await getHotspotByID(id);
         if (!hotspot) return res.status(404).json({ error: 'Hotspot not found' });
         res.json(hotspot);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+}
+export async function updateHotspotStatusController(req, res){
+    try{
+        const {id} = req.params;
+        const {status} = req.body;
+        if (!['unresolved','resolved'].includes(status)){
+            return res.status(400).json({ error: 'Invalid status value'});
+        }
+        const success = await updateHotspotStatus(id, status);
+        if (!success) return res.status(404).json({ error: 'Hotspot not found' });
+        res.json({ message: 'Hotspot status updated successfully', status });
     } catch (error) {
         res.status(500).json({ error: error.message });
     }

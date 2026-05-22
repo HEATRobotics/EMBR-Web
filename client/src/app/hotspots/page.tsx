@@ -24,7 +24,6 @@ export default function Hotspots() {
 };
 
   // Collect all hotspots from all missions
- //const { hotspots, hotspotsLoading, hotspotError } = useHotspots();
   const { hotspots, hotspotsLoading, hotspotError} = useHotspots(); 
   const { missionsData } = useMissions();
  const allHotspots: HotspotListItem[] = hotspots.map((hotspot)=>{
@@ -66,11 +65,11 @@ export default function Hotspots() {
           </div>
           <div className="bg-white p-6 rounded-lg shadow border-l-3">
             <h3 className="text-gray-600 text-sm">Unresolved</h3>
-            <p className="text-3xl font-bold mt-2 text-red-600">0</p>
+            <p className="text-3xl font-bold mt-2 text-red-600">{allHotspots.filter(h => h.status === 'unresolved').length}</p>
           </div>
           <div className="bg-white p-6 rounded-lg shadow border-l-3">
             <h3 className="text-gray-600 text-sm">Resolved</h3>
-            <p className="text-3xl font-bold mt-2 text-green-600">0</p>
+            <p className="text-3xl font-bold mt-2 text-green-600">{allHotspots.filter(h => h.status === 'resolved').length}</p>
           </div>
         </div>
 
@@ -139,7 +138,7 @@ export default function Hotspots() {
                       </tr>
                     ) : (
                       allHotspots.map((hotspot) => (
-                        <tr key={`${hotspot.missionIdx}-${hotspot.hotspotIdx}`} className="border-t hover:bg-gray-50">
+                        <tr key={`${hotspot.id}-${hotspot.id}`} className="border-t hover:bg-gray-50">
                           <td className="px-4 py-3 font-medium">{hotspot.displayName}</td>
                           <td className="px-4 py-3">{hotspot.averageTemperature}</td>
                           <td className="px-4 py-3">{hotspot.missionName}</td>

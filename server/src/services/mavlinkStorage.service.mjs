@@ -46,8 +46,8 @@ export async function storeMavlinkData(data, io) {
         if(data.finalize && data.hotspotID){
             const hotspot = await getHotspotByID(data.hotspotID);
             const temperature = await getTemperatureByHotspotID(data.hotspotID);
-            if(temperature && temperature.length == 10){
-                io.emit('hotspot.created', { ...hotspot, temperatures: temperature });
+            if(hotspot && temperature && temperature.length == 10){
+                io.emit('hotspot:created', { ...hotspot, temperatures: temperature });
             }
 
         }
@@ -59,13 +59,12 @@ export async function storeMavlinkData(data, io) {
         
         const res = await insertHotspotData(newHotspotData);
 
+
   // Log so you can see it in the server console
         console.log("HOTSPOT CREATED:", { ... newHotspotData, hotspotID: res?.hotspotID });
 
-  // Emit so clients can see it instantly
-        if (res?.hotspotID) {
-            io.emit('hotspot:created', { ...newHotspotData, id: res.hotspotID,hotspotID: res.hotspotID });
-        } else {
+
+        if (!res?.hotspotID){
             io.emit('hotspot:create_failed', { ...newHotspotData, result: res });
         }
 
