@@ -90,8 +90,8 @@ setupSocketHandlers(io);
 setStoreMavlinkDataCallback((data) => storeMavlinkData(data, io));
 
 // Start MAVLink data simulation
-handleMavlinkData();      // for real data
-// simulateMavlinkData();       // for simulated data
+//handleMavlinkData();      // for real data
+simulateMavlinkData();       // for simulated data
 
 
 // Start server
