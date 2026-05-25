@@ -65,7 +65,9 @@ export async function storeMavlinkData(data, io) {
 
   // Emit so clients can see it instantly
         if (res?.hotspotID) {
-            io.emit('hotspot:created', { ...newHotspotData, hotspotID: res.hotspotID });
+            // Fetch the full hotspot row (with averageTemperature) and emit that
+            const fullHotspot = await getHotspotByID(res.hotspotID);
+            io.emit('hotspot:created', { ...fullHotspot });
         } else {
             console.error('ERROR: hotspot:create_failed', { ...newHotspotData, result: res });
         }

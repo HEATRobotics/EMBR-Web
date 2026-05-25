@@ -13,6 +13,7 @@ import { useHotspots } from '@/hooks/useHotspots';
 
 export default function Hotspots() {
   const [viewMode, setViewMode] = useState<'map' | 'list'>('map');
+  const [activeFilter, setActiveFilter] = useState<'all' | 'unresolved' | 'resolved'>('all');
 
   //UI fields added to HotspotType for display purposes
   type HotspotListItem = HotspotType & {
@@ -23,11 +24,13 @@ export default function Hotspots() {
   displayTime: string;
 };
 
+
   // Collect all hotspots from all missions
   const { hotspots, hotspotsLoading, hotspotError} = useHotspots(); 
   const { missionsData } = useMissions();
  const allHotspots: HotspotListItem[] = hotspots.map((hotspot)=>{
     const detectedDate = new Date(hotspot.detectedAt);
+  
   
 
   const missionName =
@@ -42,7 +45,10 @@ export default function Hotspots() {
           typeof window !== 'undefined'
           ? localStorage.getItem(`hotspot-name-${hotspot.id}`) ?? `Hotspot #${hotspot.id}`
           : `Hotspot #${hotspot.id}`,
-          averageTemperature: hotspot.averageTemperature != null ? hotspot.averageTemperature : 'N/A',
+          averageTemperature:
+            hotspot.averageTemperature != null && !isNaN(Number(hotspot.averageTemperature))
+              ? Number(hotspot.averageTemperature).toFixed(2)
+              : 'N/A',
           displayDate: detectedDate.toLocaleDateString(),
           displayTime: detectedDate.toLocaleTimeString([], {
             hour: '2-digit',
@@ -51,6 +57,10 @@ export default function Hotspots() {
         };
         });
   const totalHotspots = allHotspots.length;
+  const filteredHotspots = allHotspots.filter((hotspot)=>{
+    if (activeFilter === 'all') return true;
+    return hotspot.status === activeFilter;
+  })
 
   return (
     <div className="bg-gray-100 min-h-screen pt-10">
@@ -78,7 +88,7 @@ export default function Hotspots() {
             <button
               onClick={() => setViewMode('map')}
               className={`px-4 py-2 rounded-md ${
-                viewMode === 'map' ? 'bg-brand-orange text-brand-white' : 'border hover:bg-gray-100'
+                viewMode === 'map' ? 'bg-brand-orange text-brand-white' : 'border hover:bg-white/5 transition-colors duration-200'
               }`}
             >
               Map View
@@ -86,7 +96,7 @@ export default function Hotspots() {
             <button
               onClick={() => setViewMode('list')}
               className={`px-4 py-2 rounded-md ${
-                viewMode === 'list' ? 'bg-brand-orange text-brand-white' : 'border hover:bg-gray-100'
+                viewMode === 'list' ? 'bg-brand-orange text-brand-white' : 'border hover:bg-white/5 transition-colors duration-200'
               }`}
             >
               List View
@@ -96,9 +106,30 @@ export default function Hotspots() {
         {/* Filters */}
         <div className="bg-white rounded-lg shadow mb-6">
           <div className="flex border-b">
-            <button className="px-6 py-3 border-b-2 border-orange-600 font-semibold">All</button>
-            <button className="px-6 py-3 text-gray-600 hover:text-gray-900">Unresolved</button>
-            <button className="px-6 py-3 text-gray-600 hover:text-gray-900">Resolved</button>
+            <button 
+              onClick ={() =>setActiveFilter('all')} 
+              className={`px-6 py-3 border-b-2 font-semibold ${
+              activeFilter==='all' ? 'border-b-2 border-orange-600' : 'text-gray-600 hover:text-gray-900'
+              }`}
+            >
+              All
+            </button>
+            <button 
+              onClick={() => setActiveFilter('unresolved')} 
+              className={`px-6 py-3 border-b-2 font-semibold ${
+              activeFilter==='unresolved' ? 'border-b-2 border-orange-600' : 'text-gray-600 hover:text-gray-900'
+              }`}
+            >
+              Unresolved
+            </button>
+            <button 
+              onClick={() => setActiveFilter('resolved')} 
+              className={`px-6 py-3 border-b-2 font-semibold ${
+              activeFilter==='resolved' ? 'border-b-2 border-orange-600' : 'text-gray-600 hover:text-gray-900'
+              }`}
+            >
+              Resolved
+            </button>
           </div>
         </div>
 
@@ -130,15 +161,15 @@ export default function Hotspots() {
                     </tr>
                   </thead>
                   <tbody>
-                    {allHotspots.length === 0 ? (
+                    {filteredHotspots.length === 0 ? (
                       <tr>
                         <td colSpan={5} className="px-4 py-8 text-center text-gray-500">
                           No hotspots detected yet
                         </td>
                       </tr>
                     ) : (
-                      allHotspots.map((hotspot) => (
-                        <tr key={`${hotspot.id}-${hotspot.id}`} className="border-t hover:bg-gray-50">
+                      filteredHotspots.map((hotspot) => (
+                        <tr key={hotspot.id} className="border-t hover:bg-white/5 transition-colors duration-200">
                           <td className="px-4 py-3 font-medium">{hotspot.displayName}</td>
                           <td className="px-4 py-3">{hotspot.averageTemperature}</td>
                           <td className="px-4 py-3">{hotspot.missionName}</td>

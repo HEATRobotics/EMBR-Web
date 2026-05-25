@@ -351,6 +351,7 @@ function processGlobalPositionMessage(data) {
 const tempCounters = {};
 const currentHotspotID = {}; 
 const latestGPS = {};
+let currentMissionID = null;
 // declare constant gps data
 async function processTemperatureMessage(data) {
    const botID = data.id ?? 1;
