@@ -208,20 +208,16 @@ export default function HotspotDetail() {
                   </span>
                 </div>
                 <div>
-                  <p className="text-sm text-gray-600">Current Temperature</p>
-                  <p className="text-2xl font-bold">N/A</p>
+                  <p className="text-sm text-gray-600">Average Temperature</p>
+                  <p className="text-2xl font-bold">{avgTemp !== null ? `${avgTemp.toFixed(2)}°F` : 'N/A'}</p>
                 </div>
                 <div>
                   <p className="text-sm text-gray-600">First Detected</p>
-                  <p>N/A</p>
-                </div>
-                <div>
-                  <p className="text-sm text-gray-600">Last Updated</p>
-                  <p>N/A</p>
+                  <p>{hotspot.detectedAt ? new Date(hotspot.detectedAt).toLocaleString() : 'N/A'}</p>
                 </div>
                 <div>
                   <p className="text-sm text-gray-600">Status</p>
-                  <p className="font-semibold">New</p>
+                  <p className="font-semibold">{hotspot.status}</p>
                 </div>
               </div>
             </div>
@@ -231,30 +227,13 @@ export default function HotspotDetail() {
               <h2 className="text-xl font-semibold mb-4">Mission Info</h2>
               <div className="space-y-2">
                 <p>
-                  <span className="text-sm text-gray-600">Mission:</span> N/A
+                  <span className="text-sm text-gray-600">Mission:</span> <span className="font-semibold">{hotspot.missionName}</span>
                 </p>
                 <p>
-                  <span className="text-sm text-gray-600">Bot:</span> N/A
+                  <span className="text-sm text-gray-600">Bot:</span> <span className="font-semibold">{hotspot.botID}</span>
                 </p>
               </div>
             </div>
-
-            {/* Assignment */}
-            <div className="bg-white rounded-lg shadow p-6">
-              <h2 className="text-xl font-semibold mb-4">Field Assignment</h2>
-              <div className="space-y-3">
-                <div>
-                  <label className="block text-sm font-medium mb-2">Assign to Team Member</label>
-                  <select className="w-full px-4 py-2 border rounded-md">
-                    <option>Select member...</option>
-                  </select>
-                </div>
-                <button className="w-full px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700">
-                  Assign
-                </button>
-              </div>
-            </div>
-
             {/* Notes */}
             <div className="bg-white rounded-lg shadow p-6">
               <h2 className="text-xl font-semibold mb-4">Notes</h2>
@@ -267,14 +246,6 @@ export default function HotspotDetail() {
                 Save Notes
               </button>
             </div>
-          </div>
-        </div>
-
-        {/* Action Log */}
-        <div className="mt-6 bg-white rounded-lg shadow p-6">
-          <h2 className="text-xl font-semibold mb-4">Action Log</h2>
-          <div className="text-gray-500">
-            <p>No actions recorded yet</p>
           </div>
         </div>
       </main>

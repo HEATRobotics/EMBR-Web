@@ -9,6 +9,7 @@
     id: number;
     botID: number;
     missionID:number | null;
+    missionName?: string | null;
     detectedAt: number;
     latitude?: number | string;
     longitude?: number | string;
@@ -43,6 +44,7 @@
       id: hotspot.id,
       botID: hotspot.botID,
       missionID: hotspot.missionID,
+      missionName: hotspot.missionName ?? 'N/A',
       detectedAt: hotspot.detectedAt,
       latitude: Number(hotspot.latitude ?? 0),
       longitude: Number(hotspot.longitude ?? 0),

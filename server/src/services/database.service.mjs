@@ -473,6 +473,7 @@ export async function getAllHotspots() {
 				h.id,
 				h.botID,
 				h.missionID,
+				m.missionName AS missionName,
 				h.detectedAt,
 				h.latitude,
 				h.longitude,
@@ -480,6 +481,8 @@ export async function getAllHotspots() {
 				h.status,
 				AVG(t.temperature) AS averageTemperature
 			FROM hotspot h
+			LEFT JOIN mission m
+				ON h.missionID=m.missionID
 			LEFT JOIN temperature t
 				ON t.hotspotID=h.id
 			GROUP BY
@@ -550,6 +553,7 @@ export async function getHotspotByID(hotspotID) {
 		h.id,
 		h.botID,
 		h.missionID,
+		m.missionName AS missionName,
 		h.detectedAt,
 		h.latitude,
 		h.longitude,
@@ -557,18 +561,22 @@ export async function getHotspotByID(hotspotID) {
 		h.status,
 		AVG(t.temperature) AS averageTemperature
 		FROM hotspot h
+		LEFT JOIN mission m
+		ON h.missionID=m.missionID
 		LEFT JOIN temperature t ON t.hotspotID = h.id
-		WHERE h.id = ?
+		WHERE h.id=?
 		GROUP BY
 		h.id,
 		h.botID,
 		h.missionID,
+		m.missionName,
 		h.detectedAt,
 		h.latitude,
 		h.longitude,
 		h.altitude,
 		h.status
-		LIMIT 1`,
+		ORDER BY h.detectedAt DESC
+		LIMIT 1;`,
       [hotspotID]
     );
     return rows?.[0] ?? null;

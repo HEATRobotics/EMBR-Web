@@ -28,34 +28,31 @@ export default function Hotspots() {
   // Collect all hotspots from all missions
   const { hotspots, hotspotsLoading, hotspotError} = useHotspots(); 
   const { missionsData } = useMissions();
- const allHotspots: HotspotListItem[] = hotspots.map((hotspot)=>{
-    const detectedDate = new Date(hotspot.detectedAt);
-  
-  
+  const uniqueHotspots=Array.from(new Map(hotspots.map(h => [h.id, h])).values()); // Remove duplicates based on hotspot ID
+const allHotspots: HotspotListItem[] = uniqueHotspots.map((hotspot) => {
+  const detectedDate = new Date(hotspot.detectedAt);
 
   const missionName =
-    missionsData?.find(
-      (mission)=>mission.missionID===hotspot.missionID
-    )?.missionName ?? 'N/A';
+    hotspot.missionName ?? 'N/A';
 
-        return {
-          ...hotspot,
-          missionName,
-          displayName:
-          typeof window !== 'undefined'
-          ? localStorage.getItem(`hotspot-name-${hotspot.id}`) ?? `Hotspot #${hotspot.id}`
-          : `Hotspot #${hotspot.id}`,
-          averageTemperature:
-            hotspot.averageTemperature != null && !isNaN(Number(hotspot.averageTemperature))
-              ? Number(hotspot.averageTemperature).toFixed(2)
-              : 'N/A',
-          displayDate: detectedDate.toLocaleDateString(),
-          displayTime: detectedDate.toLocaleTimeString([], {
-            hour: '2-digit',
-            minute: '2-digit',
-          }),
-        };
-        });
+  return {
+    ...hotspot,
+    missionName,
+    displayName:
+      typeof window !== 'undefined'
+        ? localStorage.getItem(`hotspot-name-${hotspot.id}`) ?? `Hotspot #${hotspot.id}`
+        : `Hotspot #${hotspot.id}`,
+    averageTemperature:
+      hotspot.averageTemperature != null && !isNaN(Number(hotspot.averageTemperature))
+        ? Number(hotspot.averageTemperature).toFixed(2)
+        : 'N/A',
+    displayDate: detectedDate.toLocaleDateString(),
+    displayTime: detectedDate.toLocaleTimeString([], {
+      hour: '2-digit',
+      minute: '2-digit',
+    }),
+  };
+});
   const totalHotspots = allHotspots.length;
   const filteredHotspots = allHotspots.filter((hotspot)=>{
     if (activeFilter === 'all') return true;
@@ -97,7 +94,7 @@ export default function Hotspots() {
               onClick={() => setViewMode('list')}
               className={`px-4 py-2 rounded-md ${
                 viewMode === 'list' ? 'bg-brand-orange text-brand-white' : 'border hover:bg-white/5 transition-colors duration-200'
-              }`}
+              }`} 
             >
               List View
             </button>
@@ -169,6 +166,7 @@ export default function Hotspots() {
                       </tr>
                     ) : (
                       filteredHotspots.map((hotspot) => (
+                       
                         <tr key={hotspot.id} className="border-t hover:bg-white/5 transition-colors duration-200">
                           <td className="px-4 py-3 font-medium">{hotspot.displayName}</td>
                           <td className="px-4 py-3">{hotspot.averageTemperature}</td>
@@ -191,14 +189,13 @@ export default function Hotspots() {
             )}
           </div>
         </div>
-
         {/* Export Options */}
         <div className="mt-6 flex justify-end gap-2">
           <button className="px-6 py-2 border rounded-md hover:bg-gray-100">Export CSV</button>
-          <button className="px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700">
-            Export Report
-          </button>
-        </div>
+            <button className="px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700">
+              Export Report
+            </button>
+          </div>
       </main>
     </div>
   );

@@ -10,6 +10,7 @@ export interface HotspotType {
   id: number;
  botID: number;
   missionID: number | null;
+  missionName?: string | null;
   detectedAt: number;
   latitude: number;
   longitude: number;
